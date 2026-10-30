@@ -179,6 +179,10 @@ button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid
 .pbox{margin-top:8px;padding:16px 18px;border:1px dashed var(--line);border-radius:12px;display:flex;flex-direction:column;gap:12px}
 .pbox label{display:flex;gap:10px;align-items:center;cursor:pointer;color:var(--text)}
 .pbox input{width:22px;height:22px;accent-color:var(--ice)}
+.pbox.backup .eyebrow{margin:0}
+.pbox.backup p{margin:0}
+.bk-row{display:flex;flex-wrap:wrap;gap:10px}
+#bk-msg{color:var(--text);min-height:1.2em}
 
 /* ---------- Briefing ---------- */
 .brief{max-width:880px;align-items:stretch}
@@ -2752,6 +2756,17 @@ function renderParents(){
       <div><button class="btn btn-ghost btn-small" id="btn-reset">Fortschritt zurücksetzen</button></div>
       <p>Fortschritt wird nur auf diesem Gerät gespeichert. Es werden keine Daten übertragen.</p>
     </div></div>
+    <div class="parents"><div class="pbox backup">
+      <p class="eyebrow">Sicherung</p>
+      <p>Speichert Name, Fortschritt, Wochenplan, Einstellungen und Coach-Aufnahmen als Datei. Damit lässt sich der Stand nach einem Gerätewechsel oder Datenverlust wiederherstellen.</p>
+      <label for="bk-music"><input type="checkbox" id="bk-music" checked> Eigene Musik mitsichern (Datei wird grösser)</label>
+      <div class="bk-row">
+        <button class="btn btn-primary btn-small" id="btn-backup">Sicherung erstellen</button>
+        <button class="btn btn-ghost btn-small" id="btn-restore">Sicherung wiederherstellen</button>
+        <input type="file" id="bk-file" accept=".json,application/json" hidden>
+      </div>
+      <p id="bk-msg" aria-live="polite"></p>
+    </div></div>
   </div>`;
   bindPlanner();
   $('testmode').onchange = e => { settings.speed = e.target.checked ? 10 : 1; };
@@ -2760,6 +2775,83 @@ function renderParents(){
     if (reset.dataset.armed){
       progress.xp = 0; progress.completed = 0; progress.last = null; progress.log = []; progress.badges = {}; progress.cards = []; progress.quests = {}; progress.weekBonus = {}; saveProgress(); renderParents();
     } else { reset.dataset.armed = '1'; reset.textContent = 'Wirklich zurücksetzen? Nochmals tippen'; }
+  };
+  bindBackup();
+}
+
+/* ---- Eltern: Sicherung erstellen und wiederherstellen ----
+   Sichert alle lokalen APC-Daten (localStorage-Schlüssel «apc.*») und auf Wunsch die eigene Musik (IndexedDB)
+   in eine JSON-Datei. Die Datei bleibt beim Nutzer, es wird nichts übertragen. */
+const Backup = (() => {
+  const FORMAT = 'apc-backup', VERSION = 1;
+  const blobToDataURL = b => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsDataURL(b); });
+  const dataURLToBlob = async u => (await fetch(u)).blob();
+  const musicDB = () => new Promise((res, rej) => { try { const r = indexedDB.open('apc-music', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('tracks', { keyPath:'id' });
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); } catch(e){ rej(e); } });
+  const musicTx = (mode, fn) => musicDB().then(db => new Promise((res, rej) => {
+    const t = db.transaction('tracks', mode), st = t.objectStore('tracks'); const out = fn(st);
+    t.oncomplete = () => { db.close(); res(out && out.result); }; t.onerror = () => { db.close(); rej(t.error); }; }));
+  async function create(withMusic){
+    const data = {};
+    for (let i = 0; i < localStorage.length; i++){ const k = localStorage.key(i); if (k && k.startsWith('apc.')) data[k] = localStorage.getItem(k); }
+    let music = null;
+    if (withMusic){
+      music = [];
+      const all = await musicTx('readonly', st => st.getAll()).catch(() => []);
+      for (const r of (all || [])) music.push({ id:r.id, name:r.name, added:r.added, data:await blobToDataURL(r.blob) });
+    }
+    return { format:FORMAT, version:VERSION, created:new Date().toISOString(), player:PROFILE.name, data, music };
+  }
+  async function restore(b){
+    if (!b || b.format !== FORMAT || typeof b.data !== 'object') throw new Error('Das ist keine APC-Sicherung.');
+    if (b.version > VERSION) throw new Error('Diese Sicherung stammt aus einer neueren App-Version.');
+    const old = []; for (let i = 0; i < localStorage.length; i++){ const k = localStorage.key(i); if (k && k.startsWith('apc.')) old.push(k); }
+    old.forEach(k => localStorage.removeItem(k));
+    for (const [k, v] of Object.entries(b.data)) if (k.startsWith('apc.') && typeof v === 'string') localStorage.setItem(k, v);
+    if (Array.isArray(b.music)){   // nur ersetzen, wenn die Sicherung Musik enthält
+      const tracks = [];
+      for (const m of b.music){ try { tracks.push({ id:m.id || (Date.now() + '-' + Math.random().toString(36).slice(2)), name:m.name || 'Track', added:m.added || Date.now(), blob:await dataURLToBlob(m.data) }); } catch(e){} }
+      await musicTx('readwrite', st => { st.clear(); tracks.forEach(t => st.put(t)); });
+    }
+  }
+  return { create, restore };
+})();
+
+function bindBackup(){
+  const msg = t => { const m = $('bk-msg'); if (m) m.textContent = t; };
+  $('btn-backup').onclick = async () => {
+    msg('Sicherung wird erstellt …');
+    try {
+      const b = await Backup.create($('bk-music').checked);
+      const d = new Date(), pad = n => String(n).padStart(2, '0');
+      const name = `APC-Sicherung-${(PROFILE.name || 'Champ').replace(/[^\wÀ-ž-]+/g, '')}-${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}.json`;
+      const file = new File([JSON.stringify(b)], name, { type:'application/json' });
+      if (navigator.canShare && navigator.canShare({ files:[file] })){
+        try { await navigator.share({ files:[file], title:'APC-Sicherung' }); msg(`Gesichert: ${name}. Tipp: In «Dateien» oder iCloud Drive ablegen.`); return; }
+        catch(e){ if (e && e.name === 'AbortError'){ msg('Sicherung abgebrochen.'); return; } }
+      }
+      const url = URL.createObjectURL(file), a = document.createElement('a');
+      a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      msg(`Gesichert: ${name} (im Download-Ordner).`);
+    } catch(e){ msg('Sicherung fehlgeschlagen: ' + (e && e.message || e)); }
+  };
+  const restoreBtn = $('btn-restore'), input = $('bk-file');
+  restoreBtn.onclick = () => { input.value = ''; input.click(); };
+  input.onchange = async () => {
+    const f = input.files && input.files[0]; if (!f) return;
+    try {
+      const b = JSON.parse(await f.text());
+      if (!b || b.format !== 'apc-backup') throw new Error('Das ist keine APC-Sicherung.');
+      const when = b.created ? new Date(b.created).toLocaleString('de-CH', { dateStyle:'medium', timeStyle:'short' }) : 'unbekannt';
+      const who = b.player ? ` von ${b.player}` : '';
+      if (!confirm(`Sicherung${who} vom ${when} wiederherstellen?\n\nDer aktuelle Stand auf diesem Gerät wird dabei ersetzt.`)) { msg('Wiederherstellen abgebrochen.'); return; }
+      msg('Wird wiederhergestellt …');
+      await Backup.restore(b);
+      msg('Wiederhergestellt. App startet neu …');
+      setTimeout(() => location.reload(), 600);
+    } catch(e){ msg('Wiederherstellen fehlgeschlagen: ' + (e && e.message || e)); }
   };
 }
 let recState = null;
