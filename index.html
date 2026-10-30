@@ -2759,7 +2759,6 @@ function renderParents(){
     <div class="parents"><div class="pbox backup">
       <p class="eyebrow">Sicherung</p>
       <p>Speichert Name, Fortschritt, Wochenplan, Einstellungen und Coach-Aufnahmen als Datei. Damit lässt sich der Stand nach einem Gerätewechsel oder Datenverlust wiederherstellen.</p>
-      <label for="bk-music"><input type="checkbox" id="bk-music" checked> Eigene Musik mitsichern (Datei wird grösser)</label>
       <div class="bk-row">
         <button class="btn btn-primary btn-small" id="btn-backup">Sicherung erstellen</button>
         <button class="btn btn-ghost btn-small" id="btn-restore">Sicherung wiederherstellen</button>
@@ -2823,7 +2822,7 @@ function bindBackup(){
   $('btn-backup').onclick = async () => {
     msg('Sicherung wird erstellt …');
     try {
-      const b = await Backup.create($('bk-music').checked);
+      const b = await Backup.create(false);
       const d = new Date(), pad = n => String(n).padStart(2, '0');
       const name = `APC-Sicherung-${(PROFILE.name || 'Champ').replace(/[^\wÀ-ž-]+/g, '')}-${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}.json`;
       const file = new File([JSON.stringify(b)], name, { type:'application/json' });
