@@ -2826,7 +2826,7 @@ function renderParents(){
       <p class="pnote">${(() => { const t = lastTest(); if (!t) return 'Noch kein Testtag gemacht – im Mission Center erscheint «Test fällig».'; const due = new Date(Date.parse(t.at) + testDays() * 864e5); return `Letzter Testtag am ${fmtDate(t.at)} · nächster fällig ab ${fmtDate(due.toISOString())}.`; })()}</p>
       <label for="testmode"><input type="checkbox" id="testmode" ${settings.speed > 1 ? 'checked' : ''}> Testmodus: Mission läuft 10× schneller</label>
       <div><button class="btn btn-ghost btn-small" id="btn-reset">Fortschritt zurücksetzen</button></div>
-      <p>Fortschritt wird nur auf diesem Gerät gespeichert. Es werden keine Daten übertragen.</p>
+      <p>Alle Daten bleiben nur auf diesem Gerät, es wird nichts übertragen. Für einen Gerätewechsel unten eine Sicherung erstellen.</p>
     </div></div>
     <div class="parents"><div class="pbox backup">
       <p class="eyebrow">Sicherung</p>
