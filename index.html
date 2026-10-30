@@ -641,6 +641,12 @@ body.voice-off .stage .coach p{font-size:clamp(1.4rem,3.6vw,2rem)}
 .mc2-quest.done{border-color:#2C6B52}
 .mc2-quest p{font-size:1.02rem}
 .mc2-side .test-banner{margin:0}
+.mc2-testdue{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:16px 20px;border-radius:20px;border:1px solid var(--gold);background:var(--panel);color:var(--gold);font:inherit;font-family:var(--f-display);font-weight:800;font-size:1.35rem;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.mc2-testdue:active{transform:scale(.98)}
+.mc2-week{max-width:none}
+.pday.ro{cursor:default;min-height:96px}
+.pselect{font:inherit;color:var(--text);background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:6px 10px;min-height:40px}
+.pnote{margin:0;font-size:.9rem}
 .mc2-side .trophy-btn{width:100%}
 .hub{width:100%;display:flex;flex-direction:column;gap:16px}
 .hub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
@@ -1779,7 +1785,8 @@ const store = {
 const settings = Object.assign({ music:true, sfx:true, voice:true, musicStyle:'track:face-off', voiceName:'' }, store.get('apc.settings.v1', {}));
 settings.speed = 1;
 const progress = Object.assign({ xp:0, completed:0, last:null, log:[], badges:{}, cards:[], records:{}, tests:[], season:null, prCount:0, titles:0 }, store.get('apc.progress.v1', {}));
-const saveSettings = () => store.set('apc.settings.v1', { musicAuto:settings.musicAuto, music:settings.music, sfx:settings.sfx, voice:settings.voice, musicStyle:settings.musicStyle, voiceName:settings.voiceName });
+if (![3,4,5,6,8,10,12].includes(settings.testWeeks)) settings.testWeeks = 5;   // Test-Intervall in Wochen (Eltern-Bereich)
+const saveSettings = () => store.set('apc.settings.v1', { testWeeks:settings.testWeeks, musicAuto:settings.musicAuto, music:settings.music, sfx:settings.sfx, voice:settings.voice, musicStyle:settings.musicStyle, voiceName:settings.voiceName });
 const saveProgress = () => store.set('apc.progress.v1', progress);
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const REDUCED = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -2332,6 +2339,21 @@ function plannerHTML(){
     ${warn.length ? `<ul class="pwarn">${warn.map(w => `<li>${w}</li>`).join('')}</ul>` : ''}
   </section>`;
 }
+/* Wochenplan nur zur Ansicht (Mission Center); bearbeitet wird er im Eltern-Bereich */
+function weekViewHTML(){
+  const today = dayKey(new Date());
+  const cells = DAYS.map(([k, name, short]) => {
+    const d = week[k], m = SETS.find(x => x.id === d.set);
+    const chips = [
+      d.ice ? `<span class="pc ice">Eistraining${d.iceTime ? ' ' + d.iceTime : ''}</span>` : '',
+      d.match ? `<span class="pc game">Match${d.gameTime ? ' ' + d.gameTime : ''}</span>` : '',
+      d.tour ? `<span class="pc game">Turnier${d.gameTime && !d.match ? ' ' + d.gameTime : ''}</span>` : '',
+      m ? `<span class="pc apc load-b-${m.load}">Set ${m.n} · ${m.title}</span>` : ''
+    ].join('') || '<span class="pc rest">Ruhetag</span>';
+    return `<div class="pday ro${k === today ? ' today' : ''}"><span class="pd-name"><b>${short}</b><small>${k === today ? 'Heute' : name}</small></span><span class="pd-chips">${chips}</span></div>`;
+  }).join('');
+  return `<section class="planner mc2-week" aria-labelledby="wk-h"><div class="cab-head"><h3 id="wk-h">Wochenplan</h3></div><div class="pweek">${cells}</div></section>`;
+}
 function bindPlanner(){
   const host = document.querySelector('.planner'); if (!host) return;
   const redraw = () => { const sc = $('screen-parents'), y = sc.scrollTop; renderParents(); sc.scrollTop = y; };
@@ -2643,6 +2665,7 @@ function renderCenter(){
         ${testBannerHTML(false)}
       </aside>
     </div>
+    ${weekViewHTML()}
   </div>`;
   const fig = today.done ? today.m : renderCenter.rec;
   if (fig) Anim.mount($('mc2-fig'), fig.demo);
@@ -2752,6 +2775,9 @@ function renderParents(){
     <div class="tr-head"><div><p class="eyebrow">Eltern</p><h1>Eltern-Bereich</h1></div></div>
     ${plannerHTML()}
     <div class="parents"><div class="pbox">
+      <div class="pe-row"><label for="test-weeks" class="pe-lbl">Testtag alle</label>
+        <select id="test-weeks" class="pselect">${[3,4,5,6,8,10,12].map(n => `<option value="${n}" ${settings.testWeeks === n ? 'selected' : ''}>${n} Wochen</option>`).join('')}</select></div>
+      <p class="pnote">${(() => { const t = lastTest(); if (!t) return 'Noch kein Testtag gemacht – im Mission Center erscheint «Test fällig».'; const due = new Date(Date.parse(t.at) + testDays() * 864e5); return `Letzter Testtag am ${fmtDate(t.at)} · nächster fällig ab ${fmtDate(due.toISOString())}.`; })()}</p>
       <label for="testmode"><input type="checkbox" id="testmode" ${settings.speed > 1 ? 'checked' : ''}> Testmodus: Mission läuft 10× schneller</label>
       <div><button class="btn btn-ghost btn-small" id="btn-reset">Fortschritt zurücksetzen</button></div>
       <p>Fortschritt wird nur auf diesem Gerät gespeichert. Es werden keine Daten übertragen.</p>
@@ -2768,6 +2794,7 @@ function renderParents(){
     </div></div>
   </div>`;
   bindPlanner();
+  $('test-weeks').onchange = e => { settings.testWeeks = +e.target.value; saveSettings(); const y = $('screen-parents').scrollTop; renderParents(); $('screen-parents').scrollTop = y; };
   $('testmode').onchange = e => { settings.speed = e.target.checked ? 10 : 1; };
   const reset = $('btn-reset');
   reset.onclick = () => {
@@ -3528,14 +3555,15 @@ function bindBack(root){ root.querySelectorAll('[data-back]').forEach(b => b.onc
 
 /* ---------- Testtag ---------- */
 const lastTest = () => { const T = progress.tests || []; return T.length ? T[T.length - 1] : null; };
-function testDue(){ const t = lastTest(); if (!t) return { due:true, first:true }; const days = (Date.now() - Date.parse(t.at)) / 864e5; return { due:days >= 35, days:Math.floor(days) }; }
+const testDays = () => settings.testWeeks * 7;
+function testDue(){ const t = lastTest(); if (!t) return { due:true, first:true }; const days = (Date.now() - Date.parse(t.at)) / 864e5; return { due:days >= testDays(), days:Math.floor(days) }; }
 function testBannerHTML(inRecords){
   const d = testDue(), t = lastTest();
-  if (!inRecords && !d.due) return '';
+  if (!inRecords) return d.due ? `<button class="mc2-testdue" id="btn-testday">Test fällig <span class="arrow" aria-hidden="true"></span></button>` : '';
   return `<article class="test-banner${d.due ? ' due' : ''}">
     <div><p class="eyebrow">${d.due ? (d.first ? 'Startwerte festhalten' : 'Testtag fällig') : 'Testtag'}</p>
-      <b>${d.first ? 'Erster Testtag' : d.due ? 'Zeit für den nächsten Testtag' : 'Nächster Testtag in ' + Math.max(1, 35 - d.days) + ' Tagen'}</b>
-      <p class="muted">${d.first ? '6 kurze Tests als Startpunkt. Alle 5 bis 6 Wochen wiederholen und sehen, wie du besser wirst.' : t ? 'Letzter Test am ' + fmtDate(t.at) + '. Vergleiche deine Werte mit damals.' : ''}</p></div>
+      <b>${d.first ? 'Erster Testtag' : d.due ? 'Zeit für den nächsten Testtag' : 'Nächster Testtag in ' + Math.max(1, testDays() - d.days) + ' Tagen'}</b>
+      <p class="muted">${d.first ? `6 kurze Tests als Startpunkt. Alle ${settings.testWeeks} Wochen wiederholen und sehen, wie du besser wirst.` : t ? 'Letzter Test am ' + fmtDate(t.at) + '. Vergleiche deine Werte mit damals.' : ''}</p></div>
     <button class="btn ${d.due ? 'btn-primary' : 'btn-ghost'} btn-small" id="${inRecords ? 'btn-testday2' : 'btn-testday'}">Testtag starten <span class="arrow" aria-hidden="true"></span></button>
   </article>`;
 }
