@@ -762,8 +762,45 @@ body.training .tabbar{display:none}
 /* Schrift mit Tiefe */
 h1,h2,.mc2-rec h2{text-shadow:0 1px 0 rgba(0,0,0,.35), 0 6px 18px rgba(0,0,0,.45)}
 @media (prefers-reduced-motion:reduce){.btn{transition:none}}
+
+/* =====================================================================
+   HELLER MODUS (White) – umschaltbar oben rechts im Mission Center
+   ===================================================================== */
+html[data-theme="light"]{
+  --panel:#FFFFFF; --panel-2:#EEF2F8; --line:#D2DBE8; --text:#0B1626; --muted:#56678A;
+  --ice:#0A78BA; --on-ice:#FFFFFF; --red:#D42A3E; --blue:#2F5BE0; --ok:#0E9C72; --gold:#A87A06;
+  --scrim:rgba(238,242,248,.94); --glass:rgba(255,255,255,.82);
+  --veil-top:rgba(240,244,250,.70); --veil-bot:rgba(240,244,250,.96); --veil-train:rgba(240,244,250,.94);
+  --lit:inset 0 1px 0 rgba(255,255,255,.9), inset 0 -1px 0 rgba(15,30,60,.06);
+  --e1:var(--lit), 0 1px 1px rgba(15,30,60,.08), 0 3px 8px -3px rgba(15,30,60,.14);
+  --e2:var(--lit), 0 1px 2px rgba(15,30,60,.08), 0 8px 18px -8px rgba(15,30,60,.18), 0 20px 36px -20px rgba(15,30,60,.22);
+  --e3:var(--lit), 0 2px 3px rgba(15,30,60,.08), 0 12px 26px -10px rgba(15,30,60,.22), 0 32px 56px -26px rgba(15,30,60,.28);
+  --sheen:linear-gradient(180deg, rgba(255,255,255,.6) 0%, rgba(255,255,255,0) 40%, rgba(15,30,60,.025) 100%);
+  color-scheme:light;
+}
+html[data-theme="light"] body{background:radial-gradient(90% 60% at 15% -10%, rgba(10,120,186,.10), transparent 60%), #EEF2F7}
+html[data-theme="light"] #bg{background-color:#EEF2F7}
+html[data-theme="light"] #bg-prog::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(240,244,250,.72),rgba(240,244,250,.96))}
+html[data-theme="light"] h1,html[data-theme="light"] h2{text-shadow:0 1px 0 rgba(255,255,255,.8), 0 6px 18px rgba(15,30,60,.12)}
+html[data-theme="light"] .pc.rest{background:transparent}
+html[data-theme="light"] .btn-primary{box-shadow:inset 0 1px 0 rgba(255,255,255,.35), inset 0 -2px 0 rgba(0,0,0,.15), 0 2px 3px rgba(15,30,60,.15), 0 10px 22px -8px rgba(10,120,186,.45)}
+html[data-theme="light"] .btn-primary:hover{background:#0B1626}
+html[data-theme="light"] .mc2-feel[aria-pressed="true"]{box-shadow:inset 0 1px 0 rgba(255,255,255,.35), inset 0 -2px 0 rgba(0,0,0,.15), 0 2px 3px rgba(15,30,60,.15), 0 10px 22px -8px rgba(10,120,186,.45)}
+html[data-theme="light"] .tabbar{background:rgba(255,255,255,.7);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 -10px 24px -18px rgba(15,30,60,.35)}
+html[data-theme="light"] .tabbar button[aria-current="page"]{background:rgba(10,120,186,.10)}
+html[data-theme="light"] .toast{box-shadow:var(--e3)}
+html[data-theme="light"] .mc2-why,html[data-theme="light"] .mc2-goal p{color:#2E3D57}
+html[data-theme="light"] .mc2-chips .hoch{background:#FDE4E7;color:#B4182C}
+html[data-theme="light"] .mc2-chips .mittel{background:#FBF1D2;color:#7E5A00}
+html[data-theme="light"] .mc2-chips .niedrig{background:#DDF4EA;color:#0B7A59}
+/* Umschalter */
+#tog-theme::before{display:none}
+#tog-theme,#tog-theme[aria-pressed]{color:var(--text)}
+#tog-theme svg{width:18px;height:18px}
+html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:background-color .35s ease,color .35s ease,border-color .35s ease,box-shadow .35s ease!important}
 </style>
 
+<script>try{if(localStorage.getItem('apc.theme')==='light')document.documentElement.dataset.theme='light';}catch(e){}</script>
 <div id="bg" aria-hidden="true"></div><div id="bg-prog" aria-hidden="true"></div>
 <div id="app" lang="de">
   <header class="topbar">
@@ -774,6 +811,7 @@ h1,h2,.mc2-rec h2{text-shadow:0 1px 0 rgba(0,0,0,.35), 0 6px 18px rgba(0,0,0,.45
       <button class="tog" id="tog-sfx" aria-pressed="true" hidden>Effekte</button>
       <button class="tog" id="tog-voice" aria-pressed="true" hidden>Coach</button>
       <button class="tog" id="tog-fs" aria-pressed="false" hidden>Vollbild</button>
+      <button class="tog" id="tog-theme" aria-pressed="false" aria-label="Hellen Modus einschalten"></button>
     </div>
   </header>
   <main>
@@ -2243,6 +2281,7 @@ function show(name){
   { const tab = { center:'heute', music:'eltern', missions:'trainings', briefing:'trainings', progress:'fortschritt', card:'fortschritt', trophies:'fortschritt', records:'fortschritt', test:'fortschritt', season:'fortschritt', log:'fortschritt', parents:'eltern' }[name];
     document.querySelectorAll('#tabbar [data-tab]').forEach(b => { if (b.dataset.tab === tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }); }
   $('btn-home').hidden = (name === 'center');
+  $('tog-theme').hidden = (name !== 'center');
   // Musik läuft durchgehend auf den Ebenen Heute, Trainings, Fortschritt und Eltern (inkl. deren Unterseiten);
   // auch im Briefing; still erst ab «Mission starten» (Training) und beim Testtag. Probehören auf der Musik-Seite bleibt möglich.
   curScreen = name;
@@ -3857,6 +3896,26 @@ function syncToggles(){
 $('tog-music').onclick = () => { settings.music = !settings.music; saveSettings(); syncToggles(); Sound.unlock(); Sound.musicChanged(); };
 $('tog-sfx').onclick   = () => { settings.sfx = !settings.sfx; saveSettings(); syncToggles(); Sound.unlock(); Sound.applyVol(); };
 $('tog-voice').onclick = () => { settings.voice = !settings.voice; saveSettings(); syncToggles(); if (!settings.voice) Voice.stop(); };
+/* ---- Hell/Dunkel-Umschalter (oben rechts im Mission Center) ---- */
+const Theme = (() => {
+  const btn = $('tog-theme'), meta = document.querySelector('meta[name="theme-color"]');
+  const SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';
+  const MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>';
+  const get = () => document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+  function apply(t, animate){
+    const root = document.documentElement;
+    if (animate){ root.classList.add('theme-anim'); clearTimeout(apply._t); apply._t = setTimeout(() => root.classList.remove('theme-anim'), 450); }
+    if (t === 'light') root.dataset.theme = 'light'; else delete root.dataset.theme;
+    const light = t === 'light';
+    btn.innerHTML = (light ? MOON : SUN) + `<span>${light ? 'Dunkel' : 'Hell'}</span>`;
+    btn.setAttribute('aria-pressed', String(light));
+    btn.setAttribute('aria-label', light ? 'Dunklen Modus einschalten' : 'Hellen Modus einschalten');
+    if (meta) meta.setAttribute('content', light ? '#EEF2F7' : '#09111F');
+  }
+  btn.onclick = () => { const t = get() === 'light' ? 'dark' : 'light'; try { localStorage.setItem('apc.theme', t); } catch(e){} apply(t, true); };
+  apply(get(), false);
+  return { get, apply };
+})();
 const fsBtn = $('tog-fs');
 if (document.documentElement.requestFullscreen){
   fsBtn.hidden = false;
