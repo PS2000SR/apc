@@ -643,6 +643,8 @@ body.voice-off .stage .coach p{font-size:clamp(1.4rem,3.6vw,2rem)}
 .mc2-side .test-banner{margin:0}
 .mc2-testdue{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:16px 20px;border-radius:20px;border:1px solid var(--gold);background:var(--panel);color:var(--gold);font:inherit;font-family:var(--f-display);font-weight:800;font-size:1.35rem;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
 .mc2-testdue:active{transform:scale(.98)}
+.mc2:has(.mc2-testdue){align-items:stretch}   /* Test-Knopf füllt die Spalte bis zur Unterkante der Trainingskarte */
+.mc2-side .mc2-testdue{flex:1 1 auto;min-height:64px}
 .mc2-week{max-width:none}
 .pday.ro{cursor:default;min-height:96px}
 .pselect{font:inherit;color:var(--text);background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:6px 10px;min-height:40px}
