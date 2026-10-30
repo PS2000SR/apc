@@ -599,6 +599,7 @@ body.voice-off .stage .coach p{font-size:clamp(1.4rem,3.6vw,2rem)}
 .mc2-av{width:64px;height:64px;flex:none;border-radius:50%;background:var(--panel-2);border:2px solid var(--ice);display:grid;place-items:center;color:var(--ice)}
 .mc2-av svg{width:34px;height:34px}
 .mc2-bubble{background:var(--panel-2);border-radius:4px 20px 20px 20px;padding:14px 22px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.mc2-coach .mc2-bubble{flex:1 1 auto;border-radius:22px;border:1px solid var(--line);padding:16px 24px}   /* ohne Pfeifen-Symbol: bündig mit der Trainingskarte */
 .mc2-bubble h1{font-size:clamp(1.8rem,3.6vw,2.5rem);line-height:1;text-transform:none}
 .mc2-bubble small{color:var(--muted);font-size:.95rem}
 .mc2-ctx{display:flex;gap:8px;flex-wrap:wrap}
@@ -714,7 +715,7 @@ body.training .tabbar{display:none}
 .lg-row .st{font-weight:600}.lg-row .ok{color:var(--ok)}.lg-row .warn{color:var(--gold)}
 .lg-empty{padding:18px 0;color:var(--muted)}
 @media (max-width:620px){.lg-row{grid-template-columns:minmax(0,1fr) auto;padding-block:8px}.lg-row .lg-d{grid-column:1/-1}.lg-day{min-height:48px;padding:3px 4px;font-size:.9rem}.lg-day b{font-size:.65rem;padding:0 4px}}
-@media (max-width:620px){.mc2-rec{grid-template-columns:minmax(0,1fr);padding:20px}.mc2-art{display:none}.mc2-feel{font-size:1.15rem;min-height:84px;padding:6px}.mc2-av{width:52px;height:52px}.tabbar button{font-size:.72rem;letter-spacing:.04em}.mc2-act .btn{flex:1}}
+@media (max-width:620px){.mc2-rec{grid-template-columns:minmax(0,1fr);padding:20px}.mc2-coach .mc2-bubble{padding:14px 20px}.mc2-art{display:none}.mc2-feel{font-size:1.15rem;min-height:84px;padding:6px}.mc2-av{width:52px;height:52px}.tabbar button{font-size:.72rem;letter-spacing:.04em}.mc2-act .btn{flex:1}}
 
 
 /* =====================================================================
@@ -2648,8 +2649,7 @@ function renderCenter(){
   if (today.done){
     const nx = nextInRotation(today.m.id);
     mainHTML = `
-      <div class="mc2-coach"><div class="mc2-av">${ICO('M3 14a6 6 0 1 0 12 0V9H9a6 6 0 0 0-6 5zM15 9h6v3h-6M9 14h.01')}</div>
-        <div class="mc2-bubble"><small>Coach</small><h1>Stark, ${PROFILE.name}! Heute ist erledigt.</h1></div></div>
+      <div class="mc2-coach"><div class="mc2-bubble"><small>Coach</small><h1>Stark, ${PROFILE.name}! Heute ist erledigt.</h1></div></div>
       ${dayContextHTML()}
       <article class="mc2-rec done">
         <div class="mc2-rec-txt">
@@ -2666,8 +2666,7 @@ function renderCenter(){
   } else {
     const r = recommend(feel, today), m = r.m;
     mainHTML = `
-      <div class="mc2-coach"><div class="mc2-av">${ICO('M3 14a6 6 0 1 0 12 0V9H9a6 6 0 0 0-6 5zM15 9h6v3h-6M9 14h.01')}</div>
-        <div class="mc2-bubble"><small>Coach · ${DAYS[(new Date().getDay() + 6) % 7][1]}</small><h1>${hello} ${PROFILE.name}! Wie fühlst du dich heute?</h1></div></div>
+      <div class="mc2-coach"><div class="mc2-bubble"><small>Coach · ${DAYS[(new Date().getDay() + 6) % 7][1]}</small><h1>${hello} ${PROFILE.name}! Wie fühlst du dich heute?</h1></div></div>
       ${dayContextHTML()}
       <div class="mc2-feels" role="group" aria-label="Wie fühlst du dich?">
         ${FEELS.map(f => `<button class="mc2-feel" data-feel="${f.id}" aria-pressed="${f.id === feel}">${ICO(f.icon)}<span>${f.label}</span></button>`).join('')}
