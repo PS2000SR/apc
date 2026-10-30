@@ -374,6 +374,40 @@ button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid
 .pc-fig.photo{width:100%;height:auto;aspect-ratio:4/5;overflow:hidden;box-shadow:inset 0 0 0 2px rgba(6,18,32,.25), 0 6px 16px -6px rgba(0,0,0,.5)}
 .pc-fig.photo img{width:100%;height:100%;object-fit:cover;object-position:50% 20%;display:block}
 .pc-pick{display:flex;flex-direction:column;gap:8px}
+/* Hockey-Avatar und Editor */
+.pc-fig.avatar{background:radial-gradient(120% 90% at 50% 20%, #2A3B5C 0%, #101A2C 60%, #070C16 100%)}
+.pc-fig.avatar .hockey-av{width:100%;height:100%;display:block}
+.pc-thumb.fig{background:radial-gradient(120% 90% at 50% 20%, #2A3B5C, #070C16)}
+.pc-thumb.fig .hockey-av{width:100%;height:100%;display:block}
+.av-edit{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:14px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--e2)}
+.av-edit > .pe-lbl{margin:0;color:var(--ice)}
+.av-row{display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px;align-items:center}
+.av-row .pe-lbl{margin:0}
+.av-opts{display:flex;flex-wrap:wrap;gap:8px}
+.av-sw{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:var(--c);cursor:pointer;padding:0;box-shadow:inset 0 2px 3px rgba(255,255,255,.35), inset 0 -3px 4px rgba(0,0,0,.3), 0 2px 4px rgba(0,0,0,.35)}
+.av-sw[aria-pressed="true"]{border-color:var(--text);box-shadow:0 0 0 3px var(--ice), inset 0 2px 3px rgba(255,255,255,.35), inset 0 -3px 4px rgba(0,0,0,.3)}
+.av-chip{min-height:38px;padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);font:700 .9rem var(--f-display);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;box-shadow:var(--e1)}
+.av-chip[aria-pressed="true"]{background:var(--ice);color:var(--on-ice);border-color:var(--ice)}
+@media (max-width:560px){.av-row{grid-template-columns:minmax(0,1fr)}}
+/* Kartenfarben */
+.player-card.cc-gold{--cc1:#F4C64E;--cc2:#D6A21E;--cc3:#B8723D;--cct:#061220}
+.player-card.cc-silver{--cc1:#EEF2F7;--cc2:#B9C4D3;--cc3:#7D8BA0;--cct:#061220}
+.player-card.cc-bronze{--cc1:#E9A877;--cc2:#B8723D;--cc3:#7A4521;--cct:#1B0E05}
+.player-card.cc-ice{--cc1:#CFEFFF;--cc2:#7FD4FF;--cc3:#3D6BFF;--cct:#061220}
+.player-card.cc-red{--cc1:#FF6B7A;--cc2:#C8102E;--cc3:#6E0716;--cct:#FFFFFF}
+.player-card.cc-green{--cc1:#6BE5B5;--cc2:#0E9C72;--cc3:#064A35;--cct:#FFFFFF}
+.player-card.cc-violet{--cc1:#B794F4;--cc2:#6B3FB5;--cc3:#2E1658;--cct:#FFFFFF}
+.player-card.cc-black{--cc1:#434B5C;--cc2:#16181D;--cc3:#000000;--cct:#F4C64E}
+.player-card[class*="cc-"]{background:linear-gradient(160deg,var(--cc1),var(--cc2) 55%,var(--cc3));color:var(--cct)}
+.player-card[class*="cc-"] .pc-name,html[data-theme="light"] .player-card[class*="cc-"],html[data-theme="light"] .player-card[class*="cc-"] .pc-name{color:var(--cct)}
+.player-card.cc-red .pa,.player-card.cc-green .pa,.player-card.cc-violet .pa,.player-card.cc-black .pa{background:rgba(255,255,255,.12)}
+.player-card.cc-red .pa-bar,.player-card.cc-green .pa-bar,.player-card.cc-violet .pa-bar,.player-card.cc-black .pa-bar{background:rgba(255,255,255,.2)}
+.player-card[class*="cc-"] .pa-bar i{background:var(--cct)}
+.cc-sw{border-radius:10px;background:linear-gradient(160deg,var(--cc1),var(--cc2) 55%,var(--cc3))}
+.cc-sw.cc-gold{--cc1:#F4C64E;--cc2:#D6A21E;--cc3:#B8723D}.cc-sw.cc-silver{--cc1:#EEF2F7;--cc2:#B9C4D3;--cc3:#7D8BA0}.cc-sw.cc-bronze{--cc1:#E9A877;--cc2:#B8723D;--cc3:#7A4521}
+.cc-sw.cc-ice{--cc1:#CFEFFF;--cc2:#7FD4FF;--cc3:#3D6BFF}.cc-sw.cc-red{--cc1:#FF6B7A;--cc2:#C8102E;--cc3:#6E0716}.cc-sw.cc-green{--cc1:#6BE5B5;--cc2:#0E9C72;--cc3:#064A35}
+.cc-sw.cc-violet{--cc1:#B794F4;--cc2:#6B3FB5;--cc3:#2E1658}.cc-sw.cc-black{--cc1:#434B5C;--cc2:#16181D;--cc3:#000000}
+
 .file-hidden{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
 label.btn{position:relative;cursor:pointer}
 .pc-pick .pe-lbl{margin:0}
@@ -3758,6 +3792,189 @@ function playerBtnHTML(){
   const A = attributes();
   return `<button class="trophy-btn" id="btn-card" aria-label="Spielerkarte öffnen"><span class="ovr-mini">${A.OVR}</span><span><small>Spielerkarte</small><b>#${player.no}</b></span></button>`;
 }
+/* ---- Spielerkarte: eigener Hockey-Avatar (Figur) ----
+   Detaillierte, schattierte Illustration in Frontansicht. Alles wird als SVG im Browser gezeichnet.
+   Einstellungen nur lokal (apc.avatar.v1) und damit auch in der Sicherung. */
+const AV_OPTS = {
+  skin:   [['#F6D5B8','Hell'],['#EDBF98','Hell-mittel'],['#D39A6E','Mittel'],['#A8714B','Mittel-dunkel'],['#74482D','Dunkel']],
+  hair:   [['#1B1410','Schwarz'],['#3B2618','Dunkelbraun'],['#6B4428','Braun'],['#A3602E','Rotbraun'],['#C99A55','Dunkelblond'],['#E6C987','Blond']],
+  team:   [['#C8102E','Rot'],['#0B3D91','Blau'],['#041E42','Marine'],['#16181D','Schwarz'],['#F1F3F6','Weiss'],['#F2A900','Gold'],['#F26B1D','Orange'],['#006847','Grün'],['#00788C','Petrol'],['#5B2C83','Violett'],['#8A96A6','Silber'],['#6CACE4','Hellblau']],
+  skate:  [['#16181D','Schwarz'],['#F1F3F6','Weiss']],
+  stick:  [['#16181D','Carbon'],['#F1F3F6','Weiss'],['#C8102E','Rot'],['#0B3D91','Blau']],
+  guard:  [['visor','Visier'],['cage','Gitter'],['none','Ohne']],
+  shoots: [['L','Links'],['R','Rechts']],
+  pose:   [['ready','Bereit'],['cheer','Jubel']]
+};
+const AV_DEF = { skin:'#EDBF98', hair:'#6B4428', helmet:'#16181D', jersey:'#C8102E', accent:'#16181D', pants:'#16181D', gloves:'#16181D', skate:'#16181D', stick:'#16181D', guard:'visor', shoots:'L', pose:'ready' };
+const avatar = Object.assign({}, AV_DEF, store.get('apc.avatar.v1', {}));
+const saveAvatar = () => store.set('apc.avatar.v1', avatar);
+
+function avShade(hex, f){   // f>0 aufhellen, f<0 abdunkeln
+  const n = parseInt(hex.slice(1), 16), c = [n >> 16, (n >> 8) & 255, n & 255]
+    .map(v => Math.round(f >= 0 ? v + (255 - v) * f : v * (1 + f)));
+  return '#' + c.map(v => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0')).join('');
+}
+const avLum = hex => { const n = parseInt(hex.slice(1), 16); return (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255; };
+let avUid = 0;
+
+function avatarSVG(a, no){
+  const u = 'av' + (++avUid), S = avShade;
+  const J = a.jersey, A = a.accent === a.jersey ? (avLum(J) > .6 ? '#16181D' : '#F1F3F6') : a.accent;
+  const numFill = avLum(J) > .6 ? A : '#F1F3F6', numLine = avLum(J) > .6 ? '#F1F3F6' : A;
+  const P = a.pants, G = a.gloves, H = a.helmet, K = a.skate, ST = a.stick, SK = a.skin, HR = a.hair;
+  const cheer = a.pose === 'cheer', mirror = a.shoots === 'R';
+  const g = (id, c, f1, f2) => `<linearGradient id="${u}${id}" x1="0" y1="0" x2="1" y2="0.25"><stop offset="0" stop-color="${S(c, f1)}"/><stop offset=".45" stop-color="${c}"/><stop offset="1" stop-color="${S(c, f2)}"/></linearGradient>`;
+  const F = id => `url(#${u}${id})`;
+  const stripe = (y, h) => `<rect x="60" y="${y}" width="180" height="${h}" fill="${A}"/>`;
+  /* ---------- Beine, Socken, Schlittschuhe ---------- */
+  const leg = (x1, x2, side) => {
+    // Stutzen (Socken über Schienbeinschoner), leicht nach aussen gestellt
+    const o = side * 6;
+    return `
+    <path d="M${x1} 286 L${x2} 286 L${x2 + o} 352 L${x1 + o} 352 Z" fill="${F('jer')}"/>
+    <path d="M${x1 + o * .55} 314 L${x2 + o * .55} 314 L${x2 + o * .62} 322 L${x1 + o * .62} 322 Z" fill="${A}"/>
+    <path d="M${x1 + o * .66} 328 L${x2 + o * .66} 328 L${x2 + o * .72} 334 L${x1 + o * .72} 334 Z" fill="${A}"/>
+    <ellipse cx="${(x1 + x2) / 2 + o * .25}" cy="300" rx="${(x2 - x1) / 2 + 2}" ry="10" fill="${S(J, .03)}"/>
+    <ellipse cx="${(x1 + x2) / 2 + o * .25}" cy="300" rx="${(x2 - x1) / 2 + 2}" ry="10" fill="url(#${u}fold)"/>
+    <path d="M${x1 + o * .9} 352 L${x2 + o * .9} 352" stroke="${S(J, -.4)}" stroke-width="3" opacity=".5"/>`;
+  };
+  const skate = (cx, side) => {
+    const L = cx - 22, R = cx + 22;
+    return `
+    <path d="M${L + 2} 348 L${R - 4} 348 Q${R + 2} 352 ${R} 362 L${R + side * 8 + (side < 0 ? 10 : 6)} 366 Q${R + side * 6 + 10} 372 ${R + 6} 374 L${L - 4} 374 Q${L - 8} 370 ${L - 4} 362 Z" fill="${F('sk')}"/>
+    <path d="M${L + 6} 352 L${R - 8} 352" stroke="${S(K, avLum(K) > .5 ? -.35 : .35)}" stroke-width="1.6" stroke-dasharray="3 3"/>
+    <path d="M${L + 4} 356 L${R - 6} 356 M${L + 4} 360 L${R - 6} 360" stroke="${avLum(K) > .5 ? '#9AA4B2' : '#4A5160'}" stroke-width="1.2"/>
+    <rect x="${L - 4}" y="373" width="${R - L + 10}" height="6" rx="3" fill="#E9EDF2"/>
+    <rect x="${L - 8}" y="378.5" width="${R - L + 18}" height="3.2" rx="1.6" fill="url(#${u}steel)"/>`;
+  };
+  /* ---------- Arme, Handschuhe, Stock ---------- */
+  const glove = (x, y, r) => `
+    <g transform="translate(${x} ${y}) rotate(${r})">
+      <rect x="-15" y="-13" width="30" height="27" rx="9" fill="${F('glo')}"/>
+      <rect x="-15" y="-17" width="30" height="9" rx="4.5" fill="${S(G, avLum(G) > .5 ? -.12 : .18)}"/>
+      <path d="M-8 2 h16 M-8 7 h16" stroke="${S(G, avLum(G) > .5 ? -.3 : .3)}" stroke-width="1.6" stroke-linecap="round"/>
+      <rect x="-15" y="-17" width="30" height="31" rx="9" fill="none" stroke="${S(G, -.45)}" stroke-width="1.2" opacity=".6"/>
+    </g>`;
+  const arm = (pts) => {   // Ärmel als Fläche mit Schulterpolster, Ellbogen und Bündchen
+    const [s, e, h] = pts, nrm = (p, q) => { const dx = q[0] - p[0], dy = q[1] - p[1], l = Math.hypot(dx, dy) || 1; return [-dy / l, dx / l]; };
+    const n1 = nrm(s, e), n2 = nrm(e, h), nm = [(n1[0] + n2[0]) / 2, (n1[1] + n2[1]) / 2];
+    const P = (p, n, w) => `${(p[0] + n[0] * w).toFixed(1)} ${(p[1] + n[1] * w).toFixed(1)}`;
+    const ws = 22, we = 17, wh = 14;
+    const body = `M${P(s, n1, ws)} Q${P(e, nm, we + 3)} ${P(e, nm, we)} L${P(h, n2, wh)} L${P(h, n2, -wh)} L${P(e, nm, -we)} Q${P(s, n1, -ws - 2)} ${P(s, n1, -ws)} Q${s[0] - n1[1] * 18} ${s[1] + n1[0] * 18} ${P(s, n1, ws)} Z`;
+    const band = (t1, t2) => { const a = [e[0] + (h[0] - e[0]) * t1, e[1] + (h[1] - e[1]) * t1], b = [e[0] + (h[0] - e[0]) * t2, e[1] + (h[1] - e[1]) * t2], w = we + (wh - we) * t1;
+      return `<path d="M${P(a, n2, w)} L${P(b, n2, w)} L${P(b, n2, -w)} L${P(a, n2, -w)} Z" fill="${A}"/>`; };
+    return `<path d="${body}" fill="${F('jer')}"/>${band(.42, .52)}${band(.6, .7)}
+      <path d="M${P(s, n1, -ws + 4)} Q${P(e, nm, -we + 2)} ${P(e, nm, -we + 3)} L${P(h, n2, -wh + 3)}" stroke="${S(J, -.4)}" stroke-width="3" fill="none" opacity=".45" stroke-linecap="round"/>
+      <path d="M${P(s, n1, ws - 5)} Q${P(e, nm, we)} ${P(e, nm, we - 4)}" stroke="#FFFFFF" stroke-width="2.4" fill="none" opacity=".18" stroke-linecap="round"/>
+      <path d="M${P(h, n2, wh)} L${P(h, n2, -wh)}" stroke="${S(J, -.45)}" stroke-width="3" opacity=".6"/>`;
+  };
+  const tapeCol = avLum(ST) > .6 ? '#16181D' : '#F4F6F9';
+  const stickReady = `
+    <path d="M96 210 L236 368" stroke="${F('stk')}" stroke-width="8" stroke-linecap="round"/>
+    <path d="M94 207 L103 218" stroke="${tapeCol}" stroke-width="9.5" stroke-linecap="round"/>
+    <path d="M230 362 Q236 376 252 377 L284 377 Q290 376 289 370 L286 366 Q262 368 246 366 Z" fill="${ST}"/>
+    <path d="M246 368 L284 368 L286 375 L252 376 Z" fill="${tapeCol}" opacity=".95"/>
+    <path d="M250 368.5 v7 M258 368.5 v7.3 M266 368.5 v7.5 M274 368.5 v7.5" stroke="${S(tapeCol === '#F4F6F9' ? '#C9D0DA' : '#3A3F48', 0)}" stroke-width=".8"/>`;
+  const stickCheer = `
+    <path d="M234 132 L262 10" stroke="${F('stk')}" stroke-width="8" stroke-linecap="round"/>
+    <path d="M232 140 L236 124" stroke="${tapeCol}" stroke-width="9.5" stroke-linecap="round"/>
+    <path d="M258 16 Q262 2 276 0 L286 2 Q290 6 286 10 Q272 12 266 24 Z" fill="${ST}"/>
+    <path d="M266 18 Q272 8 284 5 L286 9 Q273 12 268 23 Z" fill="${tapeCol}"/>`;
+  const armsReady = arm([[108, 140], [88, 196], [108, 226]]) + arm([[192, 140], [214, 204], [192, 254]]);
+  const armsCheer = arm([[108, 140], [88, 194], [98, 232]]) + arm([[192, 138], [224, 98], [236, 64]]);
+  const hands = cheer
+    ? stickCheer + glove(100, 242, -8) + glove(238, 56, 22)
+    : stickReady + glove(112, 232, 38) + glove(190, 262, 40);
+  const armsGroup = `<g${mirror ? ' transform="translate(300 0) scale(-1 1)"' : ''}>${cheer ? armsCheer : armsReady}${hands}</g>`;
+  /* ---------- Gesichtsschutz ---------- */
+  const guard = a.guard === 'visor' ? `
+      <path d="M124 70 Q150 62 176 70 L176 88 Q150 94 124 88 Z" fill="url(#${u}visor)" stroke="#E9EEF4" stroke-width="1.4" stroke-opacity=".8"/>
+      <path d="M130 72 Q142 68 152 69" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" opacity=".7"/>`
+    : a.guard === 'cage' ? `
+      <g stroke="#D8DEE6" stroke-width="1.6" fill="none" opacity=".95">
+        <path d="M124 70 Q150 62 176 70 L174 104 Q150 122 126 104 Z"/>
+        <path d="M124 80 Q150 74 176 80 M125 90 Q150 85 175 90 M126 100 Q150 98 174 100 M128 110 Q150 113 172 110"/>
+        <path d="M134 68 L136 112 M142 66 L143 116 M150 65 L150 118 M158 66 L157 116 M166 68 L164 112"/>
+      </g>` : '';
+  const mouth = cheer
+    ? `<path d="M140 99 Q150 112 160 99 Q150 103 140 99 Z" fill="#5A1E1E"/><path d="M143 100 Q150 102.5 157 100" stroke="#FFFFFF" stroke-width="1.6"/>`
+    : `<path d="M142 101 Q150 106 158 101" stroke="${S(SK, -.5)}" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+  return `<svg class="hockey-av" viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Eigener Hockey-Avatar">
+  <defs>
+    ${g('jer', J, .22, -.38)}${g('acc', A, .2, -.35)}${g('pan', P, .2, -.4)}${g('glo', G, .22, -.4)}${g('hel', H, .3, -.4)}${g('sk', K, .25, -.35)}${g('stk', ST, .3, -.3)}
+    <radialGradient id="${u}face" cx=".42" cy=".38" r=".7"><stop offset="0" stop-color="${S(SK, .12)}"/><stop offset=".7" stop-color="${SK}"/><stop offset="1" stop-color="${S(SK, -.22)}"/></radialGradient>
+    <linearGradient id="${u}visor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#BFE3FF" stop-opacity=".55"/><stop offset="1" stop-color="#7FB8E8" stop-opacity=".25"/></linearGradient>
+    <linearGradient id="${u}steel" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8E99A8"/><stop offset=".5" stop-color="#F4F7FA"/><stop offset="1" stop-color="#8E99A8"/></linearGradient>
+    <linearGradient id="${u}fold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".16"/><stop offset=".5" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="1" stop-color="#000000" stop-opacity=".22"/></linearGradient>
+    <radialGradient id="${u}ice" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="150" cy="384" rx="${cheer ? 92 : 120}" ry="11" fill="url(#${u}ice)"/>
+  ${leg(116, 146, -1)}${leg(154, 184, 1)}
+  ${skate(126, -1)}${skate(176, 1)}
+  <!-- Hose -->
+  <path d="M100 226 L200 226 L206 288 Q192 296 176 292 L154 290 L150 262 L146 290 L124 292 Q108 296 94 288 Z" fill="${F('pan')}"/>
+  <path d="M100 226 L200 226 L206 288 Q192 296 176 292 L154 290 L150 262 L146 290 L124 292 Q108 296 94 288 Z" fill="url(#${u}fold)"/>
+  <path d="M102 232 L96 286 M198 232 L204 286" stroke="${A}" stroke-width="5" opacity=".95"/>
+  <path d="M150 238 L150 262" stroke="${S(P, -.45)}" stroke-width="2"/>
+  <!-- Trikot -->
+  <path d="M108 120 Q150 108 192 120 L214 140 Q216 168 206 186 L204 242 Q150 252 96 242 L94 186 Q84 168 86 140 Z" fill="${F('jer')}"/>
+  <clipPath id="${u}clip"><path d="M108 120 Q150 108 192 120 L214 140 Q216 168 206 186 L204 242 Q150 252 96 242 L94 186 Q84 168 86 140 Z"/></clipPath>
+  <g clip-path="url(#${u}clip)">
+    <path d="M80 112 L220 112 L220 150 Q150 136 80 150 Z" fill="${F('acc')}"/>
+    <path d="M80 150 Q150 136 220 150" stroke="#F1F3F6" stroke-width="2" fill="none" opacity=".75"/>
+    ${stripe(212, 7)}${stripe(224, 7)}
+    <path d="M80 110 L220 110 L220 250 L80 250 Z" fill="url(#${u}fold)"/>
+    <path d="M120 170 Q126 200 118 236 M182 170 Q176 200 184 236" stroke="${S(J, -.4)}" stroke-width="2" fill="none" opacity=".45"/>
+  </g>
+  <text x="150" y="196" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="46" fill="${numFill}" stroke="${numLine}" stroke-width="2.4" paint-order="stroke">${no}</text>
+  <!-- Hals und Kragen -->
+  <path d="M138 104 L162 104 L164 122 L136 122 Z" fill="${S(SK, -.12)}"/>
+  <path d="M132 118 L150 136 L168 118" fill="${A}" stroke="${S(A, -.3)}" stroke-width="1"/>
+  ${armsGroup}
+  <!-- Kopf -->
+  <path d="M124 82 Q122 104 132 112 L132 92 Z M176 82 Q178 104 168 112 L168 92 Z" fill="${HR}"/>
+  <ellipse cx="150" cy="86" rx="23" ry="27" fill="url(#${u}face)"/>
+  <ellipse cx="127" cy="88" rx="4" ry="6" fill="${S(SK, -.15)}"/><ellipse cx="173" cy="88" rx="4" ry="6" fill="${S(SK, -.15)}"/>
+  <path d="M136 74 Q141 71 146 73 M154 73 Q159 71 164 74" stroke="${S(HR, -.1)}" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+  <ellipse cx="141" cy="81" rx="4" ry="3" fill="#FFFFFF"/><ellipse cx="159" cy="81" rx="4" ry="3" fill="#FFFFFF"/>
+  <circle cx="141.6" cy="81.3" r="2.2" fill="#3B2A1E"/><circle cx="159.6" cy="81.3" r="2.2" fill="#3B2A1E"/>
+  <circle cx="142.3" cy="80.6" r=".7" fill="#FFFFFF"/><circle cx="160.3" cy="80.6" r=".7" fill="#FFFFFF"/>
+  <path d="M150 82 Q148 90 146 92 Q150 94 154 92" stroke="${S(SK, -.35)}" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  ${mouth}
+  <!-- Helm -->
+  <path d="M120 78 Q118 38 150 34 Q182 38 180 78 L180 98 Q176 104 170 100 L170 80 Q150 72 130 80 L130 100 Q124 104 120 98 Z" fill="${F('hel')}"/>
+  <path d="M128 46 Q150 34 172 46" stroke="${S(H, avLum(H) > .5 ? -.25 : .3)}" stroke-width="2" fill="none"/>
+  <path d="M138 40 L140 50 M150 37 L150 48 M162 40 L160 50" stroke="${S(H, -.45)}" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M126 50 Q132 42 142 40" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" opacity=".35"/>
+  <path d="M130 98 Q150 122 170 98" stroke="${S(H, -.3)}" stroke-width="1.6" fill="none"/>
+  ${guard}
+</svg>`;
+}
+
+function avatarEditorHTML(){
+  const row = (key, label, opts, kind) => `<div class="av-row"><span class="pe-lbl">${label}</span><div class="av-opts" role="group" aria-label="${label}">${opts.map(([v, n]) => kind === 'chip'
+      ? `<button class="av-chip" data-av="${key}" data-v="${v}" aria-pressed="${avatar[key] === v}">${n}</button>`
+      : `<button class="av-sw" data-av="${key}" data-v="${v}" aria-pressed="${avatar[key] === v}" title="${n}" aria-label="${n}" style="--c:${v}"></button>`).join('')}</div></div>`;
+  return `<div class="av-edit"><p class="pe-lbl">Avatar gestalten</p>
+    ${row('pose', 'Pose', AV_OPTS.pose, 'chip')}
+    ${row('shoots', 'Schuss', AV_OPTS.shoots, 'chip')}
+    ${row('guard', 'Schutz', AV_OPTS.guard, 'chip')}
+    ${row('skin', 'Hautton', AV_OPTS.skin)}
+    ${row('hair', 'Haare', AV_OPTS.hair)}
+    ${row('jersey', 'Trikot', AV_OPTS.team)}
+    ${row('accent', 'Akzent', AV_OPTS.team)}
+    ${row('helmet', 'Helm', AV_OPTS.team)}
+    ${row('pants', 'Hose', AV_OPTS.team)}
+    ${row('gloves', 'Handschuhe', AV_OPTS.team)}
+    ${row('stick', 'Stock', AV_OPTS.stick)}
+    ${row('skate', 'Schlittschuhe', AV_OPTS.skate)}
+    <div class="av-row"><span></span><button class="btn btn-ghost btn-small" id="av-reset">Standard</button></div>
+  </div>`;
+}
+
+/* Kartenfarben der Spielerkarte */
+const CARD_COLORS = [['gold','Gold'],['silver','Silber'],['bronze','Bronze'],['ice','Eis'],['red','Rot'],['green','Grün'],['violet','Violett'],['black','Elite Schwarz']];
+
 /* ---- Spielerkarte: eigene Bilder (nur auf diesem Gerät, in localStorage – damit auch in der Sicherung) ---- */
 const CardImgs = (() => {
   const K = 'apc.cardimgs.v1', KS = 'apc.cardimg.v1', MAX = 8;
@@ -3810,19 +4027,21 @@ function openCard(){
       <button class="btn btn-ghost btn-small" data-back><span class="arrow back" aria-hidden="true"></span> Mission Center</button>
     </div>
     <div class="pc-wrap">
-      <article class="player-card">
+      <article class="player-card cc-${CARD_COLORS.some(c => c[0] === player.card) ? player.card : 'gold'}">
         <div class="pc-top"><div class="pc-ovr"><b>${A.OVR}</b><small>Gesamt</small></div><div class="pc-pos">${player.pos}</div><div class="pc-no">#${player.no}</div></div>
-        <div class="pc-fig${CardImgs.current() ? ' photo' : ''}" id="pc-fig">${CardImgs.current() ? `<img src="${CardImgs.current().data}" alt="">` : ''}</div>
+        <div class="pc-fig photo${CardImgs.current() ? '' : ' avatar'}" id="pc-fig">${CardImgs.current() ? `<img src="${CardImgs.current().data}" alt="">` : avatarSVG(avatar, player.no)}</div>
         <h2 class="pc-name">${PROFILE.name}</h2>
         <div class="pc-attrs">${ATTRS.map(([k, n]) => `<div class="pa"><b>${A[k]}</b><span>${k}</span><div class="pa-bar"><i style="width:${A[k]}%"></i></div><small>${n}</small></div>`).join('')}</div>
       </article>
       <div class="pc-side">
         <div class="pc-pick"><p class="pe-lbl">Bild wählen</p>
           <div class="pc-thumbs" role="group" aria-label="Bild für die Spielerkarte">
-            <button class="pc-thumb fig" data-img="" aria-pressed="${!CardImgs.sel()}" aria-label="Figur"><span>Figur</span></button>
+            <button class="pc-thumb fig" data-img="" aria-pressed="${!CardImgs.sel()}" aria-label="Eigener Avatar">${avatarSVG(avatar, player.no)}</button>
             ${CardImgs.list().map((i, n) => `<div class="pc-thumb-wrap"><button class="pc-thumb" data-img="${i.id}" aria-pressed="${CardImgs.sel() === i.id}" aria-label="Bild ${n + 1} wählen"><img src="${i.data}" alt=""></button><button class="pc-del" data-del-img="${i.id}" aria-label="Bild ${n + 1} entfernen">×</button></div>`).join('')}
             ${CardImgs.list().length < CardImgs.MAX ? '<label class="pc-thumb add" aria-label="Bild hinzufügen"><span>+</span><input type="file" id="pc-add" accept="image/*" class="file-hidden"></label>' : ''}
           </div><p class="pc-pick-msg muted" id="pc-pick-msg"></p></div>
+        <div class="av-row"><span class="pe-lbl">Kartenfarbe</span><div class="av-opts" role="group" aria-label="Kartenfarbe">${CARD_COLORS.map(([v, n]) => `<button class="av-sw cc-sw cc-${v}" data-card="${v}" aria-pressed="${(player.card || 'gold') === v}" title="${n}" aria-label="${n}"></button>`).join('')}</div></div>
+        ${CardImgs.sel() ? '' : avatarEditorHTML()}
         <p class="muted">Jedes Training steigert die Werte, die das Set trainiert, zum Beispiel Set 1 «Speed & Power» steigert Speed und Power. Neue Rekorde geben zusätzliche Punkte. Elite-Trainings zählen mehr.</p>
         <div class="pe-row"><label class="pe-lbl" for="pc-no-in">Nummer</label><input class="pe-time" id="pc-no-in" type="number" min="1" max="99" value="${player.no}"></div>
         <div class="pe-row"><label class="pe-lbl" for="pc-pos-in">Position</label><select id="pc-pos-in" class="voice-sel">${POS.map(p => `<option ${p === player.pos ? 'selected' : ''}>${p}</option>`).join('')}</select></div>
@@ -3831,9 +4050,12 @@ function openCard(){
     </div>
     <button class="btn btn-primary" data-back><span class="arrow back" aria-hidden="true"></span> Zurück zum Mission Center</button>
   </div>`;
-  if (!CardImgs.current()) Anim.mount($('pc-fig'), 'startschritt', { still:0 });
+  const keepY = () => { const sc = $('screen-card'), y = sc.scrollTop; openCard(); $('screen-card').scrollTop = y; };
+  document.querySelectorAll('#screen-card [data-av]').forEach(b => b.onclick = () => { avatar[b.dataset.av] = b.dataset.v; saveAvatar(); keepY(); });
+  document.querySelectorAll('#screen-card [data-card]').forEach(b => b.onclick = () => { player.card = b.dataset.card; savePlayer(); keepY(); });
+  { const r = $('av-reset'); if (r) r.onclick = () => { Object.assign(avatar, AV_DEF); saveAvatar(); keepY(); }; }
   bindBack($('screen-card'));
-  document.querySelectorAll('#screen-card [data-img]').forEach(b => b.onclick = () => { CardImgs.select(b.dataset.img); openCard(); });
+  document.querySelectorAll('#screen-card [data-img]').forEach(b => b.onclick = () => { CardImgs.select(b.dataset.img); keepY(); });
   bindCardImgInput($('pc-add'), openCard, $('pc-pick-msg'));
   document.querySelectorAll('#screen-card [data-del-img]').forEach(b => b.onclick = e => { e.stopPropagation(); if (confirm('Dieses Bild entfernen?')){ CardImgs.remove(b.dataset.delImg); openCard(); } });
   $('pc-no-in').onchange = e => { const v = Math.max(1, Math.min(99, parseInt(e.target.value, 10) || player.no)); player.no = v; savePlayer(); openCard(); };
