@@ -371,6 +371,19 @@ button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid
 .pc-ovr small,.pc-pos{font-family:var(--f-display);font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:.85rem}
 .pc-no{font-family:var(--f-display);font-weight:800;font-style:italic;font-size:2rem}
 .pc-fig{width:200px;height:200px;align-self:center;background:var(--ink);border-radius:14px}
+.pc-fig.photo{width:100%;height:auto;aspect-ratio:4/5;overflow:hidden;box-shadow:inset 0 0 0 2px rgba(6,18,32,.25), 0 6px 16px -6px rgba(0,0,0,.5)}
+.pc-fig.photo img{width:100%;height:100%;object-fit:cover;object-position:50% 20%;display:block}
+.pc-pick{display:flex;flex-direction:column;gap:8px}
+.pc-pick .pe-lbl{margin:0}
+.pc-thumbs{display:flex;flex-wrap:wrap;gap:10px}
+.pc-thumb{position:relative;width:72px;height:90px;border-radius:10px;overflow:hidden;padding:0;cursor:pointer;background:var(--panel-2);border:2px solid var(--line);color:var(--text);font:700 .85rem var(--f-display);letter-spacing:.1em;text-transform:uppercase;display:grid;place-items:center;box-shadow:var(--e1)}
+.pc-thumb img{width:100%;height:100%;object-fit:cover;object-position:50% 20%;display:block}
+.pc-thumb[aria-pressed="true"]{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold), var(--e1)}
+.pc-thumb.add span{font-size:2rem;color:var(--ice);font-weight:800}
+.pc-thumb.own{cursor:default}
+.pc-del{position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(5,9,18,.75);color:#fff;font-size:1.1rem;line-height:1;cursor:pointer}
+.pc-pick-msg{margin:0;min-height:0}
+html[data-theme="light"] .player-card,html[data-theme="light"] .pc-name{color:#061220}
 .pc-name{color:var(--on-ice);text-align:center;font-size:2rem}
 .pc-attrs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .pa{display:flex;flex-direction:column;gap:2px;background:rgba(6,18,32,.12);border-radius:8px;padding:6px 8px}
@@ -731,7 +744,8 @@ body.training .tabbar{display:none}
   --sheen:linear-gradient(180deg, rgba(255,255,255,.055) 0%, rgba(255,255,255,0) 38%, rgba(0,0,0,.14) 100%);
 }
 /* Hauptkarten */
-.mc2-rec,.mission-card,.pcard,.player-card,.season-card,.champ-banner,.panel,.lg-cal,.lg-list{box-shadow:var(--e3);background-image:var(--sheen)}
+.mc2-rec,.mission-card,.pcard,.season-card,.champ-banner,.panel,.lg-cal,.lg-list{box-shadow:var(--e3);background-image:var(--sheen)}
+.player-card{box-shadow:inset 0 1px 0 rgba(255,255,255,.45), inset 0 -2px 0 rgba(0,0,0,.2), 0 2px 3px rgba(0,0,0,.35), 0 14px 28px -8px rgba(0,0,0,.6), 0 36px 64px -24px rgba(0,0,0,.8)}
 /* Karten */
 .mc2-box,.mc2-bubble,.mc2-testdue,.test-banner,.all-trainings,.trophy-entry,.trophy-btn,.stat,.coach,.plan,.challenge,.callbox,.bdetail,
 .lib-tile,.mcard,.pbox,.peditor,.pwarn,.toast,.rink,.why,.tipline,.test-cmp,.rec-brief{box-shadow:var(--e2);background-image:var(--sheen)}
@@ -2870,6 +2884,13 @@ function renderParents(){
       <div><button class="btn btn-ghost btn-small" id="btn-reset">Fortschritt zurücksetzen</button></div>
       <p>Alle Daten bleiben nur auf diesem Gerät, es wird nichts übertragen. Für einen Gerätewechsel unten eine Sicherung erstellen.</p>
     </div></div>
+    <div class="parents"><div class="pbox">
+      <p class="eyebrow">Spielerkarte – Bilder</p>
+      <p>Eigene Fotos für die Spielerkarte. Sie bleiben nur auf diesem Gerät und sind in der Sicherung enthalten. Ausgewählt wird auf der Spielerkarte unter Fortschritt.</p>
+      <div class="pc-thumbs">${CardImgs.list().map((i, n) => `<div class="pc-thumb own"><img src="${i.data}" alt="Bild ${n + 1}"><button class="pc-del" data-del-img="${i.id}" aria-label="Bild ${n + 1} entfernen">×</button></div>`).join('') || '<p class="muted" style="margin:0">Noch keine Bilder.</p>'}</div>
+      <div class="bk-row"><button class="btn btn-ghost btn-small" id="btn-img-add" ${CardImgs.list().length >= CardImgs.MAX ? 'disabled' : ''}>Bilder hinzufügen</button></div>
+      <p id="img-msg" aria-live="polite"></p>
+    </div></div>
     <div class="parents"><div class="pbox backup">
       <p class="eyebrow">Sicherung</p>
       <p>Speichert Name, Fortschritt, Wochenplan, Einstellungen und Coach-Aufnahmen als Datei. Damit lässt sich der Stand nach einem Gerätewechsel oder Datenverlust wiederherstellen.</p>
@@ -2891,6 +2912,9 @@ function renderParents(){
     } else { reset.dataset.armed = '1'; reset.textContent = 'Wirklich zurücksetzen? Nochmals tippen'; }
   };
   bindBackup();
+  { const redraw = () => { const sc = $('screen-parents'), y = sc.scrollTop; renderParents(); sc.scrollTop = y; };
+    $('btn-img-add').onclick = () => cardImgInput(redraw, $('img-msg'));
+    document.querySelectorAll('[data-del-img]').forEach(b => b.onclick = () => { if (confirm('Dieses Bild entfernen?')){ CardImgs.remove(b.dataset.delImg); redraw(); } }); }
 }
 
 /* ---- Eltern: Sicherung erstellen und wiederherstellen ----
@@ -3730,6 +3754,42 @@ function playerBtnHTML(){
   const A = attributes();
   return `<button class="trophy-btn" id="btn-card" aria-label="Spielerkarte öffnen"><span class="ovr-mini">${A.OVR}</span><span><small>Spielerkarte</small><b>#${player.no}</b></span></button>`;
 }
+/* ---- Spielerkarte: eigene Bilder (nur auf diesem Gerät, in localStorage – damit auch in der Sicherung) ---- */
+const CardImgs = (() => {
+  const K = 'apc.cardimgs.v1', KS = 'apc.cardimg.v1', MAX = 8;
+  const list = () => store.get(K, []);
+  const sel = () => { const id = store.get(KS, ''); return list().some(i => i.id === id) ? id : ''; };
+  const current = () => { const id = sel(); return id ? list().find(i => i.id === id) : null; };
+  const select = id => store.set(KS, id || '');
+  function shrink(file){   // Foto auf max. 720 px verkleinern und als JPEG speichern, damit der Speicher reicht
+    return new Promise((res, rej) => {
+      const url = URL.createObjectURL(file), img = new Image();
+      img.onload = () => { const k = Math.min(1, 720 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+        c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg', 0.82)); };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Bild kann nicht gelesen werden.')); };
+      img.src = url;
+    });
+  }
+  async function add(files){
+    const L = list(); let last = '';
+    for (const f of files){
+      if (L.length >= MAX) throw new Error(`Höchstens ${MAX} Bilder.`);
+      const data = await shrink(f), id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      L.push({ id, data }); last = id;
+      try { localStorage.setItem(K, JSON.stringify(L)); } catch(e){ L.pop(); throw new Error('Speicher voll – bitte ein Bild entfernen.'); }
+    }
+    if (last) select(last);
+  }
+  function remove(id){ store.set(K, list().filter(i => i.id !== id)); if (store.get(KS, '') === id) select(''); }
+  return { list, sel, current, select, add, remove, MAX };
+})();
+function cardImgInput(onDone, msgEl){   // unsichtbares Datei-Feld öffnen
+  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true;
+  inp.onchange = async () => { try { await CardImgs.add([...inp.files]); onDone(); } catch(e){ if (msgEl) msgEl.textContent = e.message; else alert(e.message); } };
+  inp.click();
+}
+
 function openCard(){
   Voice.stop();
   const A = attributes(), POS = ['Stürmer','Center','Flügel','Verteidiger','Torhüter'];
@@ -3742,11 +3802,17 @@ function openCard(){
     <div class="pc-wrap">
       <article class="player-card">
         <div class="pc-top"><div class="pc-ovr"><b>${A.OVR}</b><small>Gesamt</small></div><div class="pc-pos">${player.pos}</div><div class="pc-no">#${player.no}</div></div>
-        <div class="pc-fig" id="pc-fig"></div>
+        <div class="pc-fig${CardImgs.current() ? ' photo' : ''}" id="pc-fig">${CardImgs.current() ? `<img src="${CardImgs.current().data}" alt="">` : ''}</div>
         <h2 class="pc-name">${PROFILE.name}</h2>
         <div class="pc-attrs">${ATTRS.map(([k, n]) => `<div class="pa"><b>${A[k]}</b><span>${k}</span><div class="pa-bar"><i style="width:${A[k]}%"></i></div><small>${n}</small></div>`).join('')}</div>
       </article>
       <div class="pc-side">
+        <div class="pc-pick"><p class="pe-lbl">Bild wählen</p>
+          <div class="pc-thumbs" role="group" aria-label="Bild für die Spielerkarte">
+            <button class="pc-thumb fig" data-img="" aria-pressed="${!CardImgs.sel()}" aria-label="Figur"><span>Figur</span></button>
+            ${CardImgs.list().map((i, n) => `<button class="pc-thumb" data-img="${i.id}" aria-pressed="${CardImgs.sel() === i.id}" aria-label="Bild ${n + 1}"><img src="${i.data}" alt=""></button>`).join('')}
+            ${CardImgs.list().length < CardImgs.MAX ? '<button class="pc-thumb add" id="pc-add" aria-label="Bild hinzufügen"><span>+</span></button>' : ''}
+          </div><p class="pc-pick-msg muted" id="pc-pick-msg"></p></div>
         <p class="muted">Jedes Training steigert die Werte, die das Set trainiert, zum Beispiel Set 1 «Speed & Power» steigert Speed und Power. Neue Rekorde geben zusätzliche Punkte. Elite-Trainings zählen mehr.</p>
         <div class="pe-row"><label class="pe-lbl" for="pc-no-in">Nummer</label><input class="pe-time" id="pc-no-in" type="number" min="1" max="99" value="${player.no}"></div>
         <div class="pe-row"><label class="pe-lbl" for="pc-pos-in">Position</label><select id="pc-pos-in" class="voice-sel">${POS.map(p => `<option ${p === player.pos ? 'selected' : ''}>${p}</option>`).join('')}</select></div>
@@ -3755,8 +3821,10 @@ function openCard(){
     </div>
     <button class="btn btn-primary" data-back><span class="arrow back" aria-hidden="true"></span> Zurück zum Mission Center</button>
   </div>`;
-  Anim.mount($('pc-fig'), 'startschritt', { still:0 });
+  if (!CardImgs.current()) Anim.mount($('pc-fig'), 'startschritt', { still:0 });
   bindBack($('screen-card'));
+  document.querySelectorAll('#screen-card [data-img]').forEach(b => b.onclick = () => { CardImgs.select(b.dataset.img); openCard(); });
+  { const a = $('pc-add'); if (a) a.onclick = () => cardImgInput(openCard, $('pc-pick-msg')); }
   $('pc-no-in').onchange = e => { const v = Math.max(1, Math.min(99, parseInt(e.target.value, 10) || player.no)); player.no = v; savePlayer(); openCard(); };
   $('pc-pos-in').onchange = e => { player.pos = e.target.value; savePlayer(); openCard(); };
   show('card');
