@@ -374,6 +374,8 @@ button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid
 .pc-fig.photo{width:100%;height:auto;aspect-ratio:4/5;overflow:hidden;box-shadow:inset 0 0 0 2px rgba(6,18,32,.25), 0 6px 16px -6px rgba(0,0,0,.5)}
 .pc-fig.photo img{width:100%;height:100%;object-fit:cover;object-position:50% 20%;display:block}
 .pc-pick{display:flex;flex-direction:column;gap:8px}
+.file-hidden{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
+label.btn{position:relative;cursor:pointer}
 .pc-pick .pe-lbl{margin:0}
 .pc-thumbs{display:flex;flex-wrap:wrap;gap:10px}
 .pc-thumb{position:relative;width:72px;height:90px;border-radius:10px;overflow:hidden;padding:0;cursor:pointer;background:var(--panel-2);border:2px solid var(--line);color:var(--text);font:700 .85rem var(--f-display);letter-spacing:.1em;text-transform:uppercase;display:grid;place-items:center;box-shadow:var(--e1)}
@@ -2888,7 +2890,7 @@ function renderParents(){
       <p class="eyebrow">Spielerkarte – Bilder</p>
       <p>Eigene Fotos für die Spielerkarte. Sie bleiben nur auf diesem Gerät und sind in der Sicherung enthalten. Ausgewählt wird auf der Spielerkarte unter Fortschritt.</p>
       <div class="pc-thumbs">${CardImgs.list().map((i, n) => `<div class="pc-thumb own"><img src="${i.data}" alt="Bild ${n + 1}"><button class="pc-del" data-del-img="${i.id}" aria-label="Bild ${n + 1} entfernen">×</button></div>`).join('') || '<p class="muted" style="margin:0">Noch keine Bilder.</p>'}</div>
-      <div class="bk-row"><button class="btn btn-ghost btn-small" id="btn-img-add" ${CardImgs.list().length >= CardImgs.MAX ? 'disabled' : ''}>Bilder hinzufügen</button></div>
+      <div class="bk-row">${CardImgs.list().length < CardImgs.MAX ? '<label class="btn btn-ghost btn-small">Bilder hinzufügen<input type="file" id="btn-img-add" accept="image/*" multiple class="file-hidden"></label>' : ''}</div>
       <p id="img-msg" aria-live="polite"></p>
     </div></div>
     <div class="parents"><div class="pbox backup">
@@ -2913,7 +2915,7 @@ function renderParents(){
   };
   bindBackup();
   { const redraw = () => { const sc = $('screen-parents'), y = sc.scrollTop; renderParents(); sc.scrollTop = y; };
-    $('btn-img-add').onclick = () => cardImgInput(redraw, $('img-msg'));
+    bindCardImgInput($('btn-img-add'), redraw, $('img-msg'));
     document.querySelectorAll('[data-del-img]').forEach(b => b.onclick = () => { if (confirm('Dieses Bild entfernen?')){ CardImgs.remove(b.dataset.delImg); redraw(); } }); }
 }
 
@@ -3784,10 +3786,16 @@ const CardImgs = (() => {
   function remove(id){ store.set(K, list().filter(i => i.id !== id)); if (store.get(KS, '') === id) select(''); }
   return { list, sel, current, select, add, remove, MAX };
 })();
-function cardImgInput(onDone, msgEl){   // unsichtbares Datei-Feld öffnen
-  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true;
-  inp.onchange = async () => { try { await CardImgs.add([...inp.files]); onDone(); } catch(e){ if (msgEl) msgEl.textContent = e.message; else alert(e.message); } };
-  inp.click();
+/* Datei-Feld steckt sichtbar im Knopf (label + input) – so öffnet iPadOS/iOS die Fotoauswahl zuverlässig */
+function bindCardImgInput(inp, onDone, msgEl){
+  if (!inp) return;
+  inp.onchange = async () => {
+    const files = [...(inp.files || [])]; if (!files.length) return;
+    if (msgEl) msgEl.textContent = 'Bild wird gespeichert …';
+    try { await CardImgs.add(files); onDone(); }
+    catch(e){ if (msgEl) msgEl.textContent = e.message; else alert(e.message); }
+    inp.value = '';
+  };
 }
 
 function openCard(){
@@ -3811,7 +3819,7 @@ function openCard(){
           <div class="pc-thumbs" role="group" aria-label="Bild für die Spielerkarte">
             <button class="pc-thumb fig" data-img="" aria-pressed="${!CardImgs.sel()}" aria-label="Figur"><span>Figur</span></button>
             ${CardImgs.list().map((i, n) => `<button class="pc-thumb" data-img="${i.id}" aria-pressed="${CardImgs.sel() === i.id}" aria-label="Bild ${n + 1}"><img src="${i.data}" alt=""></button>`).join('')}
-            ${CardImgs.list().length < CardImgs.MAX ? '<button class="pc-thumb add" id="pc-add" aria-label="Bild hinzufügen"><span>+</span></button>' : ''}
+            ${CardImgs.list().length < CardImgs.MAX ? '<label class="pc-thumb add" aria-label="Bild hinzufügen"><span>+</span><input type="file" id="pc-add" accept="image/*" class="file-hidden"></label>' : ''}
           </div><p class="pc-pick-msg muted" id="pc-pick-msg"></p></div>
         <p class="muted">Jedes Training steigert die Werte, die das Set trainiert, zum Beispiel Set 1 «Speed & Power» steigert Speed und Power. Neue Rekorde geben zusätzliche Punkte. Elite-Trainings zählen mehr.</p>
         <div class="pe-row"><label class="pe-lbl" for="pc-no-in">Nummer</label><input class="pe-time" id="pc-no-in" type="number" min="1" max="99" value="${player.no}"></div>
@@ -3824,7 +3832,7 @@ function openCard(){
   if (!CardImgs.current()) Anim.mount($('pc-fig'), 'startschritt', { still:0 });
   bindBack($('screen-card'));
   document.querySelectorAll('#screen-card [data-img]').forEach(b => b.onclick = () => { CardImgs.select(b.dataset.img); openCard(); });
-  { const a = $('pc-add'); if (a) a.onclick = () => cardImgInput(openCard, $('pc-pick-msg')); }
+  bindCardImgInput($('pc-add'), openCard, $('pc-pick-msg'));
   $('pc-no-in').onchange = e => { const v = Math.max(1, Math.min(99, parseInt(e.target.value, 10) || player.no)); player.no = v; savePlayer(); openCard(); };
   $('pc-pos-in').onchange = e => { player.pos = e.target.value; savePlayer(); openCard(); };
   show('card');
