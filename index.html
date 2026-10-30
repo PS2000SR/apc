@@ -380,8 +380,11 @@ button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid
 .pc-thumb.fig{background:radial-gradient(120% 90% at 50% 20%, #2A3B5C, #070C16)}
 .pc-thumb.fig .hockey-av{width:100%;height:100%;display:block}
 .av-edit{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:14px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--e2)}
-.av-edit > .pe-lbl{margin:0;color:var(--ice)}
-.av-row{display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px;align-items:center}
+.av-page{width:100%;max-width:880px;display:grid;grid-template-columns:300px minmax(0,1fr);gap:20px;align-items:start}
+.av-preview{position:sticky;top:0;border-radius:18px;aspect-ratio:300/440;background:radial-gradient(120% 90% at 50% 18%, #2A3B5C 0%, #101A2C 60%, #070C16 100%);box-shadow:var(--e3);overflow:hidden}
+.av-preview .hockey-av{width:100%;height:100%;display:block}
+@media (max-width:700px){.av-page{grid-template-columns:minmax(0,1fr)}.av-preview{position:relative;width:min(260px,70vw);justify-self:center}}
+.av-row{display:grid;grid-template-columns:136px minmax(0,1fr);gap:10px;align-items:center}
 .av-row .pe-lbl{margin:0}
 .av-opts{display:flex;flex-wrap:wrap;gap:8px}
 .av-sw{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:var(--c);cursor:pointer;padding:0;box-shadow:inset 0 2px 3px rgba(255,255,255,.35), inset 0 -3px 4px rgba(0,0,0,.3), 0 2px 4px rgba(0,0,0,.35)}
@@ -878,6 +881,7 @@ html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:
     <section id="screen-records" class="screen" hidden></section>
     <section id="screen-test" class="screen" hidden></section>
     <section id="screen-card" class="screen" hidden></section>
+    <section id="screen-avatar" class="screen" hidden></section>
     <section id="screen-season" class="screen" hidden></section>
     <section id="screen-progress" class="screen" hidden></section>
     <section id="screen-parents" class="screen" hidden></section>
@@ -2329,11 +2333,11 @@ function faceoffSVG(){
     <line class="fo-hash" x1="78" y1="182" x2="78" y2="196"/><line class="fo-hash" x1="122" y1="182" x2="122" y2="196"/>
     <circle class="fo-dot" cx="100" cy="100" r="6"/></svg>`;
 }
-const MUSIC_SCREENS = new Set(['center','missions','briefing','progress','parents','log','card','trophies','records','season','music']);
+const MUSIC_SCREENS = new Set(['center','missions','briefing','progress','parents','log','card','avatar','trophies','records','season','music']);
 let curScreen = 'center';
 function show(name){
-  ['center','briefing','trophies','missions','music','records','test','card','season','player','progress','parents','log'].forEach(n => { $('screen-' + n).hidden = (n !== name); });
-  { const tab = { center:'heute', music:'eltern', missions:'trainings', briefing:'trainings', progress:'fortschritt', card:'fortschritt', trophies:'fortschritt', records:'fortschritt', test:'fortschritt', season:'fortschritt', log:'fortschritt', parents:'eltern' }[name];
+  ['center','briefing','trophies','missions','music','records','test','card','avatar','season','player','progress','parents','log'].forEach(n => { $('screen-' + n).hidden = (n !== name); });
+  { const tab = { center:'heute', music:'eltern', missions:'trainings', briefing:'trainings', progress:'fortschritt', card:'fortschritt', avatar:'fortschritt', trophies:'fortschritt', records:'fortschritt', test:'fortschritt', season:'fortschritt', log:'fortschritt', parents:'eltern' }[name];
     document.querySelectorAll('#tabbar [data-tab]').forEach(b => { if (b.dataset.tab === tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }); }
   $('btn-home').hidden = (name === 'center');
   $('tog-theme').hidden = (name !== 'center');
@@ -3818,135 +3822,150 @@ const avLum = hex => { const n = parseInt(hex.slice(1), 16); return (0.299 * (n 
 let avUid = 0;
 
 function avatarSVG(a, no){
+  /* Realistische Proportionen: Kopf mit Helm ca. 1/7 der Höhe, breite Schulterpolster, lange Beine, Hockey-Grundstellung */
   const u = 'av' + (++avUid), S = avShade;
   const J = a.jersey, A = a.accent === a.jersey ? (avLum(J) > .6 ? '#16181D' : '#F1F3F6') : a.accent;
   const numFill = avLum(J) > .6 ? A : '#F1F3F6', numLine = avLum(J) > .6 ? '#F1F3F6' : A;
   const P = a.pants, G = a.gloves, H = a.helmet, K = a.skate, ST = a.stick, SK = a.skin, HR = a.hair;
   const cheer = a.pose === 'cheer', mirror = a.shoots === 'R';
-  const g = (id, c, f1, f2) => `<linearGradient id="${u}${id}" x1="0" y1="0" x2="1" y2="0.25"><stop offset="0" stop-color="${S(c, f1)}"/><stop offset=".45" stop-color="${c}"/><stop offset="1" stop-color="${S(c, f2)}"/></linearGradient>`;
+  const g = (id, c, f1, f2) => `<linearGradient id="${u}${id}" x1="0" y1="0" x2="1" y2="0.2"><stop offset="0" stop-color="${S(c, f1)}"/><stop offset=".42" stop-color="${c}"/><stop offset="1" stop-color="${S(c, f2)}"/></linearGradient>`;
   const F = id => `url(#${u}${id})`;
-  const stripe = (y, h) => `<rect x="60" y="${y}" width="180" height="${h}" fill="${A}"/>`;
-  /* ---------- Beine, Socken, Schlittschuhe ---------- */
-  const leg = (x1, x2, side) => {
-    // Stutzen (Socken über Schienbeinschoner), leicht nach aussen gestellt
-    const o = side * 6;
-    return `
-    <path d="M${x1} 286 L${x2} 286 L${x2 + o} 352 L${x1 + o} 352 Z" fill="${F('jer')}"/>
-    <path d="M${x1 + o * .55} 314 L${x2 + o * .55} 314 L${x2 + o * .62} 322 L${x1 + o * .62} 322 Z" fill="${A}"/>
-    <path d="M${x1 + o * .66} 328 L${x2 + o * .66} 328 L${x2 + o * .72} 334 L${x1 + o * .72} 334 Z" fill="${A}"/>
-    <ellipse cx="${(x1 + x2) / 2 + o * .25}" cy="300" rx="${(x2 - x1) / 2 + 2}" ry="10" fill="${S(J, .03)}"/>
-    <ellipse cx="${(x1 + x2) / 2 + o * .25}" cy="300" rx="${(x2 - x1) / 2 + 2}" ry="10" fill="url(#${u}fold)"/>
-    <path d="M${x1 + o * .9} 352 L${x2 + o * .9} 352" stroke="${S(J, -.4)}" stroke-width="3" opacity=".5"/>`;
+  const nrm = (p, q) => { const dx = q[0] - p[0], dy = q[1] - p[1], l = Math.hypot(dx, dy) || 1; return [-dy / l, dx / l]; };
+  const pt = (p, n, w) => `${(p[0] + n[0] * w).toFixed(1)} ${(p[1] + n[1] * w).toFixed(1)}`;
+  const lerp = (p, q, t) => [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t];
+  /* Fläche entlang einer Linie mit Breiten (für Beine und Ärmel) */
+  const limb = (pts, ws) => {
+    const L = [], R = [];
+    pts.forEach((p, i) => { const q = pts[Math.min(i + 1, pts.length - 1)], o = pts[Math.max(i - 1, 0)], n = nrm(o, q); L.push(pt(p, n, ws[i])); R.unshift(pt(p, n, -ws[i])); });
+    return `M${L[0]} ` + L.slice(1).map(v => `L${v}`).join(' ') + ' ' + R.map(v => `L${v}`).join(' ') + ' Z';
   };
-  const skate = (cx, side) => {
-    const L = cx - 22, R = cx + 22;
+  const band = (p, q, t1, t2, w1, w2, col) => { const a1 = lerp(p, q, t1), b1 = lerp(p, q, t2), n = nrm(p, q);
+    return `<path d="M${pt(a1, n, w1)} L${pt(b1, n, w2)} L${pt(b1, n, -w2)} L${pt(a1, n, -w1)} Z" fill="${col}"/>`; };
+  /* ---------- Beine (Stutzen über Schienbeinschoner) ---------- */
+  const leg = (hip, knee, ank) => `
+    <path d="${limb([hip, knee, ank], [16, 15, 12])}" fill="${F('jer')}"/>
+    <path d="${limb([hip, knee, ank], [16, 15, 12])}" fill="url(#${u}foldv)"/>
+    ${band(knee, ank, .2, .32, 14.4, 13.8, A)}${band(knee, ank, .42, .5, 13.6, 13.2, A)}
+    <ellipse cx="${knee[0]}" cy="${knee[1] - 2}" rx="13" ry="9" fill="#FFFFFF" opacity=".08"/>
+    <path d="M${pt(knee, nrm(hip, ank), -14)} Q${knee[0]} ${knee[1] + 6} ${pt(knee, nrm(hip, ank), 14)}" stroke="${S(J, -.45)}" stroke-width="1.6" fill="none" opacity=".5"/>`;
+  const skate = (x, side) => {   // Schlittschuh leicht nach aussen gedreht (3/4-Ansicht)
+    const d = side, tx = x + d * 22, light = avLum(K) > .5;
     return `
-    <path d="M${L + 2} 348 L${R - 4} 348 Q${R + 2} 352 ${R} 362 L${R + side * 8 + (side < 0 ? 10 : 6)} 366 Q${R + side * 6 + 10} 372 ${R + 6} 374 L${L - 4} 374 Q${L - 8} 370 ${L - 4} 362 Z" fill="${F('sk')}"/>
-    <path d="M${L + 6} 352 L${R - 8} 352" stroke="${S(K, avLum(K) > .5 ? -.35 : .35)}" stroke-width="1.6" stroke-dasharray="3 3"/>
-    <path d="M${L + 4} 356 L${R - 6} 356 M${L + 4} 360 L${R - 6} 360" stroke="${avLum(K) > .5 ? '#9AA4B2' : '#4A5160'}" stroke-width="1.2"/>
-    <rect x="${L - 4}" y="373" width="${R - L + 10}" height="6" rx="3" fill="#E9EDF2"/>
-    <rect x="${L - 8}" y="378.5" width="${R - L + 18}" height="3.2" rx="1.6" fill="url(#${u}steel)"/>`;
+    <path d="M${x - 12} 390 L${x + 12} 390 L${x + 13} 404 Q${x + d * 6} 410 ${tx} 412 Q${tx + d * 5} 414 ${tx + d * 3} 419 L${x - d * 15} 419 Q${x - d * 16} 410 ${x - d * 13} 402 Z" fill="${F('sk')}"/>
+    <path d="M${x - 8} 388 L${x + 8} 388 L${x + 7} 398 L${x - 7} 398 Z" fill="${S(K, light ? -.12 : .22)}"/>
+    <path d="M${x - 6} 401 L${x + 6} 401 M${x - 6} 405 L${x + 6} 405" stroke="${light ? '#9AA4B2' : '#6A7180'}" stroke-width="1.1"/>
+    <path d="M${x + d * 4} 410 Q${tx} 410.5 ${tx + d * 3} 416" stroke="${S(K, light ? -.3 : .3)}" stroke-width="1.4" fill="none" opacity=".7"/>
+    <path d="M${x - d * 14} 419 L${tx + d * 2} 419 L${tx - d * 1} 424 L${x - d * 12} 424 Z" fill="#E6EAF0"/>
+    <path d="M${x - d * 16} 426.4 L${tx + d * 5} 426.4" stroke="url(#${u}steel)" stroke-width="2.4" stroke-linecap="round"/>`;
   };
-  /* ---------- Arme, Handschuhe, Stock ---------- */
+  /* ---------- Ärmel, Handschuhe, Stock ---------- */
+  const sleeve = (s, e, h) => {
+    const ws = [21, 16.5, 13.5], d = limb([s, e, h], ws), n2 = nrm(e, h);
+    return `<path d="${d}" fill="${F('jer')}"/><path d="${d}" fill="url(#${u}foldv)" opacity=".7"/>
+      ${band(e, h, .46, .56, 15.5, 15, A)}${band(e, h, .64, .74, 14.8, 14.3, A)}
+      <path d="M${pt(s, nrm(s, e), 21)} Q${s[0]} ${s[1] - 26} ${pt(s, nrm(s, e), -21)}" fill="${S(J, .04)}"/>
+      <path d="M${pt(lerp(s, e, .12), nrm(s, e), 20)} L${pt(lerp(s, e, .12), nrm(s, e), -20)}" stroke="${S(J, -.4)}" stroke-width="1.4" opacity=".35"/>
+      <path d="M${pt(h, n2, 13.5)} L${pt(h, n2, -13.5)}" stroke="${S(J, -.45)}" stroke-width="3" opacity=".55"/>`;
+  };
   const glove = (x, y, r) => `
     <g transform="translate(${x} ${y}) rotate(${r})">
-      <rect x="-15" y="-13" width="30" height="27" rx="9" fill="${F('glo')}"/>
-      <rect x="-15" y="-17" width="30" height="9" rx="4.5" fill="${S(G, avLum(G) > .5 ? -.12 : .18)}"/>
-      <path d="M-8 2 h16 M-8 7 h16" stroke="${S(G, avLum(G) > .5 ? -.3 : .3)}" stroke-width="1.6" stroke-linecap="round"/>
-      <rect x="-15" y="-17" width="30" height="31" rx="9" fill="none" stroke="${S(G, -.45)}" stroke-width="1.2" opacity=".6"/>
+      <path d="M-13 -12 Q-13 -16 -9 -16 L9 -16 Q13 -16 13 -12 L14 10 Q14 15 9 15 L-9 15 Q-14 15 -14 10 Z" fill="${F('glo')}"/>
+      <path d="M-14 -9 L14 -9" stroke="${S(G, avLum(G) > .5 ? -.25 : .25)}" stroke-width="5"/>
+      <path d="M-7 -3 v15 M0 -3 v16 M7 -3 v15" stroke="${S(G, -.4)}" stroke-width="1.3" opacity=".8"/>
+      <path d="M-10 -14 Q0 -17 10 -14" stroke="#FFFFFF" stroke-width="1.6" opacity=".25" fill="none"/>
     </g>`;
-  const arm = (pts) => {   // Ärmel als Fläche mit Schulterpolster, Ellbogen und Bündchen
-    const [s, e, h] = pts, nrm = (p, q) => { const dx = q[0] - p[0], dy = q[1] - p[1], l = Math.hypot(dx, dy) || 1; return [-dy / l, dx / l]; };
-    const n1 = nrm(s, e), n2 = nrm(e, h), nm = [(n1[0] + n2[0]) / 2, (n1[1] + n2[1]) / 2];
-    const P = (p, n, w) => `${(p[0] + n[0] * w).toFixed(1)} ${(p[1] + n[1] * w).toFixed(1)}`;
-    const ws = 22, we = 17, wh = 14;
-    const body = `M${P(s, n1, ws)} Q${P(e, nm, we + 3)} ${P(e, nm, we)} L${P(h, n2, wh)} L${P(h, n2, -wh)} L${P(e, nm, -we)} Q${P(s, n1, -ws - 2)} ${P(s, n1, -ws)} Q${s[0] - n1[1] * 18} ${s[1] + n1[0] * 18} ${P(s, n1, ws)} Z`;
-    const band = (t1, t2) => { const a = [e[0] + (h[0] - e[0]) * t1, e[1] + (h[1] - e[1]) * t1], b = [e[0] + (h[0] - e[0]) * t2, e[1] + (h[1] - e[1]) * t2], w = we + (wh - we) * t1;
-      return `<path d="M${P(a, n2, w)} L${P(b, n2, w)} L${P(b, n2, -w)} L${P(a, n2, -w)} Z" fill="${A}"/>`; };
-    return `<path d="${body}" fill="${F('jer')}"/>${band(.42, .52)}${band(.6, .7)}
-      <path d="M${P(s, n1, -ws + 4)} Q${P(e, nm, -we + 2)} ${P(e, nm, -we + 3)} L${P(h, n2, -wh + 3)}" stroke="${S(J, -.4)}" stroke-width="3" fill="none" opacity=".45" stroke-linecap="round"/>
-      <path d="M${P(s, n1, ws - 5)} Q${P(e, nm, we)} ${P(e, nm, we - 4)}" stroke="#FFFFFF" stroke-width="2.4" fill="none" opacity=".18" stroke-linecap="round"/>
-      <path d="M${P(h, n2, wh)} L${P(h, n2, -wh)}" stroke="${S(J, -.45)}" stroke-width="3" opacity=".6"/>`;
-  };
   const tapeCol = avLum(ST) > .6 ? '#16181D' : '#F4F6F9';
-  const stickReady = `
-    <path d="M96 210 L236 368" stroke="${F('stk')}" stroke-width="8" stroke-linecap="round"/>
-    <path d="M94 207 L103 218" stroke="${tapeCol}" stroke-width="9.5" stroke-linecap="round"/>
-    <path d="M230 362 Q236 376 252 377 L284 377 Q290 376 289 370 L286 366 Q262 368 246 366 Z" fill="${ST}"/>
-    <path d="M246 368 L284 368 L286 375 L252 376 Z" fill="${tapeCol}" opacity=".95"/>
-    <path d="M250 368.5 v7 M258 368.5 v7.3 M266 368.5 v7.5 M274 368.5 v7.5" stroke="${S(tapeCol === '#F4F6F9' ? '#C9D0DA' : '#3A3F48', 0)}" stroke-width=".8"/>`;
-  const stickCheer = `
-    <path d="M234 132 L262 10" stroke="${F('stk')}" stroke-width="8" stroke-linecap="round"/>
-    <path d="M232 140 L236 124" stroke="${tapeCol}" stroke-width="9.5" stroke-linecap="round"/>
-    <path d="M258 16 Q262 2 276 0 L286 2 Q290 6 286 10 Q272 12 266 24 Z" fill="${ST}"/>
-    <path d="M266 18 Q272 8 284 5 L286 9 Q273 12 268 23 Z" fill="${tapeCol}"/>`;
-  const armsReady = arm([[108, 140], [88, 196], [108, 226]]) + arm([[192, 140], [214, 204], [192, 254]]);
-  const armsCheer = arm([[108, 140], [88, 194], [98, 232]]) + arm([[192, 138], [224, 98], [236, 64]]);
-  const hands = cheer
-    ? stickCheer + glove(100, 242, -8) + glove(238, 56, 22)
-    : stickReady + glove(112, 232, 38) + glove(190, 262, 40);
-  const armsGroup = `<g${mirror ? ' transform="translate(300 0) scale(-1 1)"' : ''}>${cheer ? armsCheer : armsReady}${hands}</g>`;
-  /* ---------- Gesichtsschutz ---------- */
+  let arms;
+  if (cheer){
+    const sL = [104, 146], eL = [86, 206], hL = [96, 252], sR = [196, 144], eR = [230, 106], hR = [246, 62];
+    arms = `
+      <path d="M232 104 L270 2" stroke="${F('stk')}" stroke-width="6.5" stroke-linecap="round"/>
+      <path d="M231 108 L235 96" stroke="${tapeCol}" stroke-width="8" stroke-linecap="round"/>
+      <path d="M266 10 Q270 -2 282 -4 L292 -2 Q295 2 291 5 Q279 7 273 18 Z" fill="${ST}"/>
+      <path d="M272 12 Q278 4 289 1 L291 4 Q280 7 274 16 Z" fill="${tapeCol}"/>
+      ${sleeve(sL, eL, hL)}${sleeve(sR, eR, hR)}${glove(96, 262, -6)}${glove(247, 56, 20)}`;
+  } else {
+    const T = [108, 252], B = [150, 304], HEEL = [226, 416];   // Stock: obere Hand, untere Hand, Ferse
+    const sL = [104, 146], eL = [82, 206], sR = [196, 146], eR = [210, 230];
+    arms = `
+      ${sleeve(sR, eR, [158, 294])}
+      <path d="M100 238 L${HEEL[0]} ${HEEL[1]}" stroke="${F('stk')}" stroke-width="6.5" stroke-linecap="round"/>
+      <path d="M99 236 L106 246" stroke="${tapeCol}" stroke-width="8" stroke-linecap="round"/>
+      <path d="M${HEEL[0] - 4} ${HEEL[1] - 6} Q${HEEL[0] - 2} ${HEEL[1] + 8} ${HEEL[0] + 14} ${HEEL[1] + 9} L${HEEL[0] + 52} ${HEEL[1] + 10} Q${HEEL[0] + 58} ${HEEL[1] + 8} ${HEEL[0] + 56} ${HEEL[1] + 3} Q${HEEL[0] + 30} ${HEEL[1] + 4} ${HEEL[0] + 12} ${HEEL[1]} Z" fill="${ST}"/>
+      <path d="M${HEEL[0] + 12} ${HEEL[1] + 2} L${HEEL[0] + 54} ${HEEL[1] + 4} L${HEEL[0] + 52} ${HEEL[1] + 9.5} L${HEEL[0] + 14} ${HEEL[1] + 8.5} Z" fill="${tapeCol}" opacity=".95"/>
+      ${sleeve(sL, eL, [104, 248])}
+      ${glove(T[0], T[1] + 4, 34)}${glove(B[0] + 6, B[1] - 2, 40)}`;
+  }
+  const armsGroup = `<g${mirror ? ' transform="translate(300 0) scale(-1 1)"' : ''}>${arms}</g>`;
+  /* ---------- Kopf ---------- */
   const guard = a.guard === 'visor' ? `
-      <path d="M124 70 Q150 62 176 70 L176 88 Q150 94 124 88 Z" fill="url(#${u}visor)" stroke="#E9EEF4" stroke-width="1.4" stroke-opacity=".8"/>
-      <path d="M130 72 Q142 68 152 69" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" opacity=".7"/>`
+      <path d="M130 70 Q150 64 170 70 L170 84 Q150 90 130 84 Z" fill="url(#${u}visor)" stroke="#E9EEF4" stroke-width="1.2" stroke-opacity=".85"/>
+      <path d="M134 71.5 Q143 68.5 151 69" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" opacity=".75"/>
+      <rect x="128" y="69" width="4" height="8" rx="1.5" fill="${S(H, -.2)}"/><rect x="168" y="69" width="4" height="8" rx="1.5" fill="${S(H, -.2)}"/>`
     : a.guard === 'cage' ? `
-      <g stroke="#D8DEE6" stroke-width="1.6" fill="none" opacity=".95">
-        <path d="M124 70 Q150 62 176 70 L174 104 Q150 122 126 104 Z"/>
-        <path d="M124 80 Q150 74 176 80 M125 90 Q150 85 175 90 M126 100 Q150 98 174 100 M128 110 Q150 113 172 110"/>
-        <path d="M134 68 L136 112 M142 66 L143 116 M150 65 L150 118 M158 66 L157 116 M166 68 L164 112"/>
+      <g stroke="#D3DAE3" stroke-width="1.25" fill="none">
+        <path d="M130 70 Q150 64 170 70 L168 100 Q150 116 132 100 Z" stroke-width="1.8"/>
+        <path d="M130.5 79 Q150 74 169.5 79 M131 88 Q150 84 169 88 M132 97 Q150 95 168 97 M136 105 Q150 108 164 105"/>
+        <path d="M137 67.5 L139 107 M143.5 66 L144.5 111 M150 65.5 L150 113 M156.5 66 L155.5 111 M163 67.5 L161 107"/>
       </g>` : '';
   const mouth = cheer
-    ? `<path d="M140 99 Q150 112 160 99 Q150 103 140 99 Z" fill="#5A1E1E"/><path d="M143 100 Q150 102.5 157 100" stroke="#FFFFFF" stroke-width="1.6"/>`
-    : `<path d="M142 101 Q150 106 158 101" stroke="${S(SK, -.5)}" stroke-width="2" fill="none" stroke-linecap="round"/>`;
-  return `<svg class="hockey-av" viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Eigener Hockey-Avatar">
+    ? `<path d="M144 97 Q150 104.5 156 97 Q150 99 144 97 Z" fill="#4A1A1A"/><path d="M145.5 97.6 Q150 98.8 154.5 97.6" stroke="#F2EFEA" stroke-width="1.1"/>`
+    : `<path d="M144.5 98 Q150 99.3 155.5 98" stroke="${S(SK, -.45)}" stroke-width="1.4" fill="none" stroke-linecap="round"/><path d="M146 100.6 Q150 101.6 154 100.6" stroke="${S(SK, -.18)}" stroke-width="1.2" fill="none" opacity=".7"/>`;
+  const eye = (x, d) => `
+    <path d="M${x - 3.6} 81 Q${x} ${78.6} ${x + 3.6} 81 Q${x} 82.6 ${x - 3.6} 81 Z" fill="#EFEAE4"/>
+    <circle cx="${x + d * .3}" cy="80.9" r="1.45" fill="#3A2A1E"/><circle cx="${x + d * .3 + .4}" cy="80.5" r=".4" fill="#FFFFFF"/>
+    <path d="M${x - 4} 80.6 Q${x} 77.8 ${x + 4} 80.6" stroke="${S(SK, -.55)}" stroke-width="1.1" fill="none"/>`;
+  return `<svg class="hockey-av" viewBox="0 0 300 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Eigener Hockey-Avatar">
   <defs>
-    ${g('jer', J, .22, -.38)}${g('acc', A, .2, -.35)}${g('pan', P, .2, -.4)}${g('glo', G, .22, -.4)}${g('hel', H, .3, -.4)}${g('sk', K, .25, -.35)}${g('stk', ST, .3, -.3)}
-    <radialGradient id="${u}face" cx=".42" cy=".38" r=".7"><stop offset="0" stop-color="${S(SK, .12)}"/><stop offset=".7" stop-color="${SK}"/><stop offset="1" stop-color="${S(SK, -.22)}"/></radialGradient>
-    <linearGradient id="${u}visor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#BFE3FF" stop-opacity=".55"/><stop offset="1" stop-color="#7FB8E8" stop-opacity=".25"/></linearGradient>
-    <linearGradient id="${u}steel" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8E99A8"/><stop offset=".5" stop-color="#F4F7FA"/><stop offset="1" stop-color="#8E99A8"/></linearGradient>
-    <linearGradient id="${u}fold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".16"/><stop offset=".5" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="1" stop-color="#000000" stop-opacity=".22"/></linearGradient>
-    <radialGradient id="${u}ice" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+    ${g('jer', J, .2, -.4)}${g('pan', P, .18, -.42)}${g('glo', G, .2, -.42)}${g('hel', H, .3, -.42)}${g('sk', K, .22, -.38)}${g('stk', ST, .3, -.3)}${g('acc', A, .18, -.38)}
+    <radialGradient id="${u}face" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="${S(SK, .1)}"/><stop offset=".65" stop-color="${SK}"/><stop offset="1" stop-color="${S(SK, -.28)}"/></radialGradient>
+    <linearGradient id="${u}visor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C9E8FF" stop-opacity=".5"/><stop offset="1" stop-color="#7FB8E8" stop-opacity=".18"/></linearGradient>
+    <linearGradient id="${u}steel" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8E99A8"/><stop offset=".5" stop-color="#F7F9FB"/><stop offset="1" stop-color="#8E99A8"/></linearGradient>
+    <linearGradient id="${u}foldv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".12"/><stop offset=".55" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="1" stop-color="#000000" stop-opacity=".26"/></linearGradient>
+    <radialGradient id="${u}ice" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000" stop-opacity=".5"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+    <clipPath id="${u}clip"><path d="M108 122 Q150 112 192 122 Q216 128 222 148 L214 196 L208 254 Q150 264 92 254 L86 196 L78 148 Q84 128 108 122 Z"/></clipPath>
   </defs>
-  <ellipse cx="150" cy="384" rx="${cheer ? 92 : 120}" ry="11" fill="url(#${u}ice)"/>
-  ${leg(116, 146, -1)}${leg(154, 184, 1)}
-  ${skate(126, -1)}${skate(176, 1)}
-  <!-- Hose -->
-  <path d="M100 226 L200 226 L206 288 Q192 296 176 292 L154 290 L150 262 L146 290 L124 292 Q108 296 94 288 Z" fill="${F('pan')}"/>
-  <path d="M100 226 L200 226 L206 288 Q192 296 176 292 L154 290 L150 262 L146 290 L124 292 Q108 296 94 288 Z" fill="url(#${u}fold)"/>
-  <path d="M102 232 L96 286 M198 232 L204 286" stroke="${A}" stroke-width="5" opacity=".95"/>
-  <path d="M150 238 L150 262" stroke="${S(P, -.45)}" stroke-width="2"/>
+  <ellipse cx="${cheer ? 150 : 165}" cy="429" rx="${cheer ? 70 : 115}" ry="8" fill="url(#${u}ice)"/>
+  ${leg([124, 312], [118, 352], [112, 392])}${leg([176, 312], [182, 352], [188, 392])}
+  ${skate(112, -1)}${skate(188, 1)}
+  <!-- Hockeyhose -->
+  <path d="M98 244 L202 244 L212 314 Q196 324 178 320 L156 318 L150 284 L144 318 L122 320 Q104 324 88 314 Z" fill="${F('pan')}"/>
+  <path d="M98 244 L202 244 L212 314 Q196 324 178 320 L156 318 L150 284 L144 318 L122 320 Q104 324 88 314 Z" fill="url(#${u}foldv)"/>
+  <path d="M100 250 L91 312 M200 250 L209 312" stroke="${A}" stroke-width="4.5"/>
+  <path d="M112 262 Q118 290 112 314 M188 262 Q182 290 188 314" stroke="${S(P, -.45)}" stroke-width="1.6" fill="none" opacity=".6"/>
   <!-- Trikot -->
-  <path d="M108 120 Q150 108 192 120 L214 140 Q216 168 206 186 L204 242 Q150 252 96 242 L94 186 Q84 168 86 140 Z" fill="${F('jer')}"/>
-  <clipPath id="${u}clip"><path d="M108 120 Q150 108 192 120 L214 140 Q216 168 206 186 L204 242 Q150 252 96 242 L94 186 Q84 168 86 140 Z"/></clipPath>
+  <path d="M108 122 Q150 112 192 122 Q216 128 222 148 L214 196 L208 254 Q150 264 92 254 L86 196 L78 148 Q84 128 108 122 Z" fill="${F('jer')}"/>
   <g clip-path="url(#${u}clip)">
-    <path d="M80 112 L220 112 L220 150 Q150 136 80 150 Z" fill="${F('acc')}"/>
-    <path d="M80 150 Q150 136 220 150" stroke="#F1F3F6" stroke-width="2" fill="none" opacity=".75"/>
-    ${stripe(212, 7)}${stripe(224, 7)}
-    <path d="M80 110 L220 110 L220 250 L80 250 Z" fill="url(#${u}fold)"/>
-    <path d="M120 170 Q126 200 118 236 M182 170 Q176 200 184 236" stroke="${S(J, -.4)}" stroke-width="2" fill="none" opacity=".45"/>
+    <path d="M70 110 L230 110 L230 154 Q150 140 70 154 Z" fill="${F('acc')}"/>
+    <path d="M70 154 Q150 140 230 154" stroke="#F1F3F6" stroke-width="1.8" fill="none" opacity=".8"/>
+    <rect x="70" y="226" width="160" height="7" fill="${A}"/><rect x="70" y="238" width="160" height="7" fill="${A}"/>
+    <rect x="70" y="110" width="160" height="160" fill="url(#${u}foldv)"/>
+    <path d="M118 168 Q124 206 116 250 M182 168 Q176 206 184 250 M138 200 Q150 214 162 200" stroke="${S(J, -.42)}" stroke-width="1.8" fill="none" opacity=".4"/>
   </g>
-  <text x="150" y="196" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="46" fill="${numFill}" stroke="${numLine}" stroke-width="2.4" paint-order="stroke">${no}</text>
+  <text x="150" y="204" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="40" fill="${numFill}" stroke="${numLine}" stroke-width="2.2" paint-order="stroke" letter-spacing="1">${no}</text>
   <!-- Hals und Kragen -->
-  <path d="M138 104 L162 104 L164 122 L136 122 Z" fill="${S(SK, -.12)}"/>
-  <path d="M132 118 L150 136 L168 118" fill="${A}" stroke="${S(A, -.3)}" stroke-width="1"/>
+  <path d="M142 98 L158 98 L160 122 L140 122 Z" fill="${S(SK, -.15)}"/>
+  <path d="M142 104 L158 104" stroke="${S(SK, -.35)}" stroke-width="3" opacity=".35"/>
+  <path d="M134 118 L150 134 L166 118 L162 116 L150 127 L138 116 Z" fill="${A}"/>
   ${armsGroup}
   <!-- Kopf -->
-  <path d="M124 82 Q122 104 132 112 L132 92 Z M176 82 Q178 104 168 112 L168 92 Z" fill="${HR}"/>
-  <ellipse cx="150" cy="86" rx="23" ry="27" fill="url(#${u}face)"/>
-  <ellipse cx="127" cy="88" rx="4" ry="6" fill="${S(SK, -.15)}"/><ellipse cx="173" cy="88" rx="4" ry="6" fill="${S(SK, -.15)}"/>
-  <path d="M136 74 Q141 71 146 73 M154 73 Q159 71 164 74" stroke="${S(HR, -.1)}" stroke-width="2.6" stroke-linecap="round" fill="none"/>
-  <ellipse cx="141" cy="81" rx="4" ry="3" fill="#FFFFFF"/><ellipse cx="159" cy="81" rx="4" ry="3" fill="#FFFFFF"/>
-  <circle cx="141.6" cy="81.3" r="2.2" fill="#3B2A1E"/><circle cx="159.6" cy="81.3" r="2.2" fill="#3B2A1E"/>
-  <circle cx="142.3" cy="80.6" r=".7" fill="#FFFFFF"/><circle cx="160.3" cy="80.6" r=".7" fill="#FFFFFF"/>
-  <path d="M150 82 Q148 90 146 92 Q150 94 154 92" stroke="${S(SK, -.35)}" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <path d="M131 80 Q130 98 137 104 L138 86 Z M169 80 Q170 98 163 104 L162 86 Z" fill="${HR}"/>
+  <path d="M133 70 Q133 96 141 104 Q150 110 159 104 Q167 96 167 70 Z" fill="url(#${u}face)"/>
+  <ellipse cx="133.4" cy="85" rx="2.6" ry="4.6" fill="${S(SK, -.2)}"/><ellipse cx="166.6" cy="85" rx="2.6" ry="4.6" fill="${S(SK, -.2)}"/>
+  <path d="M133 74 Q134 92 140 100 Q136 88 136 74 Z M167 74 Q166 92 160 100 Q164 88 164 74 Z" fill="${S(SK, -.3)}" opacity=".35"/>
+  <path d="M139.5 76.6 Q143 75 147 76.4 M153 76.4 Q157 75 160.5 76.6" stroke="${S(HR, -.15)}" stroke-width="2" stroke-linecap="round" fill="none"/>
+  ${eye(143, 1)}${eye(157, -1)}
+  <path d="M150 80 L148.6 90 Q150 91.6 152 90.6" stroke="${S(SK, -.32)}" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <path d="M147.2 91 Q150 92.6 152.8 91" stroke="${S(SK, -.45)}" stroke-width="1" fill="none" opacity=".7"/>
   ${mouth}
+  <path d="M143 106 Q150 109 157 106" stroke="${S(SK, -.25)}" stroke-width="1.2" fill="none" opacity=".5"/>
   <!-- Helm -->
-  <path d="M120 78 Q118 38 150 34 Q182 38 180 78 L180 98 Q176 104 170 100 L170 80 Q150 72 130 80 L130 100 Q124 104 120 98 Z" fill="${F('hel')}"/>
-  <path d="M128 46 Q150 34 172 46" stroke="${S(H, avLum(H) > .5 ? -.25 : .3)}" stroke-width="2" fill="none"/>
-  <path d="M138 40 L140 50 M150 37 L150 48 M162 40 L160 50" stroke="${S(H, -.45)}" stroke-width="2.4" stroke-linecap="round"/>
-  <path d="M126 50 Q132 42 142 40" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" opacity=".35"/>
-  <path d="M130 98 Q150 122 170 98" stroke="${S(H, -.3)}" stroke-width="1.6" fill="none"/>
+  <path d="M127 77 Q125 42 150 39 Q175 42 173 77 L173 93 Q170 97 165 94 L165 77 Q150 71 135 77 L135 94 Q130 97 127 93 Z" fill="${F('hel')}"/>
+  <path d="M131 51 Q150 41 169 51" stroke="${S(H, avLum(H) > .5 ? -.25 : .3)}" stroke-width="1.6" fill="none"/>
+  <path d="M141 44 L142 53 M150 42 L150 51 M159 44 L158 53" stroke="${S(H, -.5)}" stroke-width="2" stroke-linecap="round"/>
+  <path d="M131 55 Q135 46 143 43" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" opacity=".32"/>
+  <circle cx="131" cy="84" r="2.2" fill="${S(H, -.3)}"/><circle cx="169" cy="84" r="2.2" fill="${S(H, -.3)}"/>
+  <path d="M135 94 Q150 116 165 94" stroke="${S(H, -.35)}" stroke-width="1.3" fill="none"/>
   ${guard}
 </svg>`;
 }
@@ -3955,7 +3974,7 @@ function avatarEditorHTML(){
   const row = (key, label, opts, kind) => `<div class="av-row"><span class="pe-lbl">${label}</span><div class="av-opts" role="group" aria-label="${label}">${opts.map(([v, n]) => kind === 'chip'
       ? `<button class="av-chip" data-av="${key}" data-v="${v}" aria-pressed="${avatar[key] === v}">${n}</button>`
       : `<button class="av-sw" data-av="${key}" data-v="${v}" aria-pressed="${avatar[key] === v}" title="${n}" aria-label="${n}" style="--c:${v}"></button>`).join('')}</div></div>`;
-  return `<div class="av-edit"><p class="pe-lbl">Avatar gestalten</p>
+  return `<div class="av-edit">
     ${row('pose', 'Pose', AV_OPTS.pose, 'chip')}
     ${row('shoots', 'Schuss', AV_OPTS.shoots, 'chip')}
     ${row('guard', 'Schutz', AV_OPTS.guard, 'chip')}
@@ -4017,6 +4036,28 @@ function bindCardImgInput(inp, onDone, msgEl){
   };
 }
 
+/* ---- Unterseite: Avatar gestalten ---- */
+function openAvatar(){
+  const sc = $('screen-avatar'), y = sc.hidden ? 0 : sc.scrollTop;
+  sc.innerHTML = `
+  <div class="inner trophies">
+    <div class="tr-head">
+      <div><p class="eyebrow">Spielerkarte</p><h1>Avatar gestalten</h1></div>
+      <button class="btn btn-ghost btn-small" id="av-back"><span class="arrow back" aria-hidden="true"></span> Spielerkarte</button>
+    </div>
+    <div class="av-page">
+      <div class="av-preview">${avatarSVG(avatar, player.no)}</div>
+      ${avatarEditorHTML()}
+    </div>
+    <button class="btn btn-primary" id="av-done">Fertig <span class="arrow" aria-hidden="true"></span></button>
+  </div>`;
+  const back = () => { CardImgs.select(''); openCard(); };
+  $('av-back').onclick = back; $('av-done').onclick = back;
+  sc.querySelectorAll('[data-av]').forEach(b => b.onclick = () => { avatar[b.dataset.av] = b.dataset.v; saveAvatar(); openAvatar(); });
+  $('av-reset').onclick = () => { Object.assign(avatar, AV_DEF); saveAvatar(); openAvatar(); };
+  show('avatar'); sc.scrollTop = y;
+}
+
 function openCard(){
   Voice.stop();
   const A = attributes(), POS = ['Stürmer','Center','Flügel','Verteidiger','Torhüter'];
@@ -4041,7 +4082,7 @@ function openCard(){
             ${CardImgs.list().length < CardImgs.MAX ? '<label class="pc-thumb add" aria-label="Bild hinzufügen"><span>+</span><input type="file" id="pc-add" accept="image/*" class="file-hidden"></label>' : ''}
           </div><p class="pc-pick-msg muted" id="pc-pick-msg"></p></div>
         <div class="av-row"><span class="pe-lbl">Kartenfarbe</span><div class="av-opts" role="group" aria-label="Kartenfarbe">${CARD_COLORS.map(([v, n]) => `<button class="av-sw cc-sw cc-${v}" data-card="${v}" aria-pressed="${(player.card || 'gold') === v}" title="${n}" aria-label="${n}"></button>`).join('')}</div></div>
-        ${CardImgs.sel() ? '' : avatarEditorHTML()}
+        ${CardImgs.sel() ? '' : '<button class="all-trainings" id="btn-avatar"><span><b>Avatar gestalten</b><small>Pose, Ausrüstung, Farben und Aussehen</small></span><span class="arrow" aria-hidden="true"></span></button>'}
         <p class="muted">Jedes Training steigert die Werte, die das Set trainiert, zum Beispiel Set 1 «Speed & Power» steigert Speed und Power. Neue Rekorde geben zusätzliche Punkte. Elite-Trainings zählen mehr.</p>
         <div class="pe-row"><label class="pe-lbl" for="pc-no-in">Nummer</label><input class="pe-time" id="pc-no-in" type="number" min="1" max="99" value="${player.no}"></div>
         <div class="pe-row"><label class="pe-lbl" for="pc-pos-in">Position</label><select id="pc-pos-in" class="voice-sel">${POS.map(p => `<option ${p === player.pos ? 'selected' : ''}>${p}</option>`).join('')}</select></div>
@@ -4051,9 +4092,8 @@ function openCard(){
     <button class="btn btn-primary" data-back><span class="arrow back" aria-hidden="true"></span> Zurück zum Mission Center</button>
   </div>`;
   const keepY = () => { const sc = $('screen-card'), y = sc.scrollTop; openCard(); $('screen-card').scrollTop = y; };
-  document.querySelectorAll('#screen-card [data-av]').forEach(b => b.onclick = () => { avatar[b.dataset.av] = b.dataset.v; saveAvatar(); keepY(); });
+  { const b = $('btn-avatar'); if (b) b.onclick = openAvatar; }
   document.querySelectorAll('#screen-card [data-card]').forEach(b => b.onclick = () => { player.card = b.dataset.card; savePlayer(); keepY(); });
-  { const r = $('av-reset'); if (r) r.onclick = () => { Object.assign(avatar, AV_DEF); saveAvatar(); keepY(); }; }
   bindBack($('screen-card'));
   document.querySelectorAll('#screen-card [data-img]').forEach(b => b.onclick = () => { CardImgs.select(b.dataset.img); keepY(); });
   bindCardImgInput($('pc-add'), openCard, $('pc-pick-msg'));
