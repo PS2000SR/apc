@@ -101,14 +101,14 @@ body.bg-progress #bg-prog{opacity:1}
 #intro .i-t{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 24px;color:#fff;font-family:var(--f-display);font-weight:600;text-transform:uppercase;letter-spacing:.18em;font-size:clamp(1.6rem,4.6vw,3rem);line-height:1.15;opacity:0;animation:iTitel 1.2s ease-out 2.2s forwards}
 #intro.boom{background:transparent;cursor:default;pointer-events:none}
 #intro.boom .i-bg,#intro.boom .i-dim,#intro.boom svg{display:none}
-#intro .i-shard{position:absolute;inset:0;background:linear-gradient(rgba(9,17,31,.55),rgba(9,17,31,.55)),var(--prog-img) center/cover no-repeat;-webkit-animation:iShard .85s cubic-bezier(.15,.7,.3,1) forwards;animation:iShard .85s cubic-bezier(.15,.7,.3,1) forwards;will-change:transform,opacity}
-@-webkit-keyframes iShard{from{-webkit-transform:none;opacity:1}to{-webkit-transform:translate(var(--tx),var(--ty)) rotate(var(--rot));opacity:0}}
-@keyframes iShard{from{transform:none;opacity:1}to{transform:translate(var(--tx),var(--ty)) rotate(var(--rot));opacity:0}}
-#intro .i-flash{position:absolute;left:50%;top:48%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:#fff;opacity:0;animation:iFlash .45s ease-out forwards}
-#intro.boom .i-t{z-index:2;animation:iTitelBoom .55s ease-in forwards;opacity:1}
-@keyframes iFlash{0%{opacity:.85;transform:scale(1)}100%{opacity:0;transform:scale(40)}}
+#intro .i-shard{position:absolute;inset:0;background:linear-gradient(rgba(9,17,31,.55),rgba(9,17,31,.55)),var(--prog-img) center/cover no-repeat;-webkit-animation:iShard 1.9s cubic-bezier(.2,.6,.35,1) forwards;animation:iShard 1.9s cubic-bezier(.2,.6,.35,1) forwards;will-change:transform,opacity}
+@-webkit-keyframes iShard{0%{-webkit-transform:none;opacity:1}60%{opacity:1}100%{-webkit-transform:translate(var(--tx),var(--ty)) rotate(var(--rot));opacity:0}}
+@keyframes iShard{0%{transform:none;opacity:1}60%{opacity:1}100%{transform:translate(var(--tx),var(--ty)) rotate(var(--rot));opacity:0}}
+#intro .i-flash{position:absolute;left:50%;top:48%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:#fff;opacity:0;animation:iFlash .5s ease-out forwards}
+#intro.boom .i-t{z-index:2;animation:iTitelBoom 1s ease-in forwards;opacity:1}
+@keyframes iFlash{0%{opacity:.5;transform:scale(1)}100%{opacity:0;transform:scale(40)}}
 /* Intro bewusst auch bei «Bewegung reduzieren» vollständig abspielen (übersteuert die globale Regel) */
-@media (prefers-reduced-motion:reduce){#intro{transition-duration:.3s!important}#intro .i-bg{animation-duration:7s!important}#intro path{animation-duration:2.6s,7s!important}#intro .i-t{animation-duration:1.2s!important}#intro.boom .i-t{animation-duration:.55s!important}#intro .i-shard{animation-duration:.85s!important}#intro .i-flash{animation-duration:.45s!important}}
+@media (prefers-reduced-motion:reduce){#intro{transition-duration:.3s!important}#intro .i-bg{animation-duration:7s!important}#intro path{animation-duration:2.6s,7s!important}#intro .i-t{animation-duration:1.2s!important}#intro.boom .i-t{animation-duration:1s!important}#intro .i-shard{animation-duration:1.9s!important}#intro .i-flash{animation-duration:.5s!important}}
 @keyframes iTitelBoom{from{opacity:1;transform:scale(1);letter-spacing:.18em}to{opacity:0;transform:scale(1.7);letter-spacing:.5em}}
 @keyframes iZoom{from{transform:scale(1.08)}to{transform:scale(1)}}
 @keyframes iPuls{to{stroke-dashoffset:0}}
@@ -915,7 +915,7 @@ html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:
     el.appendChild(ring);
     var fl=document.createElement('div');fl.className='i-flash';el.appendChild(fl);
     el.classList.add('boom');
-    aufraeumen(950);
+    aufraeumen(2000);
   }
   el.addEventListener('click',boom);
   setTimeout(boom,ruhig?3000:6700);
