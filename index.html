@@ -773,6 +773,15 @@ body.voice-off .stage .coach p{font-size:clamp(1.4rem,3.6vw,2rem)}
 .px-list li{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding:2px 0}
 .px-del{border:0;background:none;color:var(--muted);font-size:1.4rem;cursor:pointer;min-width:44px;min-height:44px}
 .pc.xday{border-left-color:var(--gold)}
+.pl-tabs{display:flex;flex-wrap:wrap;gap:8px}
+.pl-nav{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.pl-nav b{font-family:var(--f-display);font-size:1.2rem;letter-spacing:.04em;text-align:center;flex:1}
+.pl-nav .btn{min-width:48px;font-size:1.4rem;padding:4px 10px}
+.pday.past{opacity:.6}
+.fx-box input[type=date]{min-width:150px;min-height:40px}
+.fx-box input[type=text],.peditor input[type=text]{flex:1;min-width:180px;min-height:40px}
+.mc2-week .cab-head{flex-wrap:wrap;gap:10px}
+.pp-day[disabled]{opacity:.4;cursor:default}
 @media (max-width:520px){.cl-o{font-size:.85rem;letter-spacing:.02em;min-height:48px}}
 .mc2-feel{min-height:92px;border-radius:18px;border:2px solid var(--line);background:var(--panel);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-family:var(--f-display);font-weight:800;font-size:1.5rem;letter-spacing:.03em;transition:transform .08s ease,background .15s ease}
 .mc2-feel:active{transform:scale(.97)}
@@ -2616,14 +2625,15 @@ const ymd = d => { d = new Date(d); return `${d.getFullYear()}-${String(d.getMon
 const ymdDate = s => { const [y, m, d] = String(s).split('-').map(Number); return new Date(y, m - 1, d); };
 const addDays = (d, n) => { const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() + n); return x; };
 const CLUB_KEYS = ['ice', 'iceTime', 'offIce', 'match', 'tour', 'gameTime'];
-const planX = store.get('apc.planx.v1', {});
-const savePlanX = () => store.set('apc.planx.v1', planX);
-function planFor(date){
-  const base = Object.assign({}, week[dayKey(new Date(date))]), x = planX[ymd(date)];
-  if (!x) return Object.assign(base, { custom:false, note:'' });
-  CLUB_KEYS.forEach(k => { if (x[k] !== undefined) base[k] = x[k]; });
-  return Object.assign(base, { custom:true, note:x.note || '' });
-}
+const monOf = d => new Date(weekStart(new Date(d).toISOString()));
+/* Plan mit echten Daten: apc.days.v1 { 'JJJJ-MM-TT': { ice, iceTime, offIce, match, tour, gameTime, set, note } }.
+   Die Standardwoche (apc.week.v1) ist nur Vorlage: Ein Tag wird beim Anlegen einmal daraus befüllt und ist danach fest. */
+const daysStore = store.get('apc.days.v1', {});
+const saveDays = () => store.set('apc.days.v1', daysStore);
+const tplDay = d => { const t = week[dayKey(new Date(d))]; return { ice:!!t.ice, iceTime:t.iceTime || '', offIce:t.ice ? t.offIce !== false : false, match:!!t.match, tour:!!t.tour, gameTime:t.gameTime || '', set:t.set || '', note:'' }; };
+const dayEntry = d => { const k = ymd(d); return daysStore[k] || (daysStore[k] = tplDay(d)); };   // legt den Tag bei Bedarf an
+const isCustom = e => !!(e && e.edited);   // von Hand angepasster Tag (bleibt bei «Ab nächster Woche übernehmen» erhalten)
+function planFor(date){ const e = daysStore[ymd(date)] || tplDay(date); return Object.assign({}, e, { custom:isCustom(e) }); }
 const clubItems = p => [p.ice && ['on', 'On-Ice', p.iceTime], p.ice && p.offIce && ['off', 'Off-Ice', ''], isGame(p) && ['game', p.match ? 'Match' : 'Turnier', p.gameTime]].filter(Boolean);
 const planTxt = p => [p.ice ? `On-Ice${p.iceTime ? ' ' + p.iceTime : ''}${p.offIce ? ' + Off-Ice' : ''}` : '', p.match ? `Match${p.gameTime ? ' ' + p.gameTime : ''}` : '', p.tour ? `Turnier${p.gameTime && !p.match ? ' ' + p.gameTime : ''}` : ''].filter(Boolean).join(' · ') || 'Kein Club-Training';
 const CLUB_ST = { done:'Gemacht', missed:'Ausgelassen', cancelled:'Ausgefallen' };
@@ -2631,6 +2641,14 @@ const CLUB_WHY = [['krank', 'Krank'], ['schmerzen', 'Schmerzen'], ['zeit', 'Kein
 const CLUB_NAME = { on:'On-Ice', off:'Off-Ice', game:'Match / Turnier' };
 const clubLog = () => progress.club || (progress.club = {});
 if (!progress.clubSince){ progress.clubSince = ymd(new Date()); saveProgress(); }   // ab hier wird protokolliert (ältere Tage gelten nicht als offen)
+(() => {   // Tage anlegen: 14 Tage vor Protokollbeginn bis Ende der übernächsten Woche; alte Abweichungen (apc.planx.v1) übernehmen
+  const now = new Date(), since = ymdDate(progress.clubSince), start = addDays(since < now ? since : now, -14), end = addDays(monOf(addDays(now, 14)), 6);
+  for (let d = start; d <= end; d = addDays(d, 1)) dayEntry(d);
+  const old = store.get('apc.planx.v1', null);
+  if (old){ Object.entries(old).forEach(([k, x]) => { const e = dayEntry(ymdDate(k)); CLUB_KEYS.forEach(c => { if (x[c] !== undefined) e[c] = x[c]; }); if (x.note) e.note = x.note; e.edited = true; });
+    try { localStorage.removeItem('apc.planx.v1'); } catch(e){} }
+  saveDays();
+})();
 function setClub(day, k, s, r){
   const L = clubLog(), e = L[day] = L[day] || {};
   if (!s) delete e[k]; else e[k] = r ? { s, r } : { s };
@@ -2679,126 +2697,162 @@ function planChipsHTML(d, e){
     d.match ? `<span class="pc game">Match${d.gameTime ? ' ' + d.gameTime : ''}${mk('game')}</span>` : '',
     d.tour ? `<span class="pc game">Turnier${d.gameTime && !d.match ? ' ' + d.gameTime : ''}${d.match ? '' : mk('game')}</span>` : '',
     m ? `<span class="pc apc load-b-${m.load}">Set ${m.n} · ${m.title}</span>` : '',
-    d.custom ? `<span class="pc xday">Abweichung${d.note ? ' · ' + rpEsc(d.note) : ''}</span>` : ''
+    d.note ? `<span class="pc xday">${rpEsc(d.note)}</span>` : d.custom ? '<span class="pc xday">angepasst</span>' : ''
   ].join('') || '<span class="pc rest">Ruhetag</span>';
 }
 
 /* Hinweise nach Jugend-Richtlinien: kein hartes Set vor Spielen, nicht zweimal hart hintereinander, Ruhetag */
-function weekWarnings(){
-  const W = [], setOf = k => SETS.find(m => m.id === week[k].set);
+function weekWarnings(W){
+  W = W || week;
+  const out = [], setOf = k => SETS.find(m => m.id === W[k].set);
   DAYS.forEach(([k, name], i) => {
-    const d = week[k], m = setOf(k), next = week[DAYS[(i + 1) % 7][0]], prev = week[DAYS[(i + 6) % 7][0]], pm = setOf(DAYS[(i + 6) % 7][0]);
-    if (m && m.load === 'hoch' && isGame(next)) W.push(`${name}: Set mit hoher Belastung am Tag vor einem Spiel – besser ein lockeres Set wählen.`);
-    if (m && m.load === 'hoch' && isGame(d)) W.push(`${name}: Spieltag – kein Set mit hoher Belastung.`);
-    if (m && pm && m.load === 'hoch' && pm.load === 'hoch') W.push(`${name}: zwei Sets mit hoher Belastung an aufeinanderfolgenden Tagen.`);
-    if (m && m.load === 'hoch' && isGame(prev)) W.push(`${name}: Tag nach dem Spiel – Erholung oder lockeres Set ist besser.`);
+    const d = W[k], m = setOf(k), next = W[DAYS[(i + 1) % 7][0]], prev = W[DAYS[(i + 6) % 7][0]], pm = setOf(DAYS[(i + 6) % 7][0]);
+    if (m && m.load === 'hoch' && isGame(next)) out.push(`${name}: Set mit hoher Belastung am Tag vor einem Spiel – besser ein lockeres Set wählen.`);
+    if (m && m.load === 'hoch' && isGame(d)) out.push(`${name}: Spieltag – kein Set mit hoher Belastung.`);
+    if (m && pm && m.load === 'hoch' && pm.load === 'hoch') out.push(`${name}: zwei Sets mit hoher Belastung an aufeinanderfolgenden Tagen.`);
+    if (m && m.load === 'hoch' && isGame(prev)) out.push(`${name}: Tag nach dem Spiel – Erholung oder lockeres Set ist besser.`);
   });
-  const sets = DAYS.filter(([k]) => week[k].set).length;
-  const busy = DAYS.filter(([k]) => week[k].set || week[k].ice || isGame(week[k])).length;
-  if (sets > 3) W.push(`${sets} APC-Sets pro Woche – neben dem Eistraining sind 2 bis 3 genug.`);
-  if (busy >= 7) W.push('Kein freier Tag in der Woche – mindestens ein Ruhetag ist wichtig.');
-  return W;
+  const sets = DAYS.filter(([k]) => W[k].set).length;
+  const busy = DAYS.filter(([k]) => W[k].set || W[k].ice || isGame(W[k])).length;
+  if (sets > 3) out.push(`${sets} APC-Sets pro Woche – neben dem Eistraining sind 2 bis 3 genug.`);
+  if (busy >= 7) out.push('Kein freier Tag in der Woche – mindestens ein Ruhetag ist wichtig.');
+  return out;
 }
 
 /* Vorschlag: 2–3 Sets auf freie Tage, Belastung passend zu Eistraining und Spielen */
-function suggestWeek(){
-  if (!DAYS.some(([k]) => week[k].ice)) CLUB_DEFAULT.forEach(k => { week[k].ice = true; week[k].offIce = true; });   // ohne Eistage: Standard Di, Mi, Fr
-  DAYS.forEach(([k]) => { week[k].set = ''; });
+function suggestWeek(W, save){
+  W = W || week;
+  if (!DAYS.some(([k]) => W[k].ice)) CLUB_DEFAULT.forEach(k => { W[k].ice = true; W[k].offIce = true; });   // ohne Eistage: Standard Di, Mi, Fr
+  DAYS.forEach(([k]) => { W[k].set = ''; });
   const log = progress.log || [];
   const lastIdx = log.length ? MISSIONS.findIndex(m => m.id === log.reduce((x, e) => Date.parse(e.at) > Date.parse(x.at) ? e : x, log[0]).mission) : -1;
   let ptr = (lastIdx + 1) % MISSIONS.length;
   const take = ok => { for (let n = 0; n < MISSIONS.length; n++){ const m = MISSIONS[(ptr + n) % MISSIONS.length]; if (!isLocked(m) && ok(m)){ ptr = (ptr + n + 1) % MISSIONS.length; return m; } } return null; };
-  const score = i => { const k = DAYS[i][0], d = week[k]; if (isGame(d)) return -1;
-    const next = week[DAYS[(i + 1) % 7][0]], prev = week[DAYS[(i + 6) % 7][0]];
+  const score = i => { const k = DAYS[i][0], d = W[k]; if (isGame(d)) return -1;
+    const next = W[DAYS[(i + 1) % 7][0]], prev = W[DAYS[(i + 6) % 7][0]];
     return (d.ice ? 1 : 3) + (isGame(next) ? -1 : 0) + (isGame(prev) ? -1 : 0); };
   const free = DAYS.map((_, i) => i).filter(i => score(i) >= 0).sort((a, b) => score(b) - score(a));
-  const iceDays = DAYS.filter(([k]) => week[k].ice).length, target = iceDays >= 4 ? 2 : 3;
+  const iceDays = DAYS.filter(([k]) => W[k].ice).length, target = iceDays >= 4 ? 2 : 3;
   const chosen = [];
   free.forEach(i => { if (chosen.length < target && !chosen.some(j => Math.abs(j - i) === 1 || Math.abs(j - i) === 6)) chosen.push(i); });
   free.forEach(i => { if (chosen.length < target && chosen.indexOf(i) < 0) chosen.push(i); });
   chosen.sort((a, b) => a - b).forEach(i => {
-    const k = DAYS[i][0], next = week[DAYS[(i + 1) % 7][0]], prev = week[DAYS[(i + 6) % 7][0]];
-    const prevSet = SETS.find(m => m.id === week[DAYS[(i + 6) % 7][0]].set);
-    const allowHigh = !isGame(next) && !isGame(prev) && !(prevSet && prevSet.load === 'hoch') && !week[k].ice;
+    const k = DAYS[i][0], next = W[DAYS[(i + 1) % 7][0]], prev = W[DAYS[(i + 6) % 7][0]];
+    const prevSet = SETS.find(m => m.id === W[DAYS[(i + 6) % 7][0]].set);
+    const allowHigh = !isGame(next) && !isGame(prev) && !(prevSet && prevSet.load === 'hoch') && !W[k].ice;
     const m = take(x => allowHigh || x.load !== 'hoch');
-    if (m) week[k].set = m.id;
+    if (m) W[k].set = m.id;
   });
-  saveWeek();
+  (save || saveWeek)();
 }
 
-/* Set aus Briefing oder Bibliothek in den Wochenplan übernehmen */
+/* Set aus Briefing oder Bibliothek in den Plan übernehmen (aktuelle Woche, ab Freitag die nächste) */
+const kwOf = d => { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())), n = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - n); return Math.ceil(((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7); };
+const fmtDM = (d, y) => d.toLocaleDateString('de-CH', y ? { day:'numeric', month:'numeric', year:'numeric' } : { day:'numeric', month:'numeric' });
+function weekTitle(mon){
+  const end = addDays(mon, 6), mo = d => d.toLocaleDateString('de-CH', { month:'long' });
+  return `KW ${kwOf(mon)} · ${mon.getDate()}.${mon.getMonth() === end.getMonth() ? '' : ' ' + mo(mon) + (mon.getFullYear() === end.getFullYear() ? '' : ' ' + mon.getFullYear()) + ' '}–${end.getDate()}. ${mo(end)} ${end.getFullYear()}`;
+}
+const defaultPlanMon = () => { const n = new Date(); return addDays(monOf(n), (n.getDay() + 6) % 7 >= 4 ? 7 : 0); };   // ab Freitag: nächste Woche
+const weekObj = mon => { const W = {}; DAYS.forEach(([k], i) => { W[k] = dayEntry(addDays(mon, i)); }); return W; };   // legt die Woche an
 function planPickHTML(m){
-  const warn = weekWarnings();
-  return `<p class="eyebrow">In Wochenplan übernehmen</p>
-    <div class="pp-days">${DAYS.map(([k, name, short]) => {
-      const d = week[k], on = d.set === m.id, other = d.set && !on ? SETS.find(x => x.id === d.set) : null;
+  const mon = defaultPlanMon(), W = weekObj(mon), warn = weekWarnings(W), t0 = addDays(new Date(), 0).getTime();
+  return `<p class="eyebrow">In Wochenplan übernehmen · ${weekTitle(mon)}</p>
+    <div class="pp-days">${DAYS.map(([k, name, short], i) => {
+      const dt = addDays(mon, i), d = W[k], on = d.set === m.id, other = d.set && !on ? SETS.find(x => x.id === d.set) : null, past = dt.getTime() < t0;
       const tag = [d.ice ? 'Eis' : '', d.match ? 'Match' : '', d.tour ? 'Turnier' : '', other ? 'Set ' + other.n : ''].filter(Boolean).join(' · ');
-      return `<button class="pp-day${on ? ' on' : ''}" data-pp="${k}" aria-pressed="${on}"><b>${short}</b><small>${on ? 'Geplant' : tag || 'frei'}</small></button>`;
+      return `<button class="pp-day${on ? ' on' : ''}" data-pp="${k}" aria-pressed="${on}"${past ? ' disabled' : ''}><b>${short} ${fmtDM(dt)}</b><small>${on ? 'Geplant' : tag || 'frei'}</small></button>`;
     }).join('')}</div>
     <p class="muted pp-hint">Tippe auf einen Tag, um «${m.title}» dort einzuplanen. Nochmals tippen entfernt es. Ein anderes Set an diesem Tag wird ersetzt.</p>
     ${warn.length ? `<ul class="pwarn">${warn.map(w => `<li>${w}</li>`).join('')}</ul>` : ''}`;
 }
 function bindPlanPick(m){
+  const W = weekObj(defaultPlanMon());
   document.querySelectorAll('[data-pp]').forEach(b => b.onclick = () => {
-    const d = week[b.dataset.pp]; d.set = d.set === m.id ? '' : m.id; saveWeek();
+    const d = W[b.dataset.pp]; d.set = d.set === m.id ? '' : m.id; d.edited = true; saveDays();
     $('plan-pick').innerHTML = planPickHTML(m); bindPlanPick(m);
   });
 }
 
-let plannerOpen = null;
+/* ---- Eltern: Wochenplan mit echten Daten (Woche wählen) oder Standardwoche (Vorlage) ---- */
+let plannerOpen = null, plannerMon = null;   // plannerMon: Montag (Date) · 'tpl' = Standardwoche · null = Standard (diese/nächste Woche)
+const plMon = () => plannerMon === 'tpl' ? null : (plannerMon || defaultPlanMon());
+const markPlanSeen = mon => { const nx = addDays(monOf(new Date()), 7); if (mon && mon.getTime() >= nx.getTime()) store.set('apc.planseen.v1', ymd(nx)); };
+const planNextDue = () => (new Date().getDay() + 6) % 7 >= 4 && store.get('apc.planseen.v1', '') !== ymd(addDays(monOf(new Date()), 7));
 function plannerHTML(){
-  const today = dayKey(new Date()), warn = weekWarnings();
-  const cells = DAYS.map(([k, name, short]) => {
-    const chips = planChipsHTML(week[k]);
-    return `<button class="pday${k === today ? ' today' : ''}${plannerOpen === k ? ' open' : ''}" data-day="${k}" aria-pressed="${plannerOpen === k}">
-      <span class="pd-name"><b>${short}</b><small>${k === today ? 'Heute' : name}</small></span><span class="pd-chips">${chips}</span></button>`;
+  const mon = plMon(), tpl = !mon, W = tpl ? week : weekObj(mon), warn = weekWarnings(W), t0 = addDays(new Date(), 0).getTime();
+  const thisMon = monOf(new Date()).getTime(), sel = tpl ? 'tpl' : mon.getTime() === thisMon ? 'now' : mon.getTime() === thisMon + 7 * 864e5 || mon.getTime() === addDays(new Date(thisMon), 7).getTime() ? 'next' : '';
+  const cells = DAYS.map(([k, name, short], i) => {
+    const dt = tpl ? null : addDays(mon, i), isToday = !!dt && dt.getTime() === t0;
+    const d = tpl ? week[k] : Object.assign({}, W[k], { custom:isCustom(W[k]) });
+    return `<button class="pday${isToday ? ' today' : ''}${dt && dt.getTime() < t0 ? ' past' : ''}${plannerOpen === k ? ' open' : ''}" data-day="${k}" aria-pressed="${plannerOpen === k}">
+      <span class="pd-name"><b>${short}</b><small>${tpl ? name : isToday ? 'Heute' : fmtDM(dt, true)}</small></span><span class="pd-chips">${planChipsHTML(d)}</span></button>`;
   }).join('');
   let editor = '';
   if (plannerOpen){
-    const k = plannerOpen, d = week[k], name = DAYS[dayIdx(k)][1];
+    const k = plannerOpen, d = W[k], i = dayIdx(k), title = tpl ? `${DAYS[i][1]} (Standardwoche)` : `${DAYS[i][1]}, ${fmtDM(addDays(mon, i), true)}`;
     editor = `<div class="peditor">
-      <p class="eyebrow">${name} bearbeiten</p>
+      <p class="eyebrow">${title} bearbeiten</p>
       <div class="pe-row">
         <label class="pe-tog"><input type="checkbox" id="pe-ice" ${d.ice ? 'checked' : ''}> On-Ice</label>
-        <input class="pe-time" id="pe-ice-time" type="time" value="${d.iceTime}" aria-label="Uhrzeit On-Ice">
-        <label class="pe-tog"><input type="checkbox" id="pe-off" ${d.ice && d.offIce ? 'checked' : ''} ${d.ice ? '' : 'disabled'}> Off-Ice danach</label>
+        <input class="pe-time" id="pe-ice-time" type="time" value="${d.iceTime || ''}" aria-label="Uhrzeit On-Ice">
+        <label class="pe-tog"><input type="checkbox" id="pe-off" ${d.ice && d.offIce !== false ? 'checked' : ''} ${d.ice ? '' : 'disabled'}> Off-Ice danach</label>
       </div>
       <div class="pe-row">
         <label class="pe-tog"><input type="checkbox" id="pe-match" ${d.match ? 'checked' : ''}> Match</label>
         <label class="pe-tog"><input type="checkbox" id="pe-tour" ${d.tour ? 'checked' : ''}> Turnier</label>
-        <input class="pe-time" id="pe-game-time" type="time" value="${d.gameTime}" aria-label="Uhrzeit Match oder Turnier">
+        <input class="pe-time" id="pe-game-time" type="time" value="${d.gameTime || ''}" aria-label="Uhrzeit Match oder Turnier">
       </div>
       <div class="pe-row">
         <label for="pe-set" class="pe-lbl">APC-Training</label>
         <select id="pe-set"><option value="">Kein Set</option>${MISSIONS.filter(m => !isLocked(m)).map(m => `<option value="${m.id}" ${d.set === m.id ? 'selected' : ''}>Set ${m.n} · ${m.title} (${LOAD_TXT[m.load]})</option>`).join('')}</select>
       </div>
-      <div class="pe-row"><button class="btn btn-ghost btn-small" id="pe-close">Fertig</button></div>
+      ${tpl ? '' : `<div class="pe-row"><label for="pe-note" class="pe-lbl">Notiz</label><input type="text" id="pe-note" class="pselect" maxlength="40" value="${rpEsc(d.note || '')}" placeholder="z. B. Training verschoben"></div>`}
+      <div class="pe-row"><button class="btn btn-ghost btn-small" id="pe-close">Fertig</button>${!tpl && isCustom(d) ? '<button class="btn btn-ghost btn-small" id="pe-reset">Wie Standardwoche</button>' : ''}</div>
     </div>`;
   }
   return `<section class="planner" aria-labelledby="pl-h">
-    <div class="cab-head"><h3 id="pl-h">Wochenplan</h3><button class="btn btn-ghost btn-small" id="btn-suggest">Vorschlag erstellen</button></div>
-    <p class="muted pl-hint">Vorlage für jede Woche. Tippe auf einen Tag, um On-Ice, Off-Ice, Matches, Turniere und APC-Sets einzutragen. Einzelne Daten (Ferien, verschobene Trainings) weiter unten unter «Abweichungen» ändern. «Vorschlag erstellen» verteilt 2 bis 3 Sets passend um Eistraining und Spiele. Ist noch kein Eistraining eingetragen, setzt der Vorschlag die üblichen Club-Tage Di, Mi und Fr (On-Ice + Off-Ice).</p>
+    <div class="cab-head"><h3 id="pl-h">Wochenplan</h3></div>
+    <div class="pl-tabs" role="group" aria-label="Woche wählen">${[['now', 'Diese Woche'], ['next', 'Nächste Woche'], ['tpl', 'Standardwoche']].map(([v, l]) => `<button class="av-chip" data-plw="${v}" aria-pressed="${sel === v}">${l}</button>`).join('')}</div>
+    ${tpl ? '<p class="muted pl-hint">Vorlage für neue Wochen. Änderungen gelten für Wochen, die noch nicht angelegt sind; mit «Ab nächster Woche übernehmen» auch für die kommenden Wochen. Vergangene Tage bleiben unverändert.</p>'
+      : `<div class="pl-nav"><button class="btn btn-ghost btn-small" data-plnav="-1" aria-label="Vorherige Woche">‹</button><b>${weekTitle(mon)}</b><button class="btn btn-ghost btn-small" data-plnav="1" aria-label="Nächste Woche">›</button></div>
+         <p class="muted pl-hint">Tippe auf einen Tag, um On-Ice, Off-Ice, Matches, Turniere und APC-Sets für dieses Datum einzutragen. Die Standardwoche bleibt dabei unverändert.</p>`}
     <div class="pweek">${cells}</div>
     ${editor}
+    <div class="bk-row"><button class="btn btn-ghost btn-small" id="btn-suggest">Vorschlag erstellen</button>${tpl ? '<button class="btn btn-ghost btn-small" id="btn-tpl-apply">Ab nächster Woche übernehmen</button>' : '<button class="btn btn-ghost btn-small" id="btn-wk-reset">Woche wie Standardwoche</button>'}</div>
     ${warn.length ? `<ul class="pwarn">${warn.map(w => `<li>${w}</li>`).join('')}</ul>` : ''}
   </section>`;
 }
 /* Wochenplan nur zur Ansicht (Mission Center); bearbeitet wird er im Eltern-Bereich */
+let mcWeekNext = false;
 function weekViewHTML(){
-  const today = dayKey(new Date()), mon = new Date(weekStart(new Date().toISOString()));
+  const t0 = addDays(new Date(), 0).getTime(), mon = addDays(monOf(new Date()), mcWeekNext ? 7 : 0);
   const cells = DAYS.map(([k, name, short], i) => {
-    const dt = addDays(mon, i), chips = planChipsHTML(planFor(dt));   // Club-Termine nur zur Info, bestätigt wird im Eltern-Bereich
-    return `<div class="pday ro${k === today ? ' today' : ''}"><span class="pd-name"><b>${short}</b><small>${k === today ? 'Heute' : dt.toLocaleDateString('de-CH', { day:'numeric', month:'numeric' })}</small></span><span class="pd-chips">${chips}</span></div>`;
+    const dt = addDays(mon, i), isToday = dt.getTime() === t0, chips = planChipsHTML(planFor(dt));   // Club-Termine nur zur Info, bestätigt wird im Eltern-Bereich
+    return `<div class="pday ro${isToday ? ' today' : ''}"><span class="pd-name"><b>${short}</b><small>${isToday ? 'Heute' : fmtDM(dt)}</small></span><span class="pd-chips">${chips}</span></div>`;
   }).join('');
-  return `<section class="planner mc2-week" aria-labelledby="wk-h"><div class="cab-head"><h3 id="wk-h">Wochenplan</h3></div><div class="pweek">${cells}</div></section>`;
+  return `<section class="planner mc2-week" aria-labelledby="wk-h"><div class="cab-head"><h3 id="wk-h">${mcWeekNext ? 'Nächste Woche' : 'Wochenplan'}</h3>
+    <div class="pl-tabs">${[[false, 'Diese Woche'], [true, 'Nächste Woche']].map(([v, l]) => `<button class="av-chip" data-mcw="${v ? 1 : 0}" aria-pressed="${mcWeekNext === v}">${l}</button>`).join('')}</div></div>
+    <div class="pweek">${cells}</div></section>`;
 }
+document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('[data-mcw]'); if (!b) return; mcWeekNext = b.dataset.mcw === '1'; const sc = $('screen-center'), y = sc.scrollTop; renderCenter(); sc.scrollTop = y; });
 function bindPlanner(){
-  const host = document.querySelector('.planner'); if (!host) return;
+  const host = document.querySelector('#screen-parents .planner'); if (!host) return;
   const redraw = () => { const sc = $('screen-parents'), y = sc.scrollTop; renderParents(); sc.scrollTop = y; };
-  host.querySelectorAll('[data-day]').forEach(b => b.onclick = () => { plannerOpen = plannerOpen === b.dataset.day ? null : b.dataset.day; redraw(); });
-  $('btn-suggest').onclick = () => { suggestWeek(); redraw(); };
+  const mon = plMon(), tpl = !mon, W = tpl ? week : weekObj(mon), save = tpl ? saveWeek : saveDays;
+  host.querySelectorAll('[data-plw]').forEach(b => b.onclick = () => { const v = b.dataset.plw; plannerMon = v === 'tpl' ? 'tpl' : addDays(monOf(new Date()), v === 'next' ? 7 : 0); plannerOpen = null; if (v !== 'tpl') markPlanSeen(plannerMon); redraw(); });
+  host.querySelectorAll('[data-plnav]').forEach(b => b.onclick = () => { plannerMon = addDays(mon, 7 * +b.dataset.plnav); plannerOpen = null; markPlanSeen(plannerMon); redraw(); });
+  host.querySelectorAll('[data-day]').forEach(b => b.onclick = () => { plannerOpen = plannerOpen === b.dataset.day ? null : b.dataset.day; if (!tpl) markPlanSeen(mon); redraw(); });
+  $('btn-suggest').onclick = () => { suggestWeek(W, save); redraw(); };
+  if (tpl) $('btn-tpl-apply').onclick = () => {
+    const from = addDays(monOf(new Date()), 7);
+    if (!confirm(`Standardwoche ab ${fmtDM(from, true)} für alle angelegten Wochen übernehmen? Von Hand angepasste Tage bleiben erhalten.`)) return;
+    Object.keys(daysStore).forEach(k => { const d = ymdDate(k); if (d >= from && !daysStore[k].edited) daysStore[k] = tplDay(d); }); saveDays(); redraw(); };
+  else $('btn-wk-reset').onclick = () => {
+    if (!confirm('Diese Woche wieder wie die Standardwoche planen? Anpassungen dieser Woche gehen verloren.')) return;
+    DAYS.forEach((_, i) => { const d = addDays(mon, i); daysStore[ymd(d)] = tplDay(d); }); saveDays(); plannerOpen = null; redraw(); };
   if (plannerOpen){
-    const d = week[plannerOpen], upd = () => { saveWeek(); redraw(); };
+    const d = W[plannerOpen], upd = () => { if (!tpl) d.edited = true; save(); redraw(); };
     $('pe-ice').onchange = e => { d.ice = e.target.checked; if (d.ice) d.offIce = true; upd(); };
     $('pe-off').onchange = e => { d.offIce = e.target.checked; upd(); };
     $('pe-match').onchange = e => { d.match = e.target.checked; upd(); };
@@ -2806,7 +2860,9 @@ function bindPlanner(){
     $('pe-ice-time').onchange = e => { d.iceTime = e.target.value; upd(); };
     $('pe-game-time').onchange = e => { d.gameTime = e.target.value; upd(); };
     $('pe-set').onchange = e => { d.set = e.target.value; upd(); };
+    if (!tpl) $('pe-note').onchange = e => { d.note = e.target.value.trim(); upd(); };
     $('pe-close').onclick = () => { plannerOpen = null; redraw(); };
+    const r = $('pe-reset'); if (r) r.onclick = () => { const dt = addDays(mon, dayIdx(plannerOpen)); daysStore[ymd(dt)] = tplDay(dt); saveDays(); redraw(); };
   }
 }
 
@@ -2816,7 +2872,7 @@ function todayMission(){
   if (doneToday) return { m: MISSIONS.find(x => x.id === doneToday.mission), done:true };
   const td = planFor(new Date()), planned = MISSIONS.find(m => m.id === td.set);
   if (planned) return { m: planned, done:false, planned:true };
-  if (DAYS.some(([k]) => week[k].set)) return { m: null, done:false, free:true, game:isGame(td), ice:td.ice };
+  if (DAYS.some((_, i) => planFor(addDays(monOf(new Date()), i)).set)) return { m: null, done:false, free:true, game:isGame(td), ice:td.ice };
   const ss = seasonState(progress); if (ss.next && !ss.champion) return { m: ss.next, done:false, playoff:true };
   const AV = MISSIONS.filter(m => !isLocked(m));
   if (!log.length) return { m: AV[0], done:false };
@@ -2979,7 +3035,7 @@ function levelInfo(xp){
   const level = Math.floor(xp / LV) + 1, into = xp % LV, i = Math.min(level, LEVEL_NAMES.length) - 1;
   return { level, into, pct:Math.round(into / LV * 100), name:LEVEL_NAMES[i], next:LEVEL_NAMES[Math.min(i + 1, LEVEL_NAMES.length - 1)], max:i === LEVEL_NAMES.length - 1 };
 }
-const weekTarget = () => DAYS.filter(([k]) => week[k].ice).length >= 4 ? 2 : 3;      // viel Eis → 2 APC-Sets reichen
+const weekTarget = () => DAYS.filter((_, i) => planFor(addDays(monOf(new Date()), i)).ice).length >= 4 ? 2 : 3;      // viel Eis → 2 APC-Sets reichen
 const weekCount = (prog, ref) => (prog.log || []).filter(e => weekStart(e.at) === weekStart(ref || new Date().toISOString())).length;
 /* Serie in Wochen: jede Woche mit mindestens 2 Trainings zählt (Ruhetage brechen nichts) */
 function weekStreak(prog){
@@ -3507,87 +3563,52 @@ function clubParentsHTML(){
 let clubParentsEdit = null;
 document.addEventListener('click', e => { const t = e.target.closest && e.target.closest('[data-cledit]'); if (!t) return; clubParentsEdit = t.dataset.cledit || null; clubRedraw(); });
 
-/* ---- Eltern: Abweichungen vom Wochenplan für einzelne Daten oder einen Zeitraum ---- */
-let pxForm = null;
-function pxFill(day){ const p = planFor(ymdDate(day)); pxForm = Object.assign(pxForm || {}, { from:day, ice:!!p.ice, iceTime:p.iceTime || '', offIce:p.offIce !== false, match:!!p.match, tour:!!p.tour, gameTime:p.gameTime || '', note:p.note || '' }); }
-function pxGroups(){   // aufeinanderfolgende Tage mit gleicher Abweichung zusammenfassen
-  const lim = ymd(addDays(new Date(), -14)), keys = Object.keys(planX).filter(k => k >= lim).sort(), G = [];
-  keys.forEach(k => { const sig = JSON.stringify(planX[k]), g = G[G.length - 1];
-    if (g && g.sig === sig && ymd(addDays(ymdDate(g.to), 1)) === k) g.to = k; else G.push({ from:k, to:k, sig, x:planX[k] }); });
-  return G;
-}
-function planXHTML(){
-  const f = pxForm, fd = k => ymdDate(k).toLocaleDateString('de-CH', { weekday:'short', day:'numeric', month:'numeric' }), G = pxGroups();
-  const form = f ? `<div class="px-form">
-      <div class="pe-row"><label for="px-from" class="pe-lbl">Datum</label><input type="date" id="px-from" class="pselect" value="${f.from}">
-        <span class="muted">bis</span><input type="date" id="px-to" class="pselect" value="${f.to || ''}" aria-label="Bis (optional)"></div>
-      <p class="pnote muted">Vorbelegt mit dem Plan für dieses Datum. «Bis» leer lassen für einen einzelnen Tag.</p>
-      <div class="pe-row">
-        <label class="pe-tog"><input type="checkbox" id="px-ice" ${f.ice ? 'checked' : ''}> On-Ice</label>
-        <input class="pe-time" id="px-ice-time" type="time" value="${f.iceTime}" aria-label="Uhrzeit On-Ice">
-        <label class="pe-tog"><input type="checkbox" id="px-off" ${f.ice && f.offIce ? 'checked' : ''} ${f.ice ? '' : 'disabled'}> Off-Ice danach</label>
-      </div>
-      <div class="pe-row">
-        <label class="pe-tog"><input type="checkbox" id="px-match" ${f.match ? 'checked' : ''}> Match</label>
-        <label class="pe-tog"><input type="checkbox" id="px-tour" ${f.tour ? 'checked' : ''}> Turnier</label>
-        <input class="pe-time" id="px-game-time" type="time" value="${f.gameTime}" aria-label="Uhrzeit Match oder Turnier">
-      </div>
-      <div class="pe-row"><label for="px-note" class="pe-lbl">Notiz</label><input type="text" id="px-note" class="pselect" maxlength="40" value="${rpEsc(f.note)}" placeholder="z. B. Herbstferien, Training verschoben"></div>
-      <div class="bk-row">
-        <button class="btn btn-primary btn-small" id="px-save">Übernehmen</button>
-        <button class="btn btn-ghost btn-small" id="px-none">Kein Club-Training (Ferien / Absage)</button>
-        <button class="btn btn-ghost btn-small" id="px-cancel">Abbrechen</button>
-      </div>
-      <p id="px-msg" class="pnote" aria-live="polite"></p>
-    </div>` : `<div class="bk-row"><button class="btn btn-primary btn-small" id="px-open">Abweichung eintragen</button></div>`;
-  return `<div class="parents"><div class="pbox">
-      <p class="eyebrow">Abweichungen vom Wochenplan</p>
-      <p>Für einzelne Tage oder Ferien: verschobene Eistrainings, zusätzliche Matches oder kein Training. Gilt nur für diese Daten, der Wochenplan bleibt unverändert.</p>
-      ${form}
-      ${G.length ? `<ul class="px-list">${G.map(g => `<li><span><b>${fd(g.from)}${g.to !== g.from ? ' – ' + fd(g.to) : ''}</b> · ${planTxt(g.x)}${g.x.note ? ' · ' + rpEsc(g.x.note) : ''}</span><button class="px-del" data-pxdel="${g.from}|${g.to}" aria-label="Abweichung entfernen">×</button></li>`).join('')}</ul>` : '<p class="muted">Keine Abweichungen eingetragen.</p>'}
+/* ---- Eltern: Ferien und Zeiträume (mehrere Tage auf einmal) ---- */
+const fxForm = { from:'', to:'', note:'' };
+function ferienHTML(){
+  const t0 = new Date(), G = [];   // kommende Tage mit Notiz zusammenfassen (90 Tage)
+  for (let i = 0; i < 90; i++){ const d = addDays(t0, i), e = daysStore[ymd(d)]; if (!e || !e.note) continue;
+    const g = G[G.length - 1]; if (g && g.note === e.note && ymd(addDays(g.to, 1)) === ymd(d)) g.to = d; else G.push({ from:d, to:d, note:e.note, club:clubItems(e).length > 0 }); }
+  return `<div class="parents"><div class="pbox fx-box">
+      <p class="eyebrow">Ferien und Zeiträume</p>
+      <p>Mehrere Tage auf einmal ändern, zum Beispiel Ferien ohne Club-Training. Einzelne Tage direkt im Wochenplan anpassen.</p>
+      <div class="pe-row"><label for="fx-from" class="pe-lbl">Von</label><input type="date" id="fx-from" class="pselect" value="${fxForm.from}">
+        <span class="muted">bis</span><input type="date" id="fx-to" class="pselect" value="${fxForm.to}" aria-label="Bis"></div>
+      <div class="pe-row"><label for="fx-note" class="pe-lbl">Notiz</label><input type="text" id="fx-note" class="pselect" maxlength="40" value="${rpEsc(fxForm.note)}" placeholder="z. B. Herbstferien"></div>
+      <div class="bk-row"><button class="btn btn-primary btn-small" id="fx-none">Kein Club-Training</button><button class="btn btn-ghost btn-small" id="fx-std">Wie Standardwoche</button></div>
+      <p id="fx-msg" class="pnote" aria-live="polite"></p>
+      ${G.length ? `<ul class="px-list">${G.map(g => `<li><span><b>${fmtDM(g.from, true)}${ymd(g.to) !== ymd(g.from) ? ' – ' + fmtDM(g.to, true) : ''}</b> · ${rpEsc(g.note)}${g.club ? '' : ' · kein Club-Training'}</span></li>`).join('')}</ul>` : ''}
     </div></div>`;
 }
-function bindPlanX(redraw){
-  document.querySelectorAll('[data-pxdel]').forEach(b => b.onclick = () => {
-    const [a, z] = b.dataset.pxdel.split('|');
-    if (!confirm('Abweichung entfernen? Dann gilt wieder der Wochenplan.')) return;
-    for (let d = ymdDate(a); ymd(d) <= z; d = addDays(d, 1)) delete planX[ymd(d)];
-    savePlanX(); redraw(); });
-  if (!pxForm){ $('px-open').onclick = () => { pxFill(ymd(new Date())); pxForm.to = ''; redraw(); }; return; }
-  const f = pxForm, rd = () => { redraw(); };
-  $('px-from').onchange = e => { if (e.target.value){ const to = f.to; pxFill(e.target.value); f.to = to && to >= e.target.value ? to : ''; } rd(); };
-  $('px-to').onchange = e => { f.to = e.target.value; rd(); };
-  $('px-ice').onchange = e => { f.ice = e.target.checked; if (f.ice) f.offIce = true; rd(); };
-  $('px-off').onchange = e => { f.offIce = e.target.checked; };
-  $('px-match').onchange = e => { f.match = e.target.checked; };
-  $('px-tour').onchange = e => { f.tour = e.target.checked; };
-  $('px-ice-time').onchange = e => { f.iceTime = e.target.value; };
-  $('px-game-time').onchange = e => { f.gameTime = e.target.value; };
-  $('px-note').oninput = e => { f.note = e.target.value.trim(); };
-  $('px-cancel').onclick = () => { pxForm = null; redraw(); };
+function bindFerien(redraw){
+  $('fx-from').onchange = e => { fxForm.from = e.target.value; if (!fxForm.to || fxForm.to < fxForm.from) fxForm.to = fxForm.from; redraw(); };
+  $('fx-to').onchange = e => { fxForm.to = e.target.value; };
+  $('fx-note').oninput = e => { fxForm.note = e.target.value.trim(); };
   const apply = none => {
-    if (!f.from){ $('px-msg').textContent = 'Bitte ein Datum wählen.'; return; }
-    const to = f.to && f.to >= f.from ? f.to : f.from;
-    if ((ymdDate(to) - ymdDate(f.from)) / 864e5 > 120){ $('px-msg').textContent = 'Höchstens 4 Monate auf einmal.'; return; }
-    const v = none ? { ice:false, iceTime:'', offIce:false, match:false, tour:false, gameTime:'', note:f.note || 'Ferien / Absage' }
-      : { ice:f.ice, iceTime:f.ice ? f.iceTime : '', offIce:f.ice && f.offIce, match:f.match, tour:f.tour, gameTime:isGame(f) ? f.gameTime : '', note:f.note || '' };
-    for (let d = ymdDate(f.from); ymd(d) <= to; d = addDays(d, 1)){
-      const t = week[dayKey(d)], same = !v.note && CLUB_KEYS.every(k => k === 'offIce' ? (!v.ice || !!t.offIce === !!v.offIce) : (t[k] || false) === (v[k] || false));
-      if (same) delete planX[ymd(d)]; else planX[ymd(d)] = Object.assign({}, v);   // gleich wie Wochenplan → keine Abweichung nötig
+    const msg = t => { $('fx-msg').textContent = t; };
+    if (!fxForm.from){ msg('Bitte ein Datum wählen.'); return; }
+    const to = fxForm.to && fxForm.to >= fxForm.from ? fxForm.to : fxForm.from;
+    if ((ymdDate(to) - ymdDate(fxForm.from)) / 864e5 > 120){ msg('Höchstens 4 Monate auf einmal.'); return; }
+    let n = 0;
+    for (let d = ymdDate(fxForm.from); ymd(d) <= to; d = addDays(d, 1), n++){
+      if (none){ const e = dayEntry(d); Object.assign(e, { ice:false, iceTime:'', offIce:false, match:false, tour:false, gameTime:'', note:fxForm.note || 'Ferien', edited:true }); }
+      else { const e = tplDay(d); if (fxForm.note){ e.note = fxForm.note; e.edited = true; } daysStore[ymd(d)] = e; }
     }
-    savePlanX(); pxForm = null; redraw();
+    saveDays(); fxForm.from = ''; fxForm.to = ''; fxForm.note = ''; redraw();
+    const m = $('fx-msg'); if (m) m.textContent = `${n} ${n === 1 ? 'Tag' : 'Tage'} geändert.`;
   };
-  $('px-save').onclick = () => apply(false);
-  $('px-none').onclick = () => apply(true);
+  $('fx-none').onclick = () => apply(true);
+  $('fx-std').onclick = () => apply(false);
 }
 
 function renderParents(){
   $('screen-parents').innerHTML = `
   <div class="inner trophies hub">
     <div class="tr-head"><div><p class="eyebrow">Eltern</p><h1>Eltern-Bereich</h1></div></div>
+    ${planNextDue() ? '<button class="mc2-testdue" id="btn-plan-next">Nächste Woche planen <span class="arrow" aria-hidden="true"></span></button>' : ''}
     ${clubParentsHTML()}
     ${plannerHTML()}
-    ${planXHTML()}
+    ${ferienHTML()}
     <div class="parents"><div class="pbox">
       <div class="pe-row"><label for="test-weeks" class="pe-lbl">Testtag alle</label>
         <select id="test-weeks" class="pselect">${[3,4,5,6,8,10,12].map(n => `<option value="${n}" ${settings.testWeeks === n ? 'selected' : ''}>${n} Wochen</option>`).join('')}</select></div>
@@ -3626,7 +3647,9 @@ function renderParents(){
     </div></div>
   </div>`;
   bindPlanner();
-  bindPlanX(() => { const sc = $('screen-parents'), y = sc.scrollTop; renderParents(); sc.scrollTop = y; });
+  bindFerien(() => { const sc = $('screen-parents'), y = sc.scrollTop; renderParents(); sc.scrollTop = y; });
+  { const b = $('btn-plan-next'); if (b) b.onclick = () => { plannerMon = addDays(monOf(new Date()), 7); plannerOpen = null; markPlanSeen(plannerMon); renderParents();
+      const p = document.querySelector('#screen-parents .planner'); if (p) p.scrollIntoView({ block:'start', behavior:'smooth' }); }; }
   $('test-weeks').onchange = e => { settings.testWeeks = +e.target.value; saveSettings(); const y = $('screen-parents').scrollTop; renderParents(); $('screen-parents').scrollTop = y; };
   $('testmode').onchange = e => { settings.speed = e.target.checked ? 10 : 1; };
   const reset = $('btn-reset');
