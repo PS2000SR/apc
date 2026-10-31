@@ -2637,14 +2637,6 @@ function setClub(day, k, s, r){
 }
 /* Offen = geplant, aber noch nicht bestätigt (oder ausgelassen ohne Grund) */
 const clubOpen = day => { const e = clubLog()[day] || {}; return clubItems(planFor(ymdDate(day))).filter(([k]) => !e[k] || (e[k].s === 'missed' && !e[k].r)); };
-/* Heute erst nach Beginn des Trainings nachfragen */
-function clubReady(day){
-  if (day !== ymd(new Date())) return true;
-  const p = planFor(new Date()), t = (p.ice && p.iceTime) || (isGame(p) && p.gameTime);
-  if (!t) return true;
-  const [h, m] = t.split(':').map(Number), n = new Date();
-  return n.getHours() * 60 + n.getMinutes() >= h * 60 + m;
-}
 function clubRowsHTML(day){
   const e = clubLog()[day] || {};
   return clubItems(planFor(ymdDate(day))).map(([k, label, time]) => { const v = e[k] || {};
@@ -2654,25 +2646,13 @@ function clubRowsHTML(day){
     </div>`; }).join('');
 }
 const clubSumTxt = day => { const e = clubLog()[day] || {}; return clubItems(planFor(ymdDate(day))).map(([k, l]) => `${l} ${e[k] ? CLUB_ST[e[k].s].toLowerCase() : 'offen'}`).join(' · '); };
-let clubEdit = null;   // im Mission Center bereits bestätigten Tag nochmals öffnen
-function clubCenterHTML(){
-  const today = ymd(new Date()), yest = ymd(addDays(new Date(), -1)), since = progress.clubSince || today;
-  return [yest, today].filter(day => day >= since && clubItems(planFor(ymdDate(day))).length && clubReady(day)).map(day => {
-    const when = day === today ? 'Heute' : 'Gestern', open = clubOpen(day).length;
-    if (!open && clubEdit !== day) return day === today ? `<button class="club-done" data-cledit="${day}"><span><b>✓</b> Club-Training erfasst: ${clubSumTxt(day)}</span><span>Ändern</span></button>` : '';
-    return `<section class="club-card" aria-label="Club-Training bestätigen"><p class="eyebrow">Club-Training bestätigen · ${when}</p>
-      <h3>${day === today ? 'Wie lief\'s heute beim Club?' : 'Wie lief\'s gestern beim Club?'}</h3>${clubRowsHTML(day)}
-      ${open ? '' : `<button class="btn btn-ghost btn-small" data-cledit="">Fertig</button>`}</section>`;
-  }).join('');
-}
 function clubRedraw(){
   const sc = $('screen-' + curScreen), y = sc ? sc.scrollTop : 0;
   if (curScreen === 'parents') renderParents(); else if (curScreen === 'center') renderCenter(); else return;
   $('screen-' + curScreen).scrollTop = y;
 }
 document.addEventListener('click', e => {
-  const t = e.target.closest && e.target.closest('[data-cl],[data-clr],[data-cledit]'); if (!t) return;
-  if (t.dataset.cledit !== undefined){ clubEdit = t.dataset.cledit || null; clubRedraw(); return; }
+  const t = e.target.closest && e.target.closest('[data-cl],[data-clr]'); if (!t) return;
   if (t.dataset.cl){
     const [day, k, s] = t.dataset.cl.split('|'), cur = (clubLog()[day] || {})[k];
     setClub(day, k, cur && cur.s === s ? '' : s);
@@ -2685,14 +2665,6 @@ document.addEventListener('click', e => {
   }
   clubRedraw();
 });
-/* Off-Ice gestern oder heute ausgelassen (nicht wegen Krankheit/Schmerz) und seither kein APC-Training → Ersatz vorschlagen */
-function missedOffIce(){
-  for (const back of [0, 1]){
-    const d0 = addDays(new Date(), -back), v = (clubLog()[ymd(d0)] || {}).off;
-    if (v && v.s === 'missed' && v.r !== 'krank' && v.r !== 'schmerzen' && !(progress.log || []).some(e => Date.parse(e.at) >= d0.getTime())) return back ? 'gestern' : 'heute';
-  }
-  return null;
-}
 const painSrcTxt = s => s === 'training' ? 'nach Training' : s === 'club' ? 'Club-Training' : 'Check-in';
 /* Chips für einen Tag; mit Protokoll e werden ✓ (gemacht), ✗ (ausgelassen) und – (ausgefallen) angehängt */
 function planChipsHTML(d, e){
@@ -2811,7 +2783,7 @@ function plannerHTML(){
 function weekViewHTML(){
   const today = dayKey(new Date()), mon = new Date(weekStart(new Date().toISOString()));
   const cells = DAYS.map(([k, name, short], i) => {
-    const dt = addDays(mon, i), chips = planChipsHTML(planFor(dt), clubLog()[ymd(dt)]);
+    const dt = addDays(mon, i), chips = planChipsHTML(planFor(dt));   // Club-Termine nur zur Info, bestätigt wird im Eltern-Bereich
     return `<div class="pday ro${k === today ? ' today' : ''}"><span class="pd-name"><b>${short}</b><small>${k === today ? 'Heute' : dt.toLocaleDateString('de-CH', { day:'numeric', month:'numeric' })}</small></span><span class="pd-chips">${chips}</span></div>`;
   }).join('');
   return `<section class="planner mc2-week" aria-labelledby="wk-h"><div class="cab-head"><h3 id="wk-h">Wochenplan</h3></div><div class="pweek">${cells}</div></section>`;
@@ -3221,11 +3193,6 @@ function recommend(feel, today){
     return { m: leastDone(calm) || leastDone(low) || nextInRotation(),
       why: g.today ? 'Heute ist Match – nur locker aktivieren, damit du frisch aufs Eis gehst.' : g.tomorrow ? 'Morgen ist Match – heute nur locker, damit deine Beine frisch sind.' : 'Ein Match steht an – heute locker und mit vollem Fokus.' };
   }
-  const mo = missedOffIce();
-  if (feel === 'fit' && mo && !g.today){
-    const m = (today.m && !today.done) ? today.m : leastDone(AV.filter(x => x.load !== 'niedrig')) || nextInRotation();
-    return { m, why:`Das Off-Ice ${mo === 'heute' ? 'von heute' : 'von gestern'} hast du ausgelassen – mit diesem Set holst du es nach.` };
-  }
   const m = (today.m && !today.done) ? today.m : nextInRotation();
   return { m, why: today.planned && today.m === m ? 'Laut Wochenplan ist heute dieses Set dran – perfekt, wenn du fit bist.'
     : today.playoff && today.m === m ? 'Playoff-Spiel in deiner Saison – jetzt zählt jeder Punkt!'
@@ -3251,13 +3218,12 @@ function renderCenter(){
   const h = new Date().getHours(), hello = h < 11 ? 'Guten Morgen' : h < 18 ? 'Hey' : 'Guten Abend';
   let mainHTML;
   const ps = painState();
-  if (ps.mode === 'pause'){ mainHTML = painPauseHTML(ps) + clubCenterHTML(); renderCenter.rec = null; }
+  if (ps.mode === 'pause'){ mainHTML = painPauseHTML(ps); renderCenter.rec = null; }
   else if (today.done){
     const nx = nextInRotation(today.m.id);
     mainHTML = `
       <div class="mc2-coach"><div class="mc2-bubble"><small>Coach</small><h1>Stark, ${PROFILE.name}! Heute ist erledigt.</h1></div></div>
       ${dayContextHTML()}
-      ${clubCenterHTML()}
       <article class="mc2-rec done">
         <div class="mc2-rec-txt">
           <p class="eyebrow" style="color:var(--ok)">Heute geschafft · ${today.m.label}</p>
@@ -3275,7 +3241,6 @@ function renderCenter(){
     mainHTML = `
       <div class="mc2-coach"><div class="mc2-bubble"><small>Coach · ${DAYS[(new Date().getDay() + 6) % 7][1]}</small><h1>${hello} ${PROFILE.name}! Wie fühlst du dich heute?</h1></div></div>
       ${dayContextHTML()}
-      ${clubCenterHTML()}
       ${ps.mode === 'nachfragen' ? painFollowHTML(ps) : ''}
       <div class="mc2-feels" role="group" aria-label="Wie fühlst du dich?">
         ${FEELS.map(f => `<button class="mc2-feel" data-feel="${f.id}" aria-pressed="${f.id === feel}">${ICO(f.icon)}<span>${f.label}</span></button>`).join('')}
