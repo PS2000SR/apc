@@ -2218,12 +2218,13 @@ const Voice = SILENT_API({ mode:() => 'mix', busy:() => false, info:() => 'aus',
    Jede Phase kennt nur ihre Endzeit: keine Timer pro Phase,
    daher keine doppelten Intervalle und keine veralteten Callbacks.
    ===================================================================== */
+const PAUSE_HIGH = 90;   // Sets mit hoher Belastung: Pausen im Hauptteil nach jeder Übung 90 Sek.
 function buildTimeline(m){
-  const T = [];
+  const T = [], hi = m.load === 'hoch';
   let proIdx = 0;
   const nextPro = () => PROS[proIdx++ % PROS.length];
   const brkPhase = (b, sec, si, r, rounds, pro) => ({
-    type:'BREAK', breakType:b.type, dur: b.type === 'water' ? Math.min(b.duration, 10) : b.duration,
+    type:'BREAK', breakType:b.type, dur: hi && sec.type === 'main' ? PAUSE_HIGH : b.type === 'water' ? Math.min(b.duration, 10) : b.duration,
     sec, si, round:r, rounds, pro: pro ? nextPro() : null
   });
   T.push({ type:'MISSION_COUNTDOWN', dur:4 });
@@ -2234,7 +2235,7 @@ function buildTimeline(m){
         b.steps.forEach(st => {
           if (st.kind === 'exercise'){
             const ex = Object.assign({}, EXERCISES[st.ex], st.o || {});
-            const base = { sec, si, exId:ex.anim || st.ex, ex, round:r, rounds:b.repeat, pause: b.between ? b.between.duration : 0 };
+            const base = { sec, si, exId:ex.anim || st.ex, ex, round:r, rounds:b.repeat, pause: b.between ? (hi && sec.type === 'main' ? PAUSE_HIGH : b.between.duration) : 0 };
             if (r === 1 || !b.between) T.push({ ...base, type:'EXERCISE_PREVIEW', dur: r === 1 ? m.previewSeconds : m.previewRepeatSeconds });   // ab Durchgang 2 zeigt die Pause schon die nächste Übung
             T.push({ ...base, type:'EXERCISE_COUNTDOWN', dur: m.countdownSeconds });
             T.push({ ...base, type:'EXERCISE_RUNNING',   dur: st.duration });
