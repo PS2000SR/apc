@@ -2601,7 +2601,8 @@ const secSeconds = (T, sec) => T.filter(p => p.sec === sec).reduce((a, p) => a +
    Wiederkehrender Wochenplan, gespeichert nur auf diesem Gerät.
    ===================================================================== */
 const DAYS = [ ['mo','Montag','Mo'], ['di','Dienstag','Di'], ['mi','Mittwoch','Mi'], ['do','Donnerstag','Do'], ['fr','Freitag','Fr'], ['sa','Samstag','Sa'], ['so','Sonntag','So'] ];
-const week = (() => { const w = store.get('apc.week.v1', null) || {}; DAYS.forEach(([k]) => { w[k] = Object.assign({ ice:false, iceTime:'', offIce:true, match:false, tour:false, gameTime:'', set:'' }, w[k] || {}); }); return w; })();
+const CLUB_DEFAULT = ['di', 'mi', 'fr'];   // übliche Club-Trainingstage (On-Ice + Off-Ice)
+const week = (() => { const saved = store.get('apc.week.v1', null), w = saved || {}; if (!saved) CLUB_DEFAULT.forEach(k => { w[k] = { ice:true, offIce:true }; }); DAYS.forEach(([k]) => { w[k] = Object.assign({ ice:false, iceTime:'', offIce:true, match:false, tour:false, gameTime:'', set:'' }, w[k] || {}); }); return w; })();
 const saveWeek = () => store.set('apc.week.v1', week);
 const dayKey = d => DAYS[(d.getDay() + 6) % 7][0];
 const dayIdx = k => DAYS.findIndex(d => d[0] === k);
@@ -2699,6 +2700,7 @@ function weekWarnings(){
 
 /* Vorschlag: 2–3 Sets auf freie Tage, Belastung passend zu Eistraining und Spielen */
 function suggestWeek(){
+  if (!DAYS.some(([k]) => week[k].ice)) CLUB_DEFAULT.forEach(k => { week[k].ice = true; week[k].offIce = true; });   // ohne Eistage: Standard Di, Mi, Fr
   DAYS.forEach(([k]) => { week[k].set = ''; });
   const log = progress.log || [];
   const lastIdx = log.length ? MISSIONS.findIndex(m => m.id === log.reduce((x, e) => Date.parse(e.at) > Date.parse(x.at) ? e : x, log[0]).mission) : -1;
@@ -2773,7 +2775,7 @@ function plannerHTML(){
   }
   return `<section class="planner" aria-labelledby="pl-h">
     <div class="cab-head"><h3 id="pl-h">Wochenplan</h3><button class="btn btn-ghost btn-small" id="btn-suggest">Vorschlag erstellen</button></div>
-    <p class="muted pl-hint">Vorlage für jede Woche. Tippe auf einen Tag, um On-Ice, Off-Ice, Matches, Turniere und APC-Sets einzutragen. Einzelne Daten (Ferien, verschobene Trainings) weiter unten unter «Abweichungen» ändern. «Vorschlag erstellen» verteilt 2 bis 3 Sets passend um Eistraining und Spiele.</p>
+    <p class="muted pl-hint">Vorlage für jede Woche. Tippe auf einen Tag, um On-Ice, Off-Ice, Matches, Turniere und APC-Sets einzutragen. Einzelne Daten (Ferien, verschobene Trainings) weiter unten unter «Abweichungen» ändern. «Vorschlag erstellen» verteilt 2 bis 3 Sets passend um Eistraining und Spiele. Ist noch kein Eistraining eingetragen, setzt der Vorschlag die üblichen Club-Tage Di, Mi und Fr (On-Ice + Off-Ice).</p>
     <div class="pweek">${cells}</div>
     ${editor}
     ${warn.length ? `<ul class="pwarn">${warn.map(w => `<li>${w}</li>`).join('')}</ul>` : ''}
