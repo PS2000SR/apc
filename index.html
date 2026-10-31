@@ -420,6 +420,8 @@ button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid
 .unl-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;text-align:left}
 .unl-list li{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:4px 0}
 .unl-list small{color:var(--muted)}
+.pc-fig.avatar{position:relative}
+.pc-fig.is3d .av3d-canvas{cursor:grab}
 .av3d{position:relative;background:radial-gradient(70% 55% at 50% 30%,#1d2c48 0%,#0d1628 70%)}
 .av3d-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
 .av3d-load{position:absolute;inset:0;display:grid;place-items:center;margin:0;color:var(--muted);font:700 .9rem var(--f-display);letter-spacing:.14em;text-transform:uppercase}
@@ -2610,6 +2612,7 @@ const MUSIC_SCREENS = new Set(['center','missions','briefing','progress','parent
 let curScreen = 'center';
 function show(name){
   if (name !== 'avatar') closeAvatar3D();
+  if (name !== 'card') closeCard3D();
   ['center','briefing','trophies','missions','music','records','test','card','avatar','season','player','progress','parents','log','analytics','report'].forEach(n => { $('screen-' + n).hidden = (n !== name); });
   { const tab = { center:'heute', music:'eltern', missions:'trainings', briefing:'trainings', progress:'fortschritt', card:'fortschritt', avatar:'fortschritt', trophies:'fortschritt', records:'fortschritt', test:'fortschritt', season:'fortschritt', log:'fortschritt', analytics:'fortschritt', parents:'eltern', report:'eltern' }[name];
     document.querySelectorAll('#tabbar [data-tab]').forEach(b => { if (b.dataset.tab === tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }); }
@@ -5426,7 +5429,7 @@ let av3d = null;
 function closeAvatar3D(){ if (av3d){ try { av3d.dispose(); } catch(e){} av3d = null; } }
 
 function openCard(){
-  Voice.stop();
+  Voice.stop(); closeCard3D();
   const A = attributes(), POS = ['Stürmer','Center','Flügel','Verteidiger','Torhüter'];
   $('screen-card').innerHTML = `
   <div class="inner trophies">
@@ -5468,7 +5471,15 @@ function openCard(){
   $('pc-no-in').onchange = e => { const v = Math.max(1, Math.min(99, parseInt(e.target.value, 10) || player.no)); player.no = v; savePlayer(); openCard(); };
   $('pc-pos-in').onchange = e => { player.pos = e.target.value; savePlayer(); openCard(); };
   show('card');
+  // Ohne eigenes Foto: 3D-Avatar auf der Karte (drehbar), sonst bleibt die 2D-Figur
+  if (!CardImgs.current()) import('./avatar3d.js').then(m => {
+    const host = $('pc-fig'); if (!host || curScreen !== 'card' || card3d) return;
+    card3d = m.createAvatar3D(host, avatar, { no:player.no, name:PROFILE.name, card:true });
+    host.classList.add('is3d'); const svg = host.querySelector('.hockey-av'); if (svg) svg.remove();
+  }).catch(() => {});
 }
+let card3d = null;
+function closeCard3D(){ if (card3d){ try { card3d.dispose(); } catch(e){} card3d = null; } }
 
 /* ---------- Saison ---------- */
 function seasonState(prog){

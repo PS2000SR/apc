@@ -11,6 +11,7 @@ const lerp = (a, b, t) => a.clone().lerp(b, t);
 const lum = h => { const n = parseInt(String(h).slice(1), 16); return (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255; };
 
 export const VIEWS = {
+  card:   { t:V(0, 0.86, 0.08),   p:V(1.35, 1.1, 3.25) },
   full:   { t:V(0, 0.8, 0.05),    p:V(1.95, 1.35, 3.5) },
   head:   { t:V(0, 1.53, 0.02),   p:V(0.35, 1.62, 0.62) },
   hands:  { t:V(0.04, 0.88, 0.3), p:V(0.6, 1.02, 1.0) },
@@ -29,9 +30,10 @@ export function createAvatar3D(host, a, opt){
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   const camera = new THREE.PerspectiveCamera(32, 1, 0.05, 50);
-  camera.position.copy(VIEWS.full.p);
+  const startV = opt.card ? VIEWS.card : VIEWS.full;
+  camera.position.copy(startV.p);
   const controls = new OrbitControls(camera, canvas);
-  controls.target.copy(VIEWS.full.t); controls.enableDamping = true; controls.minDistance = 0.45; controls.maxDistance = 6;
+  controls.target.copy(startV.t); if (opt.card){ controls.enableZoom = false; controls.autoRotateSpeed = 1.0; } controls.enableDamping = true; controls.minDistance = 0.45; controls.maxDistance = 6;
   controls.maxPolarAngle = Math.PI * 0.53; controls.enablePan = false; controls.autoRotateSpeed = 1.4;
   controls.autoRotate = !matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -46,10 +48,15 @@ export function createAvatar3D(host, a, opt){
   // Eisfläche mit Bully-Kreis
   const ice = new THREE.Mesh(new THREE.CircleGeometry(3.2, 96), new THREE.MeshStandardMaterial({ color:0xe6eff6, roughness:0.12 }));
   ice.rotation.x = -Math.PI / 2; ice.receiveShadow = true; scene.add(ice);
+  const lines = [];
   const lineMat = new THREE.MeshBasicMaterial({ color:0xc8102e });
-  const flat = (geo, x, z) => { const m = new THREE.Mesh(geo, lineMat); m.rotation.x = -Math.PI / 2; m.position.set(x, 0.002, z); scene.add(m); };
+  const flat = (geo, x, z) => { const m = new THREE.Mesh(geo, lineMat); m.rotation.x = -Math.PI / 2; m.position.set(x, 0.002, z); scene.add(m); lines.push(m); };
   flat(new THREE.RingGeometry(1.32, 1.37, 128), 0, 0); flat(new THREE.CircleGeometry(0.14, 48), 0, 0.9);
   flat(new THREE.PlaneGeometry(0.42, 0.035), -0.62, 1.05); flat(new THREE.PlaneGeometry(0.42, 0.035), 0.62, 1.05);
+  if (opt.card){   // Spielerkarte: ohne Eisfläche, nur ein weicher Schatten unter der Figur
+    ice.visible = false; lines.forEach(m => m.visible = false);
+    const sh = new THREE.Mesh(new THREE.CircleGeometry(1.2, 48), new THREE.ShadowMaterial({ opacity:0.35 })); sh.rotation.x = -Math.PI / 2; sh.receiveShadow = true; scene.add(sh);
+  }
 
   const M = {
     jersey: new THREE.MeshStandardMaterial({ roughness:0.78 }), accent: new THREE.MeshStandardMaterial({ roughness:0.75 }),
