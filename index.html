@@ -2634,6 +2634,7 @@ if (!progress.clubSince){ progress.clubSince = ymd(new Date()); saveProgress(); 
 function setClub(day, k, s, r){
   const L = clubLog(), e = L[day] = L[day] || {};
   if (!s) delete e[k]; else e[k] = r ? { s, r } : { s };
+  if (s && (!progress.clubSince || day < progress.clubSince)) progress.clubSince = day;   // Nachtrag älterer Tage: Auswertung ab diesem Datum
   if (!Object.keys(e).length) delete L[day];
   saveProgress();
 }
@@ -3490,15 +3491,21 @@ function openAnalytics(){
 /* ---- Eltern: Wochenplan und Einstellungen ---- */
 /* ---- Eltern: offene Club-Trainings der letzten 14 Tage bestätigen ---- */
 function clubParentsHTML(){
-  const today = new Date(), since = progress.clubSince || ymd(today), days = [];
-  for (let i = 0; i < 14; i++){ const day = ymd(addDays(today, -i)); if (day < since) break; if (clubOpen(day).length) days.push(day); }
+  const today = new Date(), days = [];
+  for (let i = 0; i < 14; i++){ const day = ymd(addDays(today, -i)); if (clubItems(planFor(ymdDate(day))).length || clubLog()[day]) days.push(day); }
   const fd = day => ymdDate(day).toLocaleDateString('de-CH', { weekday:'long', day:'numeric', month:'numeric' });
+  const open = days.filter(d => clubOpen(d).length);
   return `<div class="parents"><div class="pbox">
       <p class="eyebrow">Club-Trainings bestätigen</p>
-      <p>Hier wird festgehalten, welche On-Ice- und Off-Ice-Trainings, Matches und Turniere effektiv stattgefunden haben. Der Bericht zählt daraus, was gemacht, ausgelassen oder vom Club abgesagt wurde.</p>
-      ${days.length ? days.map(day => `<p class="cl-day">${fd(day)}</p>${clubRowsHTML(day)}`).join('') : '<p class="muted">Alles bestätigt ✓</p>'}
+      <p>Hier wird festgehalten, welche On-Ice- und Off-Ice-Trainings, Matches und Turniere effektiv stattgefunden haben (letzte 14 Tage). Der Bericht zählt daraus, was gemacht, ausgelassen oder vom Club abgesagt wurde.</p>
+      ${!days.length ? '<p class="muted">In den letzten 14 Tagen war kein Club-Training geplant. Clubtage im Wochenplan oder unter «Abweichungen» eintragen.</p>'
+        : `${open.length ? '' : '<p class="muted">Alles bestätigt ✓</p>'}${days.map(day => (clubOpen(day).length || clubParentsEdit === day)
+          ? `<p class="cl-day">${fd(day)}</p>${clubRowsHTML(day)}${clubOpen(day).length ? '' : '<div><button class="btn btn-ghost btn-small" data-cledit="">Fertig</button></div>'}`
+          : `<button class="club-done" data-cledit="${day}"><span><b>✓</b> ${fd(day)}: ${clubSumTxt(day)}</span><span>Ändern</span></button>`).join('')}`}
     </div></div>`;
 }
+let clubParentsEdit = null;
+document.addEventListener('click', e => { const t = e.target.closest && e.target.closest('[data-cledit]'); if (!t) return; clubParentsEdit = t.dataset.cledit || null; clubRedraw(); });
 
 /* ---- Eltern: Abweichungen vom Wochenplan für einzelne Daten oder einen Zeitraum ---- */
 let pxForm = null;
