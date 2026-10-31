@@ -943,6 +943,81 @@ html[data-theme="light"] .mc2-chips .niedrig{background:#DDF4EA;color:#0B7A59}
 #tog-theme,#tog-theme[aria-pressed]{color:var(--text)}
 #tog-theme svg{width:18px;height:18px}
 html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:background-color .35s ease,color .35s ease,border-color .35s ease,box-shadow .35s ease!important}
+/* ---- Bericht (Eltern-Bereich): Blatt im Druckdesign, auch als Vorschau in der App ---- */
+.rp-ctl{width:100%;max-width:880px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.rp-ctl input[type=date]{min-height:40px}
+.rp-ctl .btn-primary{margin-left:auto}
+.rp-how{width:100%;max-width:880px;margin:-6px 0 0;font-size:.9rem}
+.rp-wrap{width:100%;max-width:880px}
+.rp-paper{--n:#0B1F3A;--i:#2A7DE1;--il:#E8F1FC;--g:#5B6573;--l:#D9DEE5;--s:#F3F5F8;--ok:#1E9E6A;--w:#E08A00;--wl:#FDF3E3;--r:#D64545;
+  background:#fff;color:#2B3440;border-radius:14px;padding:0 28px 22px;box-shadow:0 12px 40px rgba(0,0,0,.35);overflow:hidden;
+  font:13.5px/1.45 -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;text-align:left}
+.rp-paper h1,.rp-paper h2,.rp-paper h3{font-family:inherit;color:var(--n);letter-spacing:0;text-transform:none;margin:0;text-shadow:none;line-height:1.2}
+.rp-paper h1{font-size:28px;line-height:1.1;font-weight:800}
+.rp-paper h2{font-size:16px;font-weight:700;margin:0 0 8px}
+.rp-paper h3{font-size:13.5px;font-weight:700;margin:0 0 4px}
+.rp-paper svg{width:100%;height:auto;display:block}
+.rp-top{display:flex;justify-content:space-between;background:var(--n);color:#fff;margin:0 -28px 18px;padding:11px 28px;font-size:12.5px}
+.rp-title{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+.rp-lvl{margin:4px 0 0;color:var(--i);font-weight:600}
+.rp-range{margin:0;text-align:right;color:var(--g);font-size:12px}
+.rp-range b{color:var(--n);font-size:13px}
+.rp-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:12px}
+.rp-kpi{background:var(--il);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:1px}
+.rp-kpi.warn{background:var(--wl)}
+.rp-kpi b{font-size:22px;color:var(--n);line-height:1.15}
+.rp-kpi span{font-size:11.5px;color:var(--g)}
+.rp-d{font-size:11px;color:var(--g)}
+.rp-box{border:1px solid var(--l);border-left:4px solid var(--i);border-radius:6px;padding:10px 14px;margin-bottom:14px}
+.rp-box p{margin:0}
+.rp-warn{margin:8px 0 0;padding:8px 10px 8px 26px;background:var(--wl);border-radius:6px;color:#7A4A00}
+.rp-warn li{margin:2px 0}
+.rp-sec{margin:0 0 16px;break-inside:avoid;page-break-inside:avoid}
+.rp-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px}
+.rp-cap{margin:4px 0 0;font-size:11.5px;color:var(--g)}
+.rp-mon{margin:6px 0 2px;font-weight:600;color:var(--n);font-size:12.5px}
+.rp-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 4px 0 0;vertical-align:-1px}
+.rp-empty{margin:0;color:var(--g);font-style:italic}
+.rp-bars{display:flex;flex-direction:column;gap:7px}
+.rp-bar{display:grid;grid-template-columns:110px minmax(0,1fr) 54px;gap:8px;align-items:center;font-size:12.5px}
+.rp-bar div{height:12px;background:var(--s);border-radius:6px;overflow:hidden}
+.rp-bar i{display:block;height:100%;background:var(--i);border-radius:6px}
+.rp-bar b{color:var(--n);font-weight:600;text-align:right}
+.rp-tab{width:100%;border-collapse:collapse;font-size:12.5px}
+.rp-tab td,.rp-tab th{padding:5px 6px;border-bottom:1px solid var(--l);text-align:left;vertical-align:middle}
+.rp-tab th{font-weight:600;color:var(--g);font-size:11.5px}
+.rp-grid thead th{background:var(--n);color:#fff;border:0}
+.rp-tab .r{text-align:right;white-space:nowrap}
+.rp-spark{display:block;width:90px!important;height:22px!important;margin-top:2px}
+.rp-alert{margin:8px 0 0;padding:8px 10px;background:#FBE9E9;color:#8A1F1F;border-radius:6px}
+.rp-badges{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.rp-badges li{display:flex;gap:10px;align-items:flex-start}
+.rp-badges b{display:block;color:var(--n)}
+.rp-badges small{color:var(--g);font-size:11.5px}
+.rp-tier{flex:0 0 14px;height:14px;border-radius:50%;margin-top:3px;background:var(--i)}
+.rp-tier.bronze{background:#C27C3E}.rp-tier.silver{background:#A7B1BE}.rp-tier.gold{background:#E4B42C}
+.rp-notes textarea{width:100%;box-sizing:border-box;border:1px solid var(--l);border-radius:6px;padding:10px;font:inherit;color:#2B3440;background:#fff;resize:vertical;min-height:80px}
+.rp-note-print{min-height:70px;border:1px solid var(--l);border-radius:6px;padding:10px;white-space:pre-wrap;
+  background-image:repeating-linear-gradient(transparent 0 23px,var(--l) 23px 24px)}
+.rp-foot{border-top:1px solid var(--l);padding-top:8px;font-size:11px;color:var(--g)}
+@media (max-width:640px){
+  .rp-paper{padding:0 16px 18px}.rp-top{margin:0 -16px 14px;padding:10px 16px}
+  .rp-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.rp-two{grid-template-columns:1fr;gap:0}
+  .rp-ctl .btn-primary{margin-left:0}
+}
+#print-root{display:none}
+@media print{
+  @page{size:A4;margin:11mm 12mm}
+  :root,html{color-scheme:light!important;background:#fff!important}
+  html,body{background:#fff!important;height:auto!important;overflow:visible!important}
+  body > *:not(#print-root){display:none!important}
+  #print-root{display:block}
+  #print-root .rp-paper{box-shadow:none;border-radius:0;padding:0;font-size:12px}
+  #print-root .rp-top{margin:0 0 14px;padding:9px 12px;border-radius:4px}
+  #print-root .rp-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
+  #print-root .rp-two{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  #print-root *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
 </style>
 
 <script>try{if(localStorage.getItem('apc.theme')==='light')document.documentElement.dataset.theme='light';}catch(e){}</script>
@@ -1009,6 +1084,7 @@ html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:
     <section id="screen-parents" class="screen" hidden></section>
     <section id="screen-log" class="screen" hidden></section>
     <section id="screen-analytics" class="screen" hidden></section>
+    <section id="screen-report" class="screen" hidden></section>
     <section id="screen-player" class="screen" hidden>
       <div class="ptop">
         <div class="chip" id="p-chip">Start</div>
@@ -2456,11 +2532,11 @@ function faceoffSVG(){
     <line class="fo-hash" x1="78" y1="182" x2="78" y2="196"/><line class="fo-hash" x1="122" y1="182" x2="122" y2="196"/>
     <circle class="fo-dot" cx="100" cy="100" r="6"/></svg>`;
 }
-const MUSIC_SCREENS = new Set(['center','missions','briefing','progress','parents','log','card','avatar','trophies','records','season','music']);
+const MUSIC_SCREENS = new Set(['center','missions','briefing','progress','parents','log','card','avatar','trophies','records','season','music','report']);
 let curScreen = 'center';
 function show(name){
-  ['center','briefing','trophies','missions','music','records','test','card','avatar','season','player','progress','parents','log','analytics'].forEach(n => { $('screen-' + n).hidden = (n !== name); });
-  { const tab = { center:'heute', music:'eltern', missions:'trainings', briefing:'trainings', progress:'fortschritt', card:'fortschritt', avatar:'fortschritt', trophies:'fortschritt', records:'fortschritt', test:'fortschritt', season:'fortschritt', log:'fortschritt', analytics:'fortschritt', parents:'eltern' }[name];
+  ['center','briefing','trophies','missions','music','records','test','card','avatar','season','player','progress','parents','log','analytics','report'].forEach(n => { $('screen-' + n).hidden = (n !== name); });
+  { const tab = { center:'heute', music:'eltern', missions:'trainings', briefing:'trainings', progress:'fortschritt', card:'fortschritt', avatar:'fortschritt', trophies:'fortschritt', records:'fortschritt', test:'fortschritt', season:'fortschritt', log:'fortschritt', analytics:'fortschritt', parents:'eltern', report:'eltern' }[name];
     document.querySelectorAll('#tabbar [data-tab]').forEach(b => { if (b.dataset.tab === tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }); }
   $('btn-home').hidden = (name === 'center');
   $('tog-theme').hidden = (name !== 'center');
@@ -3345,6 +3421,11 @@ function renderParents(){
     </div></div>
     ${painParentsHTML()}
     <div class="parents"><div class="pbox backup">
+      <p class="eyebrow">Bericht</p>
+      <p>Übersicht für einen frei wählbaren Zeitraum: Trainings, Feedback, Schmerzen, Rekorde und Abzeichen. Als PDF speichern, drucken oder teilen.</p>
+      <div class="bk-row"><button class="btn btn-primary btn-small" id="btn-report">Bericht öffnen</button></div>
+    </div></div>
+    <div class="parents"><div class="pbox backup">
       <p class="eyebrow">Sicherung</p>
       <p>Speichert Name, Fortschritt, Wochenplan, Einstellungen und Coach-Aufnahmen als Datei. Damit lässt sich der Stand nach einem Gerätewechsel oder Datenverlust wiederherstellen.</p>
       <div class="bk-row">
@@ -3365,10 +3446,244 @@ function renderParents(){
     } else { reset.dataset.armed = '1'; reset.textContent = 'Wirklich zurücksetzen? Nochmals tippen'; }
   };
   bindBackup();
+  $('btn-report').onclick = openReport;
   { const redraw = () => { const sc = $('screen-parents'), y = sc.scrollTop; renderParents(); sc.scrollTop = y; };
     bindCardImgInput($('btn-img-add'), redraw, $('img-msg'));
     document.querySelectorAll('[data-del-img]').forEach(b => b.onclick = () => { if (confirm('Dieses Bild entfernen?')){ CardImgs.remove(b.dataset.delImg); redraw(); } }); }
 }
+
+/* ---- Eltern: Bericht mit PDF-Export ----
+   Wertet die lokalen Daten (Trainings, Feedback, Schmerzen, Rekorde, Abzeichen) für einen Zeitraum aus.
+   PDF über die Druckfunktion des Geräts (iPad: im Druckfenster Teilen → «In Dateien sichern»). Es wird nichts übertragen. */
+const reportState = Object.assign({ range:'month', from:'', to:'', note:'' }, store.get('apc.report.v1', {}));
+const saveReport = () => store.set('apc.report.v1', { range:reportState.range, from:reportState.from, to:reportState.to, note:reportState.note });
+const RP_RANGES = [ ['7d','Letzte 7 Tage'], ['month','Dieser Monat'], ['prev','Letzter Monat'], ['3m','Letzte 3 Monate'], ['all','Gesamte Zeit'], ['custom','Eigener Zeitraum'] ];
+const RP_C = { navy:'#0B1F3A', ice:'#2A7DE1', iceL:'#E8F1FC', grey:'#5B6573', line:'#D9DEE5', soft:'#F3F5F8', ok:'#1E9E6A', warn:'#E08A00', red:'#D64545', warnL:'#FDF3E3' };
+const rpEsc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+const rpDate = (t, o) => new Date(t).toLocaleDateString('de-CH', o || { day:'2-digit', month:'2-digit', year:'numeric' });
+const rpDay0 = t => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d; };
+const rpParse = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
+const rpISO = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+function reportRange(){
+  const now = new Date(), today = rpDay0(now), y = now.getFullYear(), m = now.getMonth();
+  let from = new Date(y, m, 1), to = new Date(today.getTime() + 864e5 - 1);
+  switch (reportState.range){
+    case '7d': from = new Date(today.getTime() - 6 * 864e5); break;
+    case 'prev': from = new Date(y, m - 1, 1); to = new Date(new Date(y, m, 1).getTime() - 1); break;
+    case '3m': from = new Date(y, m - 2, 1); break;
+    case 'all': {
+      const ts = (progress.log || []).map(e => Date.parse(e.at)).concat(painList().map(r => Date.parse(r.at))).filter(x => !isNaN(x));
+      from = ts.length ? rpDay0(Math.min(...ts)) : today; break; }
+    case 'custom': {
+      const f = rpParse(reportState.from), t = rpParse(reportState.to);
+      if (f) from = f; if (t) to = new Date(t.getTime() + 864e5 - 1);
+      if (from > to){ const x = rpDay0(to); to = new Date(from.getTime() + 864e5 - 1); from = x; }
+      break; }
+  }
+  return { from, to };
+}
+
+function reportData(from, to){
+  const F = from.getTime(), T = to.getTime(), len = T - F + 1, PF = F - len;
+  const inR = t => { const x = Date.parse(t); return x >= F && x <= T; }, inP = t => { const x = Date.parse(t); return x >= PF && x < F; };
+  const byTime = (a, b) => Date.parse(a.at) - Date.parse(b.at);
+  const all = (progress.log || []).slice().sort(byTime);
+  const log = all.filter(e => inR(e.at)), prev = all.filter(e => inP(e.at));
+  const sum = a => a.reduce((s, e) => s + (e.dur || 0), 0);
+  const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+  // Tage mit Training und längste Serie an Tagen in Folge
+  const dayMin = {}; log.forEach(e => { const k = rpDay0(e.at).getTime(); dayMin[k] = (dayMin[k] || 0) + (e.dur || 0); });
+  let streak = 0, run = 0, last = null;
+  Object.keys(dayMin).map(Number).sort((a, b) => a - b).forEach(k => { run = (last !== null && Math.round((k - last) / 864e5) === 1) ? run + 1 : 1; last = k; streak = Math.max(streak, run); });
+  // Wochen im Zeitraum
+  const weeks = []; for (let w = weekStart(from.toISOString()); w <= T; w = weekStart(new Date(w + 8 * 864e5).toISOString())) weeks.push({ ws:w, n:0, min:0, pause:!!(progress.pauseWeeks || {})[w] });
+  log.forEach(e => { const w = weeks.find(x => x.ws === weekStart(e.at)); if (w){ w.n++; w.min += e.dur || 0; } });
+  const target = weekTarget(), nowWs = weekStart(new Date().toISOString());
+  const fullWeeks = weeks.filter(w => w.ws >= F && w.ws + 7 * 864e5 - 1 <= T && w.ws < nowWs);   // nur ganze, abgeschlossene Wochen
+  // Säulen (Kategorien) nach Minuten
+  const pil = {}; log.forEach(e => { const s = SETS.find(x => x.id === e.mission), ps = s && s.pillars && s.pillars.length ? s.pillars : ['Weitere']; ps.forEach(p => { pil[p] = (pil[p] || 0) + (e.dur || 0) / ps.length; }); });
+  // Sets
+  const bySet = {}; log.forEach(e => { bySet[e.mission] = (bySet[e.mission] || 0) + 1; });
+  // Feedback und Schmerzen
+  const fbl = log.filter(e => e.fb && e.fb.strain);
+  const pains = painList().filter(r => inR(r.at)).sort(byTime), prevPains = painList().filter(r => inP(r.at)).length;
+  const byArea = {}; pains.forEach(r => { const a = byArea[r.area] = byArea[r.area] || { n:0, stark:0 }; a.n++; if (r.level === 'stark') a.stark++; });
+  // Rekorde im Zeitraum, verglichen mit dem Bestwert davor
+  const better = (m, a, b) => b === null || (METRICS[m].lower ? a < b : a > b);
+  const best = (m, L) => L.reduce((b, r) => better(m, r.v, b) ? r.v : b, null);
+  const recs = Object.keys(METRICS).map(m => { const L = recList(m), before = L.filter(r => Date.parse(r.at) < F), within = L.filter(r => inR(r.at));
+    if (!within.length) return null;
+    const b0 = best(m, before), b1 = best(m, within);
+    return { m, before:b0, now:b1, pr:b0 !== null && better(m, b1, b0), series:L.filter(r => Date.parse(r.at) <= T).slice(-8) }; }).filter(Boolean);
+  const badges = BADGES.filter(b => progress.badges && progress.badges[b.id] && inR(progress.badges[b.id])).map(b => ({ b, at:progress.badges[b.id] })).sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
+  const tests = (progress.tests || []).filter(t => inR(t.at));
+  return { from, to, F, T, len, log, prev, mins:sum(log), prevMins:sum(prev), days:Object.keys(dayMin).length, dayMin, streak, weeks, fullWeeks, target,
+    pil, bySet, fbl, aS:avg(fbl.map(e => e.fb.strain)), aF:avg(fbl.filter(e => e.fb.fun).map(e => e.fb.fun)),
+    pains, prevPains, byArea, recs, badges, tests, skips:log.filter(e => e.skips).length };
+}
+
+function reportFazit(D){
+  const out = [], warn = [], perWeek = D.log.length / Math.max(1, D.len / (7 * 864e5)), name = PROFILE.name || 'Dein Kind';
+  if (!D.log.length) return { out:[`Im gewählten Zeitraum wurden keine APC-Trainings gemacht.`], warn:D.pains.length ? [`${D.pains.length} Schmerzmeldung${D.pains.length > 1 ? 'en' : ''} im Zeitraum.`] : [] };
+  out.push(`${name} hat ${D.log.length} APC-Training${D.log.length > 1 ? 's' : ''} absolviert (${D.mins} Minuten, im Schnitt ${perWeek.toFixed(1).replace('.', ',')} pro Woche).`);
+  if (D.prev.length){ const d = D.log.length - D.prev.length; out.push(d > 0 ? `Das sind ${d} mehr als im Vergleichszeitraum davor.` : d < 0 ? `Das sind ${-d} weniger als im Vergleichszeitraum davor.` : 'Gleich viele wie im Vergleichszeitraum davor.'); }
+  if (D.fullWeeks.length){ const ok = D.fullWeeks.filter(w => w.n >= D.target || w.pause).length; out.push(`Wochenziel (${D.target} Trainings) in ${ok} von ${D.fullWeeks.length} Wochen erreicht.`); }
+  const prs = D.recs.filter(r => r.pr); if (prs.length) out.push(`Neue Bestwerte: ${prs.map(r => METRICS[r.m].name).join(', ')}.`);
+  if (D.badges.length) out.push(`${D.badges.length} neue${D.badges.length > 1 ? '' : 's'} Abzeichen.`);
+  if (D.aF !== null) out.push(`Spass im Schnitt: ${D.aF >= 2.5 ? '«Mega»' : D.aF >= 1.75 ? '«Okay»' : '«Ging so»'}.`);
+  if (D.aS !== null && D.aS >= 4) warn.push('Die Trainings wurden im Schnitt als «Streng» oder härter empfunden. Lockere Tage einplanen.');
+  Object.entries(D.byArea).forEach(([id, a]) => {
+    if (a.stark) warn.push(`${painInfo(id).label}: ${a.n}× gemeldet, davon ${a.stark}× «tut richtig weh». Bitte von einer Fachperson abklären lassen.`);
+    else if (a.n >= 2) warn.push(`${painInfo(id).label}: ${a.n}× gemeldet. Weiter beobachten.`); });
+  if (progress.painPause) warn.push(`Pausenmodus ist aktiv (${painInfo(progress.painPause.area).label}). Freigabe im Eltern-Bereich.`);
+  if (D.skips >= 3) warn.push(`In ${D.skips} Trainings wurden Teile übersprungen.`);
+  return { out, warn };
+}
+
+/* Diagramme als SVG mit festen Druckfarben */
+function rpCalendar(D){
+  if (D.len > 63 * 864e5) return '';
+  const C = RP_C, months = []; for (let d = new Date(D.from.getFullYear(), D.from.getMonth(), 1); d <= D.to; d = new Date(d.getFullYear(), d.getMonth() + 1, 1)) months.push(d);
+  const painDays = new Set(D.pains.map(r => rpDay0(r.at).getTime()));
+  const shade = m => m >= 35 ? '#1C5FB0' : m >= 28 ? C.ice : m >= 20 ? '#5E9AE8' : m >= 12 ? '#8DB8EF' : '#BBD5F6';
+  return months.map(mo => {
+    const y = mo.getFullYear(), m = mo.getMonth(), n = new Date(y, m + 1, 0).getDate(), off = (mo.getDay() + 6) % 7, rows = Math.ceil((off + n) / 7);
+    const cw = 96, ch = 40, W = cw * 7, H = 22 + rows * ch;
+    let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Trainingskalender ${mo.toLocaleDateString('de-CH', { month:'long', year:'numeric' })}">`;
+    s += DAYS.map(([, , short], i) => `<text x="${i * cw + cw / 2}" y="14" font-size="12" fill="${C.grey}" text-anchor="middle">${short}</text>`).join('');
+    for (let d = 1; d <= n; d++){
+      const k = new Date(y, m, d).getTime(), i = off + d - 1, x = (i % 7) * cw, yy = 22 + Math.floor(i / 7) * ch, out = k < rpDay0(D.from).getTime() || k > D.T;
+      const min = D.dayMin[k] || 0, fill = out ? '#FAFBFC' : min ? shade(min) : C.soft, tc = min >= 20 && !out ? '#fff' : out ? '#C3CAD4' : C.navy;
+      s += `<rect x="${x + 2}" y="${yy + 2}" width="${cw - 4}" height="${ch - 4}" rx="5" fill="${fill}"/>`;
+      s += `<text x="${x + 10}" y="${yy + 20}" font-size="13" fill="${tc}">${d}</text>`;
+      if (min && !out) s += `<text x="${x + cw - 10}" y="${yy + 20}" font-size="11" fill="${tc}" text-anchor="end">${min}′</text>`;
+      if (painDays.has(k) && !out) s += `<circle cx="${x + cw - 14}" cy="${yy + ch - 11}" r="5" fill="${C.red}" stroke="#fff" stroke-width="1.5"/>`;
+    }
+    return `<p class="rp-cap rp-mon">${mo.toLocaleDateString('de-CH', { month:'long', year:'numeric' })}</p>${s}</svg>`;
+  }).join('') + `<p class="rp-cap"><i class="rp-dot" style="background:${C.ice}"></i>APC-Training (Zahl = Minuten, dunkler = länger) · <i class="rp-dot" style="background:${C.red}"></i>Schmerzmeldung</p>`;
+}
+function rpWeeks(D){
+  if (D.weeks.length < 2) return '';
+  const C = RP_C, W = 700, H = 170, pb = 24, pt = 18, max = Math.max(D.target, ...D.weeks.map(w => w.n), 1), cw = W / D.weeks.length, bw = Math.min(40, cw * .6);
+  const y = v => H - pb - v / max * (H - pb - pt), many = D.weeks.length > 14;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Trainings pro Woche">`;
+  s += `<line x1="0" x2="${W}" y1="${y(D.target)}" y2="${y(D.target)}" stroke="${C.warn}" stroke-dasharray="4 4"/><text x="2" y="${y(D.target) - 4}" font-size="11" fill="${C.warn}">Wochenziel ${D.target}</text>`;
+  D.weeks.forEach((w, i) => { const x = i * cw + (cw - bw) / 2;
+    if (w.n) s += `<rect x="${x}" y="${y(w.n)}" width="${bw}" height="${H - pb - y(w.n)}" rx="4" fill="${w.n >= D.target ? C.ok : C.ice}"/>`;
+    s += `<text x="${x + bw / 2}" y="${(w.n ? y(w.n) : H - pb) - 4}" font-size="11" fill="${C.navy}" text-anchor="middle">${w.n}${w.pause ? ' P' : ''}</text>`;
+    if (!many || i % 2 === 0) s += `<text x="${x + bw / 2}" y="${H - 6}" font-size="10.5" fill="${C.grey}" text-anchor="middle">${rpDate(w.ws, { day:'numeric', month:'numeric' })}</text>`; });
+  return s + `</svg><p class="rp-cap">Balken = Trainings pro Woche (Datum = Montag) · grün = Wochenziel erreicht${D.weeks.some(w => w.pause) ? ' · P = Pausenwoche wegen Schmerzen' : ''}</p>`;
+}
+function rpFeedback(D){
+  const C = RP_C, L = D.fbl.slice(-40); if (!L.length) return '<p class="rp-empty">Keine Feedbacks im Zeitraum.</p>';
+  const W = 700, H = 190, pl = 30, pb = 26, pt = 10, cw = (W - pl) / L.length, bw = Math.min(22, cw * .6), y = v => H - pb - v / 5 * (H - pb - pt);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Belastung und Spass">`;
+  [1, 2, 3, 4, 5].forEach(v => { s += `<line x1="${pl}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="#EEF1F4"/><text x="${pl - 6}" y="${y(v) + 4}" font-size="10" fill="${C.grey}" text-anchor="end">${v}</text>`; });
+  L.forEach((e, i) => { const x = pl + i * cw + (cw - bw) / 2;
+    s += `<rect x="${x}" y="${y(e.fb.strain)}" width="${bw}" height="${H - pb - y(e.fb.strain)}" rx="3" fill="${STRAIN[e.fb.strain - 1][1]}"/>`;
+    if (e.fb.pain) s += `<text x="${x + bw / 2}" y="${y(e.fb.strain) - 4}" font-size="13" font-weight="700" fill="${C.red}" text-anchor="middle">!</text>`;
+    if (L.length <= 16 || i % Math.ceil(L.length / 12) === 0) s += `<text x="${x + bw / 2}" y="${H - 8}" font-size="10" fill="${C.grey}" text-anchor="middle">${rpDate(e.at, { day:'numeric', month:'numeric' })}</text>`; });
+  const pts = L.map((e, i) => e.fb.fun ? [pl + i * cw + cw / 2, y(e.fb.fun * 5 / 3)] : null).filter(Boolean);
+  if (pts.length > 1) s += `<polyline points="${pts.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="${C.navy}" stroke-width="2"/>`;
+  s += pts.map(p => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="${C.navy}"/>`).join('');
+  return s + `</svg><p class="rp-cap">Balken = Belastung (1 Locker … 5 Hammer) · Linie = Spass (Ging so · Okay · Mega) · <b style="color:${C.red}">!</b> = Schmerz nach dem Training</p>`;
+}
+function rpSpark(r){
+  const L = r.series; if (L.length < 2) return '';
+  const W = 90, H = 22, vs = L.map(x => x.v), lo = Math.min(...vs), hi = Math.max(...vs), sp = hi - lo || 1, inv = METRICS[r.m].lower;
+  const pts = L.map((x, i) => [i / (L.length - 1) * (W - 4) + 2, inv ? 2 + (x.v - lo) / sp * (H - 4) : H - 2 - (x.v - lo) / sp * (H - 4)]);
+  return `<svg viewBox="0 0 ${W} ${H}" class="rp-spark"><polyline points="${pts.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="${RP_C.ice}" stroke-width="1.6"/><circle cx="${pts[pts.length - 1][0].toFixed(1)}" cy="${pts[pts.length - 1][1].toFixed(1)}" r="2.5" fill="${RP_C.ice}"/></svg>`;
+}
+
+function reportPaperHTML(D){
+  const C = RP_C, li = levelInfo(progress.xp || 0), fz = reportFazit(D), name = rpEsc(PROFILE.name || 'Spieler');
+  const delta = (a, b, unit, invert) => { if (b === null || b === undefined) return ''; const d = a - b; if (!d) return `<small class="rp-d">= wie davor</small>`;
+    const good = invert ? d < 0 : d > 0; return `<small class="rp-d" style="color:${good ? C.ok : C.warn}">${d > 0 ? '▲ +' : '▼ '}${d}${unit || ''} vs. davor</small>`; };
+  const prevOk = D.prev.length || D.prevMins;
+  const kpis = [
+    [D.log.length, 'APC-Trainings', prevOk ? delta(D.log.length, D.prev.length) : ''],
+    [D.mins, 'Trainingsminuten', prevOk ? delta(D.mins, D.prevMins, ' min') : ''],
+    [D.streak ? `${D.streak} ${D.streak > 1 ? 'Tage' : 'Tag'}` : '–', 'Längste Serie (Tage in Folge)', `<small class="rp-d">${D.days} Trainingstage</small>`],
+    [D.pains.length, 'Schmerzmeldungen', delta(D.pains.length, D.prevPains, '', true), D.pains.length ? 'warn' : '']
+  ];
+  const pilRows = Object.entries(D.pil).sort((a, b) => b[1] - a[1]), pilMax = Math.max(1, ...pilRows.map(p => p[1]));
+  const setRows = Object.entries(D.bySet).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const setName = id => { const s = SETS.find(x => x.id === id); return s ? s.title : id; };
+  const range = `${rpDate(D.from)} – ${rpDate(D.to)}`;
+  return `<article class="rp-paper" lang="de">
+    <header class="rp-top"><span><b>APC</b> · Athlete Performance Centre</span><span>Elternbericht</span></header>
+    <div class="rp-title"><div><h1>${name}</h1><p class="rp-lvl">Level ${li.level} · «${rpEsc(li.name)}» · ${progress.xp || 0} XP${player && player.no ? ` · #${rpEsc(player.no)} ${rpEsc(player.pos || '')}` : ''}</p></div>
+      <p class="rp-range">Zeitraum<br><b>${range}</b></p></div>
+    <div class="rp-kpis">${kpis.map(k => `<div class="rp-kpi ${k[3] || ''}"><b>${k[0]}</b><span>${k[1]}</span>${k[2]}</div>`).join('')}</div>
+    <section class="rp-box rp-fazit"><h3>Kurzfazit</h3><p>${fz.out.join(' ')}</p>${fz.warn.length ? `<ul class="rp-warn">${fz.warn.map(w => `<li>${w}</li>`).join('')}</ul>` : ''}</section>
+    ${D.len <= 63 * 864e5 ? `<section class="rp-sec"><h2>Trainingskalender</h2>${rpCalendar(D)}</section>` : ''}
+    ${D.weeks.length >= 2 ? `<section class="rp-sec"><h2>Regelmässigkeit</h2>${rpWeeks(D)}</section>` : ''}
+    <div class="rp-two">
+      <section class="rp-sec"><h2>Training nach Bereich</h2>${pilRows.length ? `<div class="rp-bars">${pilRows.map(([p, v]) => `<div class="rp-bar"><span>${rpEsc(p)}</span><div><i style="width:${(v / pilMax * 100).toFixed(0)}%"></i></div><b>${Math.round(v)} min</b></div>`).join('')}</div>` : '<p class="rp-empty">Keine Trainings im Zeitraum.</p>'}</section>
+      <section class="rp-sec"><h2>Häufigste Sets</h2>${setRows.length ? `<table class="rp-tab"><tbody>${setRows.map(([id, n]) => `<tr><td>${rpEsc(setName(id))}</td><td class="r">${n}×</td></tr>`).join('')}</tbody></table>` : '<p class="rp-empty">–</p>'}</section>
+    </div>
+    <section class="rp-sec"><h2>Feedback nach dem Training</h2>${rpFeedback(D)}
+      ${D.fbl.length ? `<p class="rp-cap">Ø Belastung ${D.aS.toFixed(1).replace('.', ',')} (${STRAIN[Math.round(D.aS) - 1][0]})${D.aF !== null ? ` · Ø Spass ${D.aF >= 2.5 ? 'Mega' : D.aF >= 1.75 ? 'Okay' : 'Ging so'}` : ''} · ${D.fbl.length} Feedbacks</p>` : ''}</section>
+    <section class="rp-sec"><h2>Schmerzmodus</h2>
+      ${D.pains.length ? `<table class="rp-tab rp-grid"><thead><tr><th>Datum</th><th>Körperstelle</th><th>Stärke</th><th>Gemeldet</th></tr></thead><tbody>
+        ${D.pains.map(r => `<tr><td>${rpDate(r.at, { weekday:'short', day:'2-digit', month:'2-digit' })}</td><td>${rpEsc(painInfo(r.area).label)}</td><td style="color:${r.level === 'stark' ? C.red : C.warn}">${r.level === 'stark' ? 'Tut richtig weh' : 'Zwickt'}</td><td>${r.src === 'training' ? 'nach Training' : 'Check-in'}</td></tr>`).join('')}</tbody></table>`
+        : '<p class="rp-empty">Keine Schmerzen gemeldet.</p>'}
+      ${progress.painPause ? `<p class="rp-alert"><b>Pausenmodus aktiv</b> seit ${rpDate(progress.painPause.since)}: ${rpEsc(painInfo(progress.painPause.area).label)}.</p>` : ''}</section>
+    <div class="rp-two">
+      <section class="rp-sec"><h2>Rekorde &amp; Messwerte</h2>${D.recs.length ? `<table class="rp-tab rp-grid"><thead><tr><th>Messwert</th><th class="r">Davor</th><th class="r">Jetzt</th><th></th></tr></thead><tbody>
+        ${D.recs.map(r => `<tr><td>${rpEsc(METRICS[r.m].name)}${rpSpark(r)}</td><td class="r">${fmtVal(r.m, r.before)}</td><td class="r"><b>${fmtVal(r.m, r.now)}</b></td><td class="r" style="color:${r.pr ? C.ok : C.grey}">${r.pr ? '▲' : r.before === null ? 'neu' : '–'}</td></tr>`).join('')}</tbody></table>
+        ${D.tests.length ? `<p class="rp-cap">${D.tests.length} Testtag${D.tests.length > 1 ? 'e' : ''} im Zeitraum.</p>` : ''}` : '<p class="rp-empty">Keine Messungen im Zeitraum.</p>'}</section>
+      <section class="rp-sec"><h2>Neue Abzeichen</h2>${D.badges.length ? `<ul class="rp-badges">${D.badges.map(x => `<li><i class="rp-tier ${x.b.tier}"></i><span><b>${rpEsc(x.b.name)}</b><small>${rpEsc(x.b.desc)} · ${rpDate(x.at, { day:'numeric', month:'numeric' })}</small></span></li>`).join('')}</ul>` : '<p class="rp-empty">Keine neuen Abzeichen im Zeitraum.</p>'}</section>
+    </div>
+    <section class="rp-sec rp-notes"><h2>Notizen der Eltern</h2>
+      <textarea id="rp-note" rows="4" placeholder="Eigene Beobachtungen, Ziele für die nächste Zeit, Rückmeldung vom Trainer …">${rpEsc(reportState.note)}</textarea></section>
+    <footer class="rp-foot">Erstellt am ${rpDate(new Date())} mit APC · Alle Daten stammen nur von diesem Gerät.</footer>
+  </article>`;
+}
+
+function renderReport(){
+  const { from, to } = reportRange(), D = reportData(from, to);
+  $('screen-report').innerHTML = `
+  <div class="inner trophies hub">
+    <div class="tr-head"><div><p class="eyebrow">Eltern-Bereich</p><h1>Bericht</h1></div>
+      <button class="btn btn-ghost btn-small" id="btn-rp-back"><span class="arrow back" aria-hidden="true"></span> Eltern-Bereich</button></div>
+    <div class="rp-ctl">
+      <label for="rp-range" class="pe-lbl">Zeitraum</label>
+      <select id="rp-range" class="pselect">${RP_RANGES.map(([k, l]) => `<option value="${k}" ${reportState.range === k ? 'selected' : ''}>${l}</option>`).join('')}</select>
+      ${reportState.range === 'custom' ? `<input type="date" id="rp-from" class="pselect" value="${reportState.from || rpISO(from)}" aria-label="Von"><span class="muted">bis</span><input type="date" id="rp-to" class="pselect" value="${reportState.to || rpISO(to)}" aria-label="Bis">` : ''}
+      <button class="btn btn-primary btn-small" id="btn-rp-pdf">PDF erstellen</button>
+    </div>
+    <p class="muted rp-how">Auf dem iPad öffnet sich das Druckfenster: oben auf das Teilen-Symbol tippen und «In Dateien sichern» wählen – oder direkt per Mail oder Nachricht senden.</p>
+    <div class="rp-wrap">${reportPaperHTML(D)}</div>
+  </div>`;
+  $('btn-rp-back').onclick = openParents;
+  $('rp-range').onchange = e => { reportState.range = e.target.value; saveReport(); renderReport(); };
+  if ($('rp-from')){
+    const upd = () => { reportState.from = $('rp-from').value; reportState.to = $('rp-to').value; saveReport(); const sc = $('screen-report'), y = sc.scrollTop; renderReport(); $('screen-report').scrollTop = y; };
+    $('rp-from').onchange = upd; $('rp-to').onchange = upd;
+  }
+  $('rp-note').oninput = e => { reportState.note = e.target.value; saveReport(); };
+  $('btn-rp-pdf').onclick = printReport;
+}
+/* Für den Druck wird nur das Berichtsblatt in einen eigenen Container kopiert (alles andere ist im Druck ausgeblendet). */
+function fillPrintRoot(){
+  const paper = document.querySelector('#screen-report .rp-paper'); if (!paper) return false;
+  let root = $('print-root'); if (!root){ root = document.createElement('div'); root.id = 'print-root'; document.body.appendChild(root); }
+  root.innerHTML = paper.outerHTML;
+  const ta = root.querySelector('textarea'); if (ta){ const d = document.createElement('div'); d.className = 'rp-note-print'; d.textContent = reportState.note || ''; ta.replaceWith(d); }
+  return true;
+}
+function printReport(){
+  if (!fillPrintRoot()) return;
+  const { from, to } = reportRange(), old = document.title;
+  document.title = `APC-Bericht ${PROFILE.name || ''} ${rpISO(from)} bis ${rpISO(to)}`.replace(/\s+/g, ' ');   // wird als Dateiname vorgeschlagen
+  const done = () => { document.title = old; window.removeEventListener('afterprint', done); };
+  window.addEventListener('afterprint', done);
+  setTimeout(() => { try { window.print(); } catch(e){ done(); alert('Drucken ist auf diesem Gerät nicht möglich.'); } }, 60);
+}
+window.addEventListener('beforeprint', () => { if (curScreen === 'report') fillPrintRoot(); });
+function openReport(){ Voice.stop(); renderReport(); show('report'); $('screen-report').scrollTop = 0; }
 
 /* ---- Eltern: Sicherung erstellen und wiederherstellen ----
    Sichert alle lokalen APC-Daten (localStorage-Schlüssel «apc.*») und auf Wunsch die eigene Musik (IndexedDB)
