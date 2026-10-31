@@ -62,14 +62,20 @@ export function createAvatar3D(host, a, opt){
     lace:   new THREE.MeshStandardMaterial({ color:0xf4f6f9, roughness:0.95 }),
     visor:  new THREE.MeshPhysicalMaterial({ color:0xbfe4ff, roughness:0.02, transmission:0.85, transparent:true, opacity:0.45, thickness:0.01, side:THREE.DoubleSide }),
     cage:   new THREE.MeshStandardMaterial({ color:0xd3dae3, roughness:0.25, metalness:0.9 }),
-    eye:    new THREE.MeshStandardMaterial({ color:0x2a1d14, roughness:0.4 })
+    eye:    new THREE.MeshStandardMaterial({ color:0x2a1d14, roughness:0.4 }),
+    gold:   new THREE.MeshStandardMaterial({ color:0xe4b42c, roughness:0.18, metalness:1 }),
+    smoke:  new THREE.MeshPhysicalMaterial({ color:0x2b3340, roughness:0.05, transparent:true, opacity:0.78, side:THREE.DoubleSide }),
+    mirror: new THREE.MeshStandardMaterial({ color:0x9fc4ff, roughness:0.04, metalness:1, envMapIntensity:1.6, side:THREE.DoubleSide }),
+    goldV:  new THREE.MeshStandardMaterial({ color:0xf4c64e, roughness:0.06, metalness:1, transparent:true, opacity:0.92, side:THREE.DoubleSide }),
+    plexi:  new THREE.MeshPhysicalMaterial({ color:0xe8f4ff, roughness:0.02, transmission:0.92, transparent:true, opacity:0.3, thickness:0.01, side:THREE.DoubleSide }),
+    frame:  new THREE.MeshStandardMaterial({ color:0x16181d, roughness:0.4 })
   };
   const root = new THREE.Group(); scene.add(root); root.rotation.y = -0.25;
   const add = (geo, mat, parent = root) => { const m = new THREE.Mesh(geo, mat); m.castShadow = true; m.receiveShadow = true; parent.add(m); return m; };
   const limb = (p, q, r1, r2, mat, parent = root, seg = 20) => { const m = add(new THREE.CylinderGeometry(r2, r1, p.distanceTo(q), seg), mat, parent);
     m.position.copy(p).add(q).multiplyScalar(0.5); m.quaternion.setFromUnitVectors(UP, q.clone().sub(p).normalize()); return m; };
   const ball = (p, r, mat, s, parent = root) => { const m = add(new THREE.SphereGeometry(r, 24, 18), mat, parent); m.position.copy(p); if (s) m.scale.set(...s); return m; };
-  const parts = {};
+  const parts = { blades:[] };
 
   /* ---------- Beine, Stutzen, Schlittschuhe ---------- */
   [-1, 1].forEach(s => {
@@ -105,7 +111,7 @@ export function createAvatar3D(host, a, opt){
     const blade = new THREE.Shape();
     blade.moveTo(-0.118, 0.04); blade.lineTo(0.118, 0.04); blade.quadraticCurveTo(0.13, 0.03, 0.118, 0.012);
     blade.quadraticCurveTo(0, -0.006, -0.118, 0.012); blade.quadraticCurveTo(-0.13, 0.03, -0.118, 0.04);
-    ext(blade, 0.003, M.steel, 0.0008);
+    (parts.blades = parts.blades || []).push(ext(blade, 0.003, M.steel, 0.0008));
   });
   /* ---------- Hose ---------- */
   const girdle = add(new THREE.CylinderGeometry(0.2, 0.215, 0.24, 32), M.pants); girdle.position.set(0, 0.86, -0.01); girdle.scale.z = 0.78;
@@ -113,7 +119,18 @@ export function createAvatar3D(host, a, opt){
   /* ---------- Oberkörper ---------- */
   const prof = [[0, 0.9], [0.205, 0.9], [0.21, 0.97], [0.215, 1.08], [0.24, 1.2], [0.27, 1.29], [0.23, 1.36], [0.08, 1.4], [0, 1.4]].map(([r, y]) => new THREE.Vector2(r, y));
   add(new THREE.LatheGeometry(prof, 48), M.jersey).scale.z = 0.72;
-  [[0.94, 0.965], [0.98, 1.005]].forEach(([p, q]) => { const h = add(new THREE.CylinderGeometry(0.213, 0.211, q - p, 48, 1, true), M.accent); h.position.y = (p + q) / 2; h.scale.z = 0.73; });
+  const trim = new THREE.Group(); root.add(trim);
+  const clearGroup = g => { g.traverse(o => { if (o.geometry) o.geometry.dispose(); }); while (g.children.length) g.remove(g.children[0]); };
+  function buildTrim(style){
+    clearGroup(trim);
+    const bands = { std:[[0.94, 0.965], [0.98, 1.005]], champ:[[0.94, 0.965], [0.98, 1.005]], alt:[[0.925, 1.015]], retro:[[0.935, 0.948], [0.958, 0.971], [0.981, 0.994]] }[style] || [[0.94, 0.965], [0.98, 1.005]];
+    bands.forEach(([p, q]) => { const h = add(new THREE.CylinderGeometry(0.213, 0.211, q - p, 48, 1, true), M.accent, trim); h.position.y = (p + q) / 2; h.scale.z = 0.73; });
+    if (style === 'alt'){ const y = add(new THREE.CylinderGeometry(0.262, 0.272, 0.05, 48, 1, true), M.accent, trim); y.position.y = 1.28; y.scale.z = 0.73; }
+    if (style === 'retro'){   // Schnürkragen
+      const v = add(new RoundedBoxGeometry(0.05, 0.09, 0.012, 2, 0.004), M.accent, trim); v.position.set(0, 1.335, 0.165); v.rotation.x = -0.35;
+      [0, 1, 2].forEach(i => { const l = add(new THREE.BoxGeometry(0.04, 0.004, 0.004), M.lace, trim); l.position.set(0, 1.31 + i * 0.022, 0.172 - i * 0.007); l.rotation.z = i % 2 ? 0.4 : -0.4; });
+    }
+  }
   [-1, 1].forEach(s => ball(V(s * 0.25, 1.3, 0), 0.105, M.jersey, [1, 0.8, 0.9]));
   const collar = add(new THREE.TorusGeometry(0.065, 0.014, 10, 32), M.accent); collar.position.y = 1.395; collar.rotation.x = Math.PI / 2;
   // Name und Nummer als Leinwand-Texturen
@@ -137,61 +154,117 @@ export function createAvatar3D(host, a, opt){
   [-1, 1].forEach(s => add(new RoundedBoxGeometry(0.03, 0.08, 0.075, 3, 0.012), M.helmet).position.set(s * 0.108, 1.53, 0));
   const ridge = add(new THREE.TorusGeometry(0.112, 0.008, 8, 48, Math.PI), M.helmet); ridge.position.set(0, 1.59, -0.005); ridge.rotation.y = Math.PI / 2; ridge.scale.set(1, 1.04, 1.08);
   parts.visor = add(new THREE.CylinderGeometry(0.125, 0.125, 0.06, 40, 1, true, -Math.PI * 0.38, Math.PI * 0.76), M.visor); parts.visor.position.set(0, 1.545, 0); parts.visor.castShadow = false;
+  parts.cMark = add(new THREE.PlaneGeometry(0.08, 0.08), decal()); parts.cMark.position.set(-0.09, 1.25, 0.183); parts.cMark.castShadow = false;
+  parts.plexi = new THREE.Group(); root.add(parts.plexi);
+  { const sh = add(new THREE.CylinderGeometry(0.132, 0.126, 0.17, 48, 1, true, -Math.PI * 0.46, Math.PI * 0.92), M.plexi, parts.plexi); sh.position.set(0, 1.49, 0.005); sh.castShadow = false;
+    [1.575, 1.405].forEach(y => { const r = add(new THREE.TorusGeometry(y > 1.5 ? 0.132 : 0.126, 0.004, 6, 48, Math.PI * 0.92), M.frame, parts.plexi); r.position.y = y; r.rotation.x = Math.PI / 2; r.rotation.z = Math.PI * 0.04; }); }
   parts.cage = new THREE.Group(); root.add(parts.cage);
   for (let i = -3; i <= 3; i++){ const w = i * 0.16; add(new THREE.CylinderGeometry(0.003, 0.003, 0.15, 6), M.cage, parts.cage).position.set(Math.sin(w) * 0.128, 1.5, Math.cos(w) * 0.128); }
   [1.57, 1.53, 1.49, 1.45].forEach((y, k) => { const b = add(new THREE.TorusGeometry(0.128 - k * 0.006, 0.003, 6, 40, Math.PI * 0.95), M.cage, parts.cage); b.position.y = y; b.rotation.x = Math.PI / 2; b.rotation.z = Math.PI * 0.025; });
-  /* ---------- Arme, Handschuhe, Stock (gespiegelt für Links-/Rechtsschuss) ---------- */
+  /* ---------- Arme, Handschuhe, Stock je Pose (gespiegelt für Links-/Rechtsschuss) ---------- */
   const arms = new THREE.Group(); root.add(arms);
-  const stickTop = V(0.2, 1.12, 0.18), heel = V(-0.36, 0.035, 0.72);
-  const topHand = lerp(stickTop, heel, 0.06), lowHand = lerp(stickTop, heel, 0.3);
-  limb(stickTop.clone().add(V(0.02, 0.03, -0.03)), heel, 0.014, 0.013, M.stick, arms, 10);
-  add(new THREE.SphereGeometry(0.02, 12, 10), M.tape, arms).position.copy(stickTop);
-  const bl = add(new RoundedBoxGeometry(0.3, 0.075, 0.016, 2, 0.006), M.stick, arms); bl.position.copy(heel).add(V(-0.12, 0.005, 0.06)); bl.rotation.y = 0.45;
-  const bt = add(new RoundedBoxGeometry(0.2, 0.06, 0.018, 2, 0.006), M.tape, arms); bt.position.copy(heel).add(V(-0.15, 0.007, 0.075)); bt.rotation.y = 0.45;
-  const basis = dir => { const z = dir.clone().normalize(), x = new THREE.Vector3().crossVectors(UP, z).normalize(), y = new THREE.Vector3().crossVectors(z, x);
-    return new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(x, y, z)); };
-  function arm(shoulder, hand, out){
-    const mid = lerp(shoulder, hand, 0.5).add(V(out * 0.11, -0.04, -0.05));
-    limb(shoulder, mid, 0.07, 0.06, M.jersey, arms); limb(mid, hand, 0.06, 0.05, M.jersey, arms);
-    ball(mid, 0.068, M.jersey, null, arms);
-    [0.55, 0.68].forEach(t => limb(lerp(mid, hand, t), lerp(mid, hand, t + 0.07), 0.059, 0.057, M.accent, arms));
-    // Handschuh: Stulpe mit Polsterwülsten, Handrücken, gepolsterte Finger um den Stock, Daumen, Lederinnenhand
-    const gl = new THREE.Group(); arms.add(gl); gl.position.copy(hand); gl.quaternion.copy(basis(hand.clone().sub(mid)));
-    add(new THREE.CylinderGeometry(0.057, 0.066, 0.08, 24).rotateX(Math.PI / 2), M.glove, gl).position.z = -0.085;
-    [-0.052, -0.118].forEach(z => add(new THREE.TorusGeometry(0.063, 0.01, 10, 28), M.glove, gl).position.z = z);
-    add(new THREE.TorusGeometry(0.066, 0.006, 8, 28), M.accent, gl).position.z = -0.085;
-    add(new RoundedBoxGeometry(0.094, 0.048, 0.078, 3, 0.02), M.glove, gl).position.set(0, 0.016, -0.006);
-    [-0.026, 0.006].forEach(z => add(new RoundedBoxGeometry(0.09, 0.014, 0.024, 2, 0.007), M.glove, gl).position.set(0, 0.043, z));
-    add(new RoundedBoxGeometry(0.084, 0.014, 0.08, 2, 0.006), M.glovePalm, gl).position.set(0, -0.012, 0);
-    [-0.034, -0.0115, 0.0115, 0.034].forEach((x, n) => {
-      const f = new THREE.Group(); gl.add(f); f.position.set(x, 0.012, 0.03); f.rotation.x = 1.0 + n * 0.05;
-      add(new THREE.CapsuleGeometry(0.0125, 0.05, 6, 12).rotateX(Math.PI / 2), M.glove, f).position.z = 0.03;
-      [0.016, 0.042].forEach(z => add(new THREE.TorusGeometry(0.0128, 0.0032, 6, 16), M.glove, f).position.z = z);
+  const basis = dir => { const z = dir.clone().normalize(), x = new THREE.Vector3().crossVectors(UP, z); if (x.lengthSq() < 1e-6) x.set(1, 0, 0); x.normalize();
+    const y = new THREE.Vector3().crossVectors(z, x); return new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(x, y, z)); };
+  const SH = [V(0.26, 1.28, 0), V(-0.26, 1.28, 0)];
+  // Pose: Stock (oben, Ferse) und Handpositionen; t = Griffpunkt auf dem Stock, sonst feste Position
+  const POSES = {
+    ready:  { stick:[V(0.2, 1.12, 0.18), V(-0.36, 0.035, 0.72)], h:[{ t:0.06 }, { t:0.3 }], bladeStd:true },
+    cheer:  { stick:[V(0.45, 1.8, 0.08), V(-0.8, 1.98, 0.16)], h:[{ t:0.2 }, { t:0.58 }] },
+    fist:   { stick:[V(-0.34, 0.98, 0.22), V(-0.52, 0.035, 0.58)], h:[{ p:V(0.2, 1.06, 0.24) }, { t:0.05 }] },
+    ear:    { stick:[V(-0.34, 0.98, 0.22), V(-0.52, 0.035, 0.58)], h:[{ p:V(0.165, 1.56, 0.02) }, { t:0.05 }] },
+    archer: { stick:[V(-0.13, 1.85, 0.56), V(-0.1, 0.74, 0.6)], h:[{ p:V(0.12, 1.38, 0.14) }, { t:0.5 }] },
+    trophy: { stick:null, h:[{ p:V(0.11, 1.8, 0.07) }, { p:V(-0.11, 1.8, 0.07) }], cup:V(0, 1.86, 0.07) }
+  };
+  let armsSig = '';
+  function buildArms(av){
+    const pose = POSES[av.pose] || POSES.ready, style = av.jstyle || 'std', two = av.glove2 === '1';
+    const sig = (av.pose || 'ready') + style + two; if (sig === armsSig) return; armsSig = sig;
+    clearGroup(arms);
+    const [st, he] = pose.stick || [];
+    const handPos = h => h.p ? h.p.clone() : lerp(st, he, h.t);
+    if (pose.stick){
+      limb(st.clone().add(st.clone().sub(he).normalize().multiplyScalar(0.04)), he, 0.014, 0.013, M.stick, arms, 10);
+      add(new THREE.SphereGeometry(0.02, 12, 10), M.tape, arms).position.copy(st);
+      if (pose.bladeStd){
+        const bl = add(new RoundedBoxGeometry(0.3, 0.075, 0.016, 2, 0.006), M.stick, arms); bl.position.copy(he).add(V(-0.12, 0.005, 0.06)); bl.rotation.y = 0.45;
+        const bt = add(new RoundedBoxGeometry(0.2, 0.06, 0.018, 2, 0.006), M.tape, arms); bt.position.copy(he).add(V(-0.15, 0.007, 0.075)); bt.rotation.y = 0.45;
+      } else {
+        const g = new THREE.Group(); arms.add(g); g.position.copy(he); g.quaternion.copy(basis(he.clone().sub(st)));
+        add(new RoundedBoxGeometry(0.3, 0.075, 0.016, 2, 0.006), M.stick, g).position.set(-0.13, 0, 0.02);
+        add(new RoundedBoxGeometry(0.2, 0.06, 0.018, 2, 0.006), M.tape, g).position.set(-0.16, 0, 0.022);
+      }
+    }
+    if (pose.cup){   // Pokal
+      const prof = [[0, 0], [0.05, 0], [0.05, 0.012], [0.018, 0.03], [0.014, 0.08], [0.03, 0.1], [0.075, 0.13], [0.085, 0.2], [0.08, 0.2], [0.0, 0.2]].map(([r, y]) => new THREE.Vector2(r, y));
+      const cup = add(new THREE.LatheGeometry(prof, 40), M.gold, arms); cup.position.copy(pose.cup);
+      [-1, 1].forEach(sd => { const hd = add(new THREE.TorusGeometry(0.035, 0.008, 8, 20, Math.PI), M.gold, arms); hd.position.copy(pose.cup).add(V(sd * 0.085, 0.15, 0)); hd.rotation.z = sd > 0 ? -Math.PI / 2 : Math.PI / 2; });
+    }
+    const sleeve = { std:[[0.55, 0.07], [0.68, 0.07]], champ:[[0.55, 0.07], [0.68, 0.07]], alt:[[0.56, 0.16]], retro:[[0.52, 0.04], [0.6, 0.04], [0.68, 0.04]] }[style] || [[0.55, 0.07], [0.68, 0.07]];
+    const rollMat = two ? M.accent : M.glove;
+    pose.h.forEach((h, k) => {
+      const shoulder = SH[k], out = k ? -1 : 1, hand = handPos(h);
+      const mid = lerp(shoulder, hand, 0.5).add(V(out * 0.11, -0.04, -0.05));
+      limb(shoulder, mid, 0.07, 0.06, M.jersey, arms); limb(mid, hand, 0.06, 0.05, M.jersey, arms);
+      ball(mid, 0.068, M.jersey, null, arms);
+      sleeve.forEach(([t, w]) => limb(lerp(mid, hand, t), lerp(mid, hand, t + w), 0.059, 0.057, M.accent, arms));
+      // Handschuh: Stulpe mit Polsterwülsten, Handrücken, gepolsterte Finger, Daumen, Lederinnenhand
+      const gl = new THREE.Group(); arms.add(gl); gl.position.copy(hand); gl.quaternion.copy(basis(hand.clone().sub(mid)));
+      add(new THREE.CylinderGeometry(0.057, 0.066, 0.08, 24).rotateX(Math.PI / 2), M.glove, gl).position.z = -0.085;
+      [-0.052, -0.118].forEach(z => add(new THREE.TorusGeometry(0.063, 0.01, 10, 28), rollMat, gl).position.z = z);
+      add(new THREE.TorusGeometry(0.066, 0.006, 8, 28), M.accent, gl).position.z = -0.085;
+      add(new RoundedBoxGeometry(0.094, 0.048, 0.078, 3, 0.02), M.glove, gl).position.set(0, 0.016, -0.006);
+      [-0.026, 0.006].forEach(z => add(new RoundedBoxGeometry(0.09, 0.014, 0.024, 2, 0.007), rollMat, gl).position.set(0, 0.043, z));
+      add(new RoundedBoxGeometry(0.084, 0.014, 0.08, 2, 0.006), M.glovePalm, gl).position.set(0, -0.012, 0);
+      [-0.034, -0.0115, 0.0115, 0.034].forEach((x, n) => {
+        const f = new THREE.Group(); gl.add(f); f.position.set(x, 0.012, 0.03); f.rotation.x = 1.0 + n * 0.05;
+        add(new THREE.CapsuleGeometry(0.0125, 0.05, 6, 12).rotateX(Math.PI / 2), M.glove, f).position.z = 0.03;
+        [0.016, 0.042].forEach(z => add(new THREE.TorusGeometry(0.0128, 0.0032, 6, 16), rollMat, f).position.z = z);
+      });
+      const th = new THREE.Group(); gl.add(th); th.position.set(-0.05 * out, -0.004, 0.004); th.rotation.set(0.6, -0.6 * out, 0);
+      add(new THREE.CapsuleGeometry(0.014, 0.04, 6, 12).rotateX(Math.PI / 2), M.glove, th).position.z = 0.028;
     });
-    const th = new THREE.Group(); gl.add(th); th.position.set(-0.05 * out, -0.004, 0.004); th.rotation.set(0.6, -0.6 * out, 0);
-    add(new THREE.CapsuleGeometry(0.014, 0.04, 6, 12).rotateX(Math.PI / 2), M.glove, th).position.z = 0.028;
   }
-  arm(V(0.26, 1.28, 0), topHand, 1);
-  arm(V(-0.26, 1.28, 0), lowHand, -1);
+
+  /* ---------- Effekte: Eis-Glitzer, Arena-Licht ---------- */
+  const glitter = (() => { const n = 260, pos = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++){ const r = 0.15 + Math.random() * 0.9, w = Math.random() * Math.PI * 2; pos[i * 3] = Math.cos(w) * r; pos[i * 3 + 1] = 0.006 + Math.random() * 0.04; pos[i * 3 + 2] = Math.sin(w) * r * 0.8 + 0.1; }
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const pts = new THREE.Points(g, new THREE.PointsMaterial({ color:0xffffff, size:0.018, transparent:true, opacity:0.9, depthWrite:false, blending:THREE.AdditiveBlending }));
+    scene.add(pts); pts.visible = false; return pts; })();
+  const arenaLight = new THREE.PointLight(0xffffff, 4, 4, 1.6); arenaLight.position.set(0, 2.2, 0.6); arenaLight.visible = false; scene.add(arenaLight);
+  const arenaRing = new THREE.Mesh(new THREE.RingGeometry(0.75, 0.82, 96), new THREE.MeshBasicMaterial({ color:0xffffff, transparent:true, opacity:0.75 }));
+  arenaRing.rotation.x = -Math.PI / 2; arenaRing.position.y = 0.003; arenaRing.visible = false; scene.add(arenaRing);
 
   /* ---------- Einstellungen übernehmen ---------- */
-  let lastNo = null;
+  let lastNo = null, trimStyle = null;
   function update(av, o){
     av = av || {}; o = Object.assign(opt, o || {});
-    const J = av.jersey || '#C8102E', A = av.accent && av.accent !== J ? av.accent : (lum(J) > 0.6 ? '#16181D' : '#F1F3F6');
+    const champ = av.jstyle === 'champ';
+    const J = champ ? '#E4B42C' : (av.jersey || '#C8102E'), A = champ ? '#F1F3F6' : (av.accent && av.accent !== J ? av.accent : (lum(J) > 0.6 ? '#16181D' : '#F1F3F6'));
     M.jersey.color.set(J); M.accent.color.set(A);
     M.pants.color.set(av.pants || '#16181D'); M.helmet.color.set(av.helmet || '#16181D');
     M.skin.color.set(av.skin || '#EDBF98'); M.hair.color.set(av.hair || '#6B4428');
     M.glove.color.set(av.gloves || '#16181D'); M.boot.color.set(av.skate || '#16181D'); M.cap.color.set(lum(av.skate || '#16181D') > 0.6 ? '#C9D0DA' : '#3A3F48');
-    M.stick.color.set(av.stick || '#16181D'); M.tape.color.set(lum(av.stick || '#16181D') > 0.6 ? '#16181D' : '#F4F6F9');
-    parts.visor.visible = av.guard !== 'cage' && av.guard !== 'none'; parts.cage.visible = av.guard === 'cage';
+    M.stick.color.set(av.stick || '#16181D'); M.tape.color.set(av.tape || (lum(av.stick || '#16181D') > 0.6 ? '#16181D' : '#F4F6F9'));
+    const gd = av.guard || 'visor';
+    parts.visor.visible = ['visor', 'smoke', 'mirror', 'goldvisor'].includes(gd); parts.cage.visible = gd === 'cage'; parts.plexi.visible = gd === 'plexi';
+    parts.visor.material = gd === 'smoke' ? M.smoke : gd === 'mirror' ? M.mirror : gd === 'goldvisor' ? M.goldV : M.visor;
+    M.holder.color.set(av.holder === 'team' ? J : '#F4F6F9');
+    parts.blades.forEach(b => b.material = av.blades === 'gold' ? M.gold : M.steel);
+    parts.cMark.visible = av.captain === '1';
+    glitter.visible = av.fx === 'glitter'; arenaLight.visible = arenaRing.visible = av.fx === 'arena';
+    arenaLight.color.set(J); arenaRing.material.color.set(J);
+    if (trimStyle !== (av.jstyle || 'std')){ trimStyle = av.jstyle || 'std'; buildTrim(trimStyle); }
+    buildArms(av);
     arms.scale.x = av.shoots === 'R' ? 1 : -1;   // Stockschaufel auf der Schussseite
     const no = String(o.no || ''), name = String(o.name || '').toUpperCase(), sig = no + '|' + name + '|' + J + '|' + A;
     if (sig !== lastNo){ lastNo = sig;
       const fill = lum(J) > 0.6 ? A : '#F1F3F6', stroke = lum(J) > 0.6 ? '#F1F3F6' : A;
       [back, front].forEach(m => m.material.map && m.material.map.dispose());
       back.material.map = textTex([[name, 92, 70, fill, stroke], [no, 330, 300, fill, stroke]]); back.material.needsUpdate = true;
-      front.material.map = textTex([[no, 380, 270, fill, stroke]]); front.material.needsUpdate = true; }
+      front.material.map = textTex([[no, 380, 270, fill, stroke]]); front.material.needsUpdate = true;
+      if (parts.cMark.material.map) parts.cMark.material.map.dispose();
+      parts.cMark.material.map = textTex([['C', 420, 270, fill, stroke]]); parts.cMark.material.needsUpdate = true; }
   }
   update(a, opt);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { lastNo = null; update(a, opt); });
@@ -203,6 +276,7 @@ export function createAvatar3D(host, a, opt){
   const ro = new ResizeObserver(resize); ro.observe(host); resize();
   renderer.setAnimationLoop(() => {
     if (goal){ controls.target.lerp(goal.t, 0.1); camera.position.lerp(goal.p, 0.1); if (camera.position.distanceTo(goal.p) < 0.004) goal = null; }
+    if (glitter.visible) glitter.material.opacity = 0.55 + 0.4 * Math.sin(performance.now() / 260);
     controls.update(); renderer.render(scene, camera);
   });
   return {
@@ -212,7 +286,7 @@ export function createAvatar3D(host, a, opt){
     dispose(){
       renderer.setAnimationLoop(null); ro.disconnect(); controls.dispose();
       scene.traverse(o => { if (o.geometry) o.geometry.dispose(); });
-      Object.values(M).forEach(m => m.dispose()); [back, front].forEach(m => { if (m.material.map) m.material.map.dispose(); m.material.dispose(); });
+      Object.values(M).forEach(m => m.dispose()); [back, front, parts.cMark].forEach(m => { if (m.material.map) m.material.map.dispose(); m.material.dispose(); }); glitter.material.dispose(); arenaRing.material.dispose();
       pmrem.dispose(); renderer.dispose(); renderer.forceContextLoss(); canvas.remove();
     }
   };

@@ -409,6 +409,17 @@ button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid
 .av-page{width:100%;max-width:920px;display:grid;grid-template-columns:340px minmax(0,1fr);gap:20px;align-items:start}
 .av-preview{position:sticky;top:0;border-radius:18px;aspect-ratio:300/440;background:radial-gradient(120% 90% at 50% 18%, #2A3B5C 0%, #101A2C 60%, #070C16 100%);box-shadow:var(--e3);overflow:hidden}
 .av-preview .hockey-av{width:100%;height:100%;display:block}
+.av-chip.locked,.av-sw.locked{opacity:.5;border-style:dashed}
+.av-chip .lk{width:14px;height:14px;margin-right:6px;vertical-align:-2px;color:var(--gold)}
+.av-sw.locked{position:relative}
+.av-sw.locked::after{content:"";position:absolute;inset:0;border-radius:50%;background:rgba(9,17,31,.55) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F4C64E' stroke-width='2.6' stroke-linecap='round'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E") center/16px no-repeat}
+.av-msg{margin:4px 0 0;color:var(--muted)}
+.unl .fbk-card{max-width:520px}
+.unl-3d{position:relative;height:min(46vh,340px);border-radius:16px;overflow:hidden;background:radial-gradient(70% 55% at 50% 30%,#1d2c48 0%,#0d1628 70%)}
+.unl-3d .hockey-av{width:100%;height:100%}
+.unl-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;text-align:left}
+.unl-list li{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:4px 0}
+.unl-list small{color:var(--muted)}
 .av3d{position:relative;background:radial-gradient(70% 55% at 50% 30%,#1d2c48 0%,#0d1628 70%)}
 .av3d-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
 .av3d-load{position:absolute;inset:0;display:grid;place-items:center;margin:0;color:var(--muted);font:700 .9rem var(--f-display);letter-spacing:.14em;text-transform:uppercase}
@@ -3398,6 +3409,7 @@ function renderCenter(){
   });
   { const o = $('mc2-other'); if (o) o.onclick = openMissions; }
   { const tb = $('btn-testday'); if (tb) tb.onclick = openTestday; }
+  { const nu = checkUnlocks(); if (nu.length) showUnlocks(nu); }
 }
 
 /* ---- Logbuch: Monatskalender und Liste aller Trainings ---- */
@@ -5055,11 +5067,18 @@ const AV_OPTS = {
   team:   [['#C8102E','Rot'],['#0B3D91','Blau'],['#041E42','Marine'],['#16181D','Schwarz'],['#F1F3F6','Weiss'],['#F2A900','Gold'],['#F26B1D','Orange'],['#006847','Grün'],['#00788C','Petrol'],['#5B2C83','Violett'],['#8A96A6','Silber'],['#6CACE4','Hellblau']],
   skate:  [['#16181D','Schwarz'],['#F1F3F6','Weiss']],
   stick:  [['#16181D','Carbon'],['#F1F3F6','Weiss'],['#C8102E','Rot'],['#0B3D91','Blau']],
-  guard:  [['visor','Visier'],['cage','Gitter'],['none','Ohne']],
+  guard:  [['visor','Halbvisier'],['cage','Gitter'],['none','Ohne'],['plexi','Plexiglas-Vollvisier'],['smoke','Getönt'],['mirror','Verspiegelt'],['goldvisor','Gold']],
   shoots: [['L','Links'],['R','Rechts']],
-  pose:   [['ready','Bereit'],['cheer','Jubel']]
+  pose:   [['ready','Bereit'],['cheer','Stock hoch'],['fist','Faust-Pumpe'],['archer','Bogenschütze'],['ear','Hand ans Ohr'],['trophy','Pokal stemmen']],
+  jstyle: [['std','Standard'],['alt','Alternate'],['retro','Retro'],['champ','Champion']],
+  captain:[['0','Ohne'],['1','Captain «C»']],
+  tape:   [['#F4F6F9','Weiss'],['#16181D','Schwarz'],['#C8102E','Rot'],['#0B3D91','Blau'],['#C6FF3D','Neon']],
+  holder: [['white','Weiss'],['team','Teamfarbe']],
+  blades: [['steel','Stahl'],['gold','Gold']],
+  glove2: [['0','Einfarbig'],['1','Zweifarbig']],
+  fx:     [['none','Ohne'],['glitter','Eis-Glitzer'],['arena','Arena-Licht']]
 };
-const AV_DEF = { skin:'#EDBF98', hair:'#6B4428', helmet:'#16181D', jersey:'#C8102E', accent:'#16181D', pants:'#16181D', gloves:'#16181D', skate:'#16181D', stick:'#16181D', guard:'visor', shoots:'L', pose:'ready' };
+const AV_DEF = { skin:'#EDBF98', hair:'#6B4428', helmet:'#16181D', jersey:'#C8102E', accent:'#16181D', pants:'#16181D', gloves:'#16181D', skate:'#16181D', stick:'#16181D', guard:'visor', shoots:'L', pose:'ready', jstyle:'std', captain:'0', tape:'#F4F6F9', holder:'white', blades:'steel', glove2:'0', fx:'none' };
 const avatar = Object.assign({}, AV_DEF, store.get('apc.avatar.v1', {}));
 const saveAvatar = () => store.set('apc.avatar.v1', avatar);
 
@@ -5077,7 +5096,7 @@ function avatarSVG(a, no){
   const J = a.jersey, A = a.accent === a.jersey ? (avLum(J) > .6 ? '#16181D' : '#F1F3F6') : a.accent;
   const numFill = avLum(J) > .6 ? A : '#F1F3F6', numLine = avLum(J) > .6 ? '#F1F3F6' : A;
   const P = a.pants, G = a.gloves, H = a.helmet, K = a.skate, ST = a.stick, SK = a.skin, HR = a.hair;
-  const cheer = a.pose === 'cheer', mirror = a.shoots === 'R';
+  const cheer = (a.pose || 'ready') !== 'ready', mirror = a.shoots === 'R';
   const g = (id, c, f1, f2) => `<linearGradient id="${u}${id}" x1="0" y1="0" x2="1" y2="0.2"><stop offset="0" stop-color="${S(c, f1)}"/><stop offset=".42" stop-color="${c}"/><stop offset="1" stop-color="${S(c, f2)}"/></linearGradient>`;
   const F = id => `url(#${u}${id})`;
   const nrm = (p, q) => { const dx = q[0] - p[0], dy = q[1] - p[1], l = Math.hypot(dx, dy) || 1; return [-dy / l, dx / l]; };
@@ -5148,11 +5167,12 @@ function avatarSVG(a, no){
   }
   const armsGroup = `<g${mirror ? ' transform="translate(300 0) scale(-1 1)"' : ''}>${arms}</g>`;
   /* ---------- Kopf ---------- */
-  const guard = a.guard === 'visor' ? `
+  const gd = ['plexi', 'smoke', 'mirror', 'goldvisor'].includes(a.guard) ? 'visor' : a.guard;
+  const guard = gd === 'visor' ? `
       <path d="M130 70 Q150 64 170 70 L170 84 Q150 90 130 84 Z" fill="url(#${u}visor)" stroke="#E9EEF4" stroke-width="1.2" stroke-opacity=".85"/>
       <path d="M134 71.5 Q143 68.5 151 69" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" opacity=".75"/>
       <rect x="128" y="69" width="4" height="8" rx="1.5" fill="${S(H, -.2)}"/><rect x="168" y="69" width="4" height="8" rx="1.5" fill="${S(H, -.2)}"/>`
-    : a.guard === 'cage' ? `
+    : gd === 'cage' ? `
       <g stroke="#D3DAE3" stroke-width="1.25" fill="none">
         <path d="M130 70 Q150 64 170 70 L168 100 Q150 116 132 100 Z" stroke-width="1.8"/>
         <path d="M130.5 79 Q150 74 169.5 79 M131 88 Q150 84 169 88 M132 97 Q150 95 168 97 M136 105 Q150 108 164 105"/>
@@ -5220,25 +5240,100 @@ function avatarSVG(a, no){
 </svg>`;
 }
 
+/* ---- Freischaltbare Avatar-Teile: an Erfolge gekoppelt; einmal freigeschaltet bleibt es (progress.unlocks) ---- */
+function unlockStats(){
+  const L = levelInfo(progress.xp || 0), sp = recList('sprint10').slice().sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
+  const sprintPR = sp.some((r, i) => i > 0 && r.v < Math.min(...sp.slice(0, i).map(x => x.v)));
+  let champ = (progress.titles || 0) > 0; try { champ = champ || !!seasonState(progress).champion; } catch(e){}
+  return { trainings:(progress.log || []).length, missions:progress.completed || 0, streak:weekStreak(progress), level:L.level, maxRank:!!L.max,
+    tests:(progress.tests || []).length, pr:(progress.prCount || 0) > 0, sprintPR, badges:Object.keys(progress.badges || {}).length,
+    weekGoal:Object.keys(progress.weekBonus || {}).length > 0, champ, album:(progress.cards || []).length >= PROS.length };
+}
+/* k/v = Einstellung, how = Bedingung, ok = erfüllt?, n = [Zähler, Ziel, Einheit] für «noch …» */
+const UNLOCKS = [
+  { k:'guard', v:'plexi', name:'Plexiglas-Vollvisier', how:'Ersten Testtag machen', ok:S => S.tests >= 1 },
+  { k:'guard', v:'smoke', name:'Getöntes Visier', how:'4 Wochen Serie', ok:S => S.streak >= 4, n:['streak', 4, 'Wochen Serie'] },
+  { k:'guard', v:'mirror', name:'Verspiegeltes Visier', how:'Neuer Bestwert am Testtag', ok:S => S.pr },
+  { k:'guard', v:'goldvisor', name:'Gold-Visier', how:'Saison gewinnen', ok:S => S.champ },
+  { k:'pose', v:'fist', name:'Siegerpose Faust-Pumpe', how:'Wochenziel einmal erreichen', ok:S => S.weekGoal },
+  { k:'pose', v:'archer', name:'Siegerpose Bogenschütze', how:'5 Abzeichen sammeln', ok:S => S.badges >= 5, n:['badges', 5, 'Abzeichen'] },
+  { k:'pose', v:'ear', name:'Siegerpose Hand ans Ohr', how:'50 Missionen', ok:S => S.missions >= 50, n:['missions', 50, 'Missionen'] },
+  { k:'pose', v:'trophy', name:'Siegerpose Pokal stemmen', how:'Saison gewinnen', ok:S => S.champ },
+  { k:'jstyle', v:'alt', name:'Alternate-Trikot', how:'Level 2 erreichen', ok:S => S.level >= 2 },
+  { k:'jstyle', v:'retro', name:'Retro-Trikot', how:'4 Wochen Serie', ok:S => S.streak >= 4, n:['streak', 4, 'Wochen Serie'] },
+  { k:'jstyle', v:'champ', name:'Champion-Trikot', how:'Saison gewinnen', ok:S => S.champ },
+  { k:'captain', v:'1', name:'Captain-«C»', how:'8 Wochen Serie', ok:S => S.streak >= 8, n:['streak', 8, 'Wochen Serie'] },
+  { k:'tape', v:'#C8102E', name:'Rotes Stock-Tape', how:'25 Trainings', ok:S => S.trainings >= 25, n:['trainings', 25, 'Trainings'] },
+  { k:'tape', v:'#0B3D91', name:'Blaues Stock-Tape', how:'50 Trainings', ok:S => S.trainings >= 50, n:['trainings', 50, 'Trainings'] },
+  { k:'tape', v:'#C6FF3D', name:'Neon-Stock-Tape', how:'75 Trainings', ok:S => S.trainings >= 75, n:['trainings', 75, 'Trainings'] },
+  { k:'holder', v:'team', name:'Kufenhalter in Teamfarbe', how:'Bestwert im 10-m-Sprint', ok:S => S.sprintPR },
+  { k:'blades', v:'gold', name:'Goldene Kufen', how:'Saison gewinnen', ok:S => S.champ },
+  { k:'glove2', v:'1', name:'Zweifarbige Handschuhe', how:'Level 4 erreichen', ok:S => S.level >= 4 },
+  { k:'fx', v:'glitter', name:'Eis-Glitzer', how:'Profikarten-Album komplett', ok:S => S.album },
+  { k:'fx', v:'arena', name:'Arena-Licht in Teamfarbe', how:'Höchsten Rang erreichen', ok:S => S.maxRank }
+];
+const unlockOf = (k, v) => UNLOCKS.find(u => u.k === k && u.v === v);
+const isUnlocked = (k, v) => { const u = unlockOf(k, v); return !u || !!(progress.unlocks || {})[k + ':' + v]; };
+const unlockHint = (u, S) => `${u.name}: ${u.how}${u.n ? ` (noch ${Math.max(1, u.n[1] - S[u.n[0]])} ${u.n[2]})` : ''}.`;
+function checkUnlocks(){
+  if (Demo.active()) return [];
+  const S = unlockStats(), got = progress.unlocks || (progress.unlocks = {}), fresh = [];
+  UNLOCKS.forEach(u => { const id = u.k + ':' + u.v; if (!got[id] && u.ok(S)){ got[id] = new Date().toISOString(); fresh.push(u); } });
+  if (fresh.length) saveProgress();
+  return fresh;
+}
+const LOCK_ICO = '<svg class="lk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
 function avatarEditorHTML(){
-  const row = (key, label, opts, kind) => `<div class="av-row"><span class="pe-lbl">${label}</span><div class="av-opts" role="group" aria-label="${label}">${opts.map(([v, n]) => kind === 'chip'
-      ? `<button class="av-chip" data-av="${key}" data-v="${v}" aria-pressed="${avatar[key] === v}">${n}</button>`
-      : `<button class="av-sw" data-av="${key}" data-v="${v}" aria-pressed="${avatar[key] === v}" title="${n}" aria-label="${n}" style="--c:${v}"></button>`).join('')}</div></div>`;
+  const S = unlockStats();
+  const row = (key, label, opts, kind) => `<div class="av-row"><span class="pe-lbl">${label}</span><div class="av-opts" role="group" aria-label="${label}">${opts.map(([v, n]) => {
+      const u = unlockOf(key, v), lock = u && !isUnlocked(key, v), on = String(avatar[key]) === v;
+      const la = lock ? ` data-lock="${unlockHint(u, S)}" aria-disabled="true"` : '';
+      return kind === 'chip'
+        ? `<button class="av-chip${lock ? ' locked' : ''}" data-av="${key}" data-v="${v}" aria-pressed="${on}"${la}>${lock ? LOCK_ICO : ''}${n}</button>`
+        : `<button class="av-sw${lock ? ' locked' : ''}" data-av="${key}" data-v="${v}" aria-pressed="${on}"${la} title="${lock ? unlockHint(u, S) : n}" aria-label="${n}${lock ? ' (gesperrt)' : ''}" style="--c:${v}"></button>`;
+    }).join('')}</div></div>`;
+  const got = UNLOCKS.filter(u => isUnlocked(u.k, u.v)).length;
   return `<div class="av-edit">
     ${row('pose', 'Pose', AV_OPTS.pose, 'chip')}
     ${row('shoots', 'Schuss', AV_OPTS.shoots, 'chip')}
     ${row('guard', 'Schutz', AV_OPTS.guard, 'chip')}
     ${row('skin', 'Hautton', AV_OPTS.skin)}
     ${row('hair', 'Haare', AV_OPTS.hair)}
+    ${row('jstyle', 'Trikot-Stil', AV_OPTS.jstyle, 'chip')}
+    ${row('captain', 'Captain', AV_OPTS.captain, 'chip')}
     ${row('jersey', 'Trikot', AV_OPTS.team)}
     ${row('accent', 'Akzent', AV_OPTS.team)}
     ${row('helmet', 'Helm', AV_OPTS.team)}
     ${row('pants', 'Hose', AV_OPTS.team)}
     ${row('gloves', 'Handschuhe', AV_OPTS.team)}
+    ${row('glove2', 'Handschuh-Stil', AV_OPTS.glove2, 'chip')}
     ${row('stick', 'Stock', AV_OPTS.stick)}
+    ${row('tape', 'Stock-Tape', AV_OPTS.tape)}
     ${row('skate', 'Schlittschuhe', AV_OPTS.skate)}
+    ${row('holder', 'Kufenhalter', AV_OPTS.holder, 'chip')}
+    ${row('blades', 'Kufen', AV_OPTS.blades, 'chip')}
+    ${row('fx', 'Effekt', AV_OPTS.fx, 'chip')}
+    <p class="pnote av-msg" id="av-msg" aria-live="polite">${got} von ${UNLOCKS.length} Spezialteilen freigeschaltet. Teile mit Schloss gibt es für Erfolge im Training.</p>
     <div class="av-row"><span></span><button class="btn btn-ghost btn-small" id="av-reset">Standard</button></div>
   </div>`;
+}
+/* Freischalt-Moment: Karte mit drehendem 3D-Avatar, der das neue Teil trägt */
+let unl3d = null;
+function showUnlocks(list){
+  document.querySelectorAll('.unl').forEach(x => x.remove());
+  const first = list[0], preview = Object.assign({}, avatar, { [first.k]:first.v });
+  const ov = document.createElement('div'); ov.className = 'fbk unl'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
+  ov.innerHTML = `<div class="fbk-card"><p class="eyebrow" style="color:var(--gold);margin:0">Neu freigeschaltet</p>
+    <h2>${list.length > 1 ? `${list.length} neue Avatar-Teile` : first.name}</h2>
+    <div class="unl-3d" id="unl-3d"></div>
+    <ul class="unl-list">${list.map(u => `<li><b>${u.name}</b><small>${u.how}</small></li>`).join('')}</ul>
+    <div class="bk-row" style="justify-content:center"><button class="btn btn-primary" id="unl-go">Im Avatar ansehen</button><button class="btn btn-ghost" id="unl-later">Später</button></div></div>`;
+  document.body.appendChild(ov);
+  const close = () => { if (unl3d){ try { unl3d.dispose(); } catch(e){} unl3d = null; } ov.remove(); };
+  $('unl-later').onclick = close;
+  $('unl-go').onclick = () => { close(); openAvatar(); };
+  import('./avatar3d.js').then(m => { const h = $('unl-3d'); if (h) unl3d = m.createAvatar3D(h, preview, { no:player.no, name:PROFILE.name }); })
+    .catch(() => { const h = $('unl-3d'); if (h) h.innerHTML = avatarSVG(preview, player.no); });
 }
 
 /* Kartenfarben der Spielerkarte */
@@ -5288,6 +5383,7 @@ function bindCardImgInput(inp, onDone, msgEl){
 
 /* ---- Unterseite: Avatar gestalten ---- */
 function openAvatar(){
+  closeAvatar3D();
   const sc = $('screen-avatar'), y = sc.hidden ? 0 : sc.scrollTop;
   sc.innerHTML = `
   <div class="inner trophies">
@@ -5306,6 +5402,7 @@ function openAvatar(){
   $('av-back').onclick = back; $('av-done').onclick = back;
   const svgFallback = () => { const p = $('av3d'), v = $('av3d-views'); if (v) v.hidden = true; if (p){ p.classList.remove('av3d'); p.innerHTML = avatarSVG(avatar, player.no); } };
   sc.querySelectorAll('[data-av]').forEach(b => b.onclick = () => {
+    if (b.dataset.lock){ $('av-msg').textContent = b.dataset.lock; return; }
     const k = b.dataset.av; avatar[k] = b.dataset.v; saveAvatar();
     sc.querySelectorAll(`[data-av="${k}"]`).forEach(x => x.setAttribute('aria-pressed', x.dataset.v === avatar[k]));
     if (av3d) av3d.update(avatar, { no:player.no, name:PROFILE.name });
