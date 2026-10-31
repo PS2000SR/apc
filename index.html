@@ -715,6 +715,15 @@ body.voice-off .stage .coach p{font-size:clamp(1.4rem,3.6vw,2rem)}
 .plrow b{font-family:var(--f-display);font-size:1.3rem;text-transform:uppercase;letter-spacing:.04em}
 .plrow .fbk-o{min-height:72px}
 .btn[disabled]{opacity:.45}
+/* Demomodus */
+#demo{position:fixed;inset:0;z-index:700;background:transparent}
+#demo .d-cap{position:absolute;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(720px,calc(100% - 32px));background:var(--scrim);border:1.5px solid var(--ice);border-radius:16px;padding:14px 18px;display:flex;flex-direction:column;gap:10px;color:var(--text)}
+#demo .d-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+#demo .d-tag{font-family:var(--f-display);font-weight:800;letter-spacing:.18em;color:var(--ice);font-size:.9rem;text-transform:uppercase}
+#demo .d-txt{font-size:1.15rem;font-weight:600;line-height:1.35}
+#demo .d-bar{height:4px;background:var(--line);border-radius:2px;overflow:hidden}
+#demo .d-bar span{display:block;height:100%;width:0;background:var(--ice)}
+.demo-hl{outline:3px solid var(--ice);outline-offset:4px;border-radius:18px}
 .fbk-skip{align-self:center;background:none;border:0;color:var(--muted);font:inherit;text-decoration:underline;cursor:pointer;padding:6px}
 .pain-follow{border-radius:18px;border:2px solid var(--red);background:var(--panel);padding:16px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
 .pain-follow h3{text-transform:none;font-size:clamp(1.4rem,3vw,1.8rem)}
@@ -3323,6 +3332,11 @@ function renderParents(){
       <p>Alle Daten bleiben nur auf diesem Gerät, es wird nichts übertragen. Für einen Gerätewechsel unten eine Sicherung erstellen.</p>
     </div></div>
     <div class="parents"><div class="pbox">
+      <p class="eyebrow">Demomodus</p>
+      <p>30-Sekunden-Rundgang durch alle Funktionen der App, mit Beispieldaten. Eure echten Daten bleiben unverändert.</p>
+      <div><button class="btn btn-primary btn-small" data-demo>Demo starten</button></div>
+    </div></div>
+    <div class="parents"><div class="pbox">
       <p class="eyebrow">Spielerkarte – Bilder</p>
       <p>Eigene Fotos für die Spielerkarte. Sie bleiben nur auf diesem Gerät und sind in der Sicherung enthalten. Ausgewählt wird auf der Spielerkarte unter Fortschritt.</p>
       <div class="pc-thumbs">${CardImgs.list().map((i, n) => `<div class="pc-thumb own"><img src="${i.data}" alt="Bild ${n + 1}"><button class="pc-del" data-del-img="${i.id}" aria-label="Bild ${n + 1} entfernen">×</button></div>`).join('') || '<p class="muted" style="margin:0">Noch keine Bilder.</p>'}</div>
@@ -4696,6 +4710,72 @@ function confetti(){
     if (age < 2600) requestAnimationFrame(frame); else cx.clearRect(0, 0, innerWidth, innerHeight);
   })(t0);
 }
+
+/* ---- Demomodus: 30-Sekunden-Rundgang mit Beispieldaten. Während der Demo wird nichts gespeichert,
+   danach sind die echten Daten wieder da (auch wenn die App mittendrin geschlossen wird). ---- */
+const Demo = (() => {
+  const TOTAL = 30000;
+  let timers = [], saved = null, origSet = null, layer = null;
+  const iso = d => new Date(Date.now() - d * 864e5).toISOString();
+  const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+  const tap = (sel, ms) => later(() => { const b = document.querySelector(sel); if (b) b.dispatchEvent(new MouseEvent('click', { bubbles:true })); }, ms);
+  const hl = sel => later(() => { document.querySelectorAll('.demo-hl').forEach(x => x.classList.remove('demo-hl')); const el = document.querySelector(sel); if (el){ el.classList.add('demo-hl'); el.scrollIntoView({ block:'center', behavior:'smooth' }); } }, 300);
+  const closeFb = () => document.querySelectorAll('.fbk').forEach(x => x.remove());
+  function demoData(){
+    const ids = MISSIONS.filter(m => !isLocked(m)).map(m => m.id), days = [33,31,28,26,24,21,19,17,14,12,10,7,5,3,1];
+    const ST = [2,3,4,3,5,2,3,4,3,4,2,3,5,3,4], FN = [3,2,3,3,2,3,1,3,3,2,3,3,2,3,3];
+    const log = days.map((d, k) => ({ at:iso(d), mission:ids[k % ids.length], skips:0, mainDone:true, dur:25,
+      fb:Object.assign({ strain:ST[k], fun:FN[k] }, d === 10 ? { pain:[{ area:'knie-l', level:'leicht' }] } : {}) }));
+    return { xp:1340, completed:log.length, last:log[log.length - 1].at, log, prCount:3, titles:0, quests:{}, weekBonus:{}, season:null,
+      badges:Object.fromEntries(BADGES.slice(0, 6).map(b => [b.id, iso(20)])), cards:[0, 1, 2, 3, 4, 5, 6],
+      records:{ sprint10:[{ v:2.31, at:iso(30), src:'test' }, { v:2.18, at:iso(2), src:'test' }], standweit:[{ v:168, at:iso(30), src:'test' }, { v:181, at:iso(2), src:'test' }], plank:[{ v:65, at:iso(30), src:'test' }, { v:90, at:iso(2), src:'test' }] },
+      tests:[{ at:iso(30), values:{ sprint10:2.31, standweit:168, plank:65 } }, { at:iso(2), values:{ sprint10:2.18, standweit:181, plank:90 } }],
+      pain:[{ at:iso(10), area:'knie-l', level:'leicht', src:'training' }] };
+  }
+  const STEPS = [
+    ['Mission Center: Matteo sagt, wie er sich fühlt – der Coach schlägt das passende Training vor.', () => { renderCenter(); show('center'); hl('.mc2-feels'); }],
+    ['Das empfohlene Training mit Dauer, Belastung und XP – plus Wochenziel und Tages-Quest.', () => hl('.mc2-rec')],
+    ['Alle Trainings im Überblick, sortiert nach Schwerpunkt.', () => openMissions()],
+    ['Vor dem Start: jede Übung wird mit einer Animation erklärt.', () => openBriefing(renderCenter.rec ? renderCenter.rec.id : MISSIONS[0].id)],
+    ['Nach dem Training: Wie streng war\'s? Wie viel Spass hat\'s gemacht?', () => { show('center'); feedbackFlow({ steps:['strain', 'fun', 'pain'], training:true, title:'Wie war\'s?', onDone:() => {} }); tap('.fbk [data-v="4"]', 1300); }],
+    ['Tut etwas weh? Matteo tippt die Stelle direkt am Körper an.', () => { feedbackFlow({ steps:['area', 'level'], title:'Wie war\'s?', preset:{ sel:['knie-l'] }, onDone:() => {} }); tap('.fbk path[data-area="schulter-r"]', 1200); }],
+    ['Fortschritt: Rang, Level und Saison auf einen Blick.', () => { closeFb(); openProgress(); }],
+    ['Die eigene Spielerkarte mit Attributen und Avatar.', () => openCard()],
+    ['Belohnungen: NHL-Profikarten und Abzeichen.', () => openTrophies()],
+    ['Analytics: Belastung, Spass und Schmerzen ausgewertet.', () => { openAnalytics(); later(() => { const sc = $('screen-analytics'); if (sc) sc.scrollTo({ top:520, behavior:'smooth' }); }, 1200); }],
+    ['Rekorde und Testtag zeigen, wie Matteo besser wird.', () => openRecords()],
+    ['Eltern-Bereich: Wochenplan mit Eistraining und Matches, Sicherung und Freigaben.', () => openParents()]
+  ];
+  function start(){
+    if (layer || Engine.active) return;
+    saved = JSON.parse(JSON.stringify(progress)); origSet = store.set; store.set = () => {};
+    Object.keys(progress).forEach(k => delete progress[k]); Object.assign(progress, demoData());
+    layer = document.createElement('div'); layer.id = 'demo';
+    layer.innerHTML = `<div class="d-cap" role="status" aria-live="polite"><div class="d-top"><span class="d-tag" id="d-tag">Demo</span>
+      <button class="btn btn-ghost btn-small" id="d-stop">Demo beenden</button></div><p class="d-txt" id="d-txt"></p><div class="d-bar"><span id="d-bar"></span></div></div>`;
+    document.body.appendChild(layer);
+    $('d-stop').onclick = stop;
+    const bar = $('d-bar'); requestAnimationFrame(() => { bar.style.transition = `width ${TOTAL}ms linear`; bar.style.width = '100%'; });
+    const per = TOTAL / STEPS.length;
+    STEPS.forEach(([txt, fn], k) => later(() => {
+      $('d-tag').textContent = `Demo · ${k + 1}/${STEPS.length}`; $('d-txt').textContent = txt;
+      document.querySelectorAll('.demo-hl').forEach(x => x.classList.remove('demo-hl'));
+      try { fn(); } catch(e){}
+    }, k * per));
+    later(stop, TOTAL);
+  }
+  function stop(){
+    if (!layer) return;
+    timers.forEach(clearTimeout); timers = [];
+    closeFb(); document.querySelectorAll('.demo-hl').forEach(x => x.classList.remove('demo-hl'));
+    Object.keys(progress).forEach(k => delete progress[k]); Object.assign(progress, saved);
+    store.set = origSet; saved = null;
+    layer.remove(); layer = null;
+    openParents();
+  }
+  return { start, stop, active:() => !!layer };
+})();
+document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('[data-demo]'); if (b) Demo.start(); });
 
 /* ---- Start ---- */
 if (settings.musicStyle === 'own'){ settings.musicStyle = 'track:face-off'; saveSettings(); }
