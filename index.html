@@ -2639,7 +2639,9 @@ const saveDays = () => store.set('apc.days.v1', daysStore);
 const tplDay = d => { const t = week[dayKey(new Date(d))]; return { ice:!!t.ice, iceTime:t.iceTime || '', offIce:t.ice ? t.offIce !== false : false, match:!!t.match, tour:!!t.tour, gameTime:t.gameTime || '', set:t.set || '', note:'' }; };
 const dayEntry = d => { const k = ymd(d); return daysStore[k] || (daysStore[k] = tplDay(d)); };   // legt den Tag bei Bedarf an
 const isCustom = e => !!(e && e.edited);   // von Hand angepasster Tag (bleibt bei «Ab nächster Woche übernehmen» erhalten)
-function planFor(date){ const e = daysStore[ymd(date)] || tplDay(date); return Object.assign({}, e, { custom:isCustom(e) }); }
+/* Zusatztraining: Eistraining an einem Tag, der in der Standardwoche (beim Eintragen) keines hat */
+const isExtra = (e, d) => !!e && !!e.ice && (e.extra !== undefined ? !!e.extra : !!e.edited && !week[dayKey(new Date(d))].ice);
+function planFor(date){ const e = daysStore[ymd(date)] || tplDay(date); return Object.assign({}, e, { custom:isCustom(e), extra:isExtra(e, date) }); }
 const clubItems = p => [p.ice && ['on', 'On-Ice', p.iceTime], p.ice && p.offIce && ['off', 'Off-Ice', ''], isGame(p) && ['game', p.match ? 'Match' : 'Turnier', p.gameTime]].filter(Boolean);
 const planTxt = p => [p.ice ? `On-Ice${p.iceTime ? ' ' + p.iceTime : ''}${p.offIce ? ' + Off-Ice' : ''}` : '', p.match ? `Match${p.gameTime ? ' ' + p.gameTime : ''}` : '', p.tour ? `Turnier${p.gameTime && !p.match ? ' ' + p.gameTime : ''}` : ''].filter(Boolean).join(' · ') || 'Kein Club-Training';
 const CLUB_ST = { done:'Gemacht', missed:'Ausgelassen', cancelled:'Ausgefallen' };
@@ -2666,9 +2668,9 @@ function setClub(day, k, s, r){
 const clubOpen = day => { const e = clubLog()[day] || {}; return clubItems(planFor(ymdDate(day))).filter(([k]) => !e[k] || (e[k].s === 'missed' && !e[k].r)); };
 const CLUB_ICO = { done:'✓', missed:'✗', cancelled:'–' };
 function clubRowsHTML(day){
-  const e = clubLog()[day] || {};
-  return clubItems(planFor(ymdDate(day))).map(([k, label, time]) => { const v = e[k] || {};
-    return `<div class="cl-row"><span class="cl-lbl"><b>${label}</b>${time ? `<small>${time}</small>` : ''}</span>
+  const e = clubLog()[day] || {}, p = planFor(ymdDate(day));
+  return clubItems(p).map(([k, label, time]) => { const v = e[k] || {}, sub = [time, p.extra && k !== 'game' ? 'Zusatz' : ''].filter(Boolean).join(' · ');
+    return `<div class="cl-row"><span class="cl-lbl"><b>${label}</b>${sub ? `<small>${sub}</small>` : ''}</span>
       <div class="cl-opts" role="group" aria-label="${label}">${Object.entries(CLUB_ST).map(([s, l]) => `<button class="cl-o ${s}" data-cl="${day}|${k}|${s}" aria-pressed="${v.s === s}" aria-label="${label} ${l}"><i aria-hidden="true">${CLUB_ICO[s]}</i>${l}</button>`).join('')}</div>
       ${v.s === 'missed' ? `<div class="cl-why" role="group" aria-label="Grund">${CLUB_WHY.map(([r, l]) => `<button class="cl-r" data-clr="${day}|${k}|${r}" aria-pressed="${v.r === r}">${l}</button>`).join('')}</div>` : ''}
     </div>`; }).join('');
@@ -2704,7 +2706,8 @@ function planChipsHTML(d, e){
     d.match ? `<span class="pc game">Match${d.gameTime ? ' ' + d.gameTime : ''}${mk('game')}</span>` : '',
     d.tour ? `<span class="pc game">Turnier${d.gameTime && !d.match ? ' ' + d.gameTime : ''}${d.match ? '' : mk('game')}</span>` : '',
     m ? `<span class="pc apc load-b-${m.load}">Set ${m.n} · ${m.title}</span>` : '',
-    d.note ? `<span class="pc xday">${rpEsc(d.note)}</span>` : d.custom ? '<span class="pc xday">angepasst</span>' : ''
+    d.extra ? '<span class="pc xday">Zusatztraining</span>' : '',
+    d.note ? `<span class="pc xday">${rpEsc(d.note)}</span>` : d.custom && !d.extra ? '<span class="pc xday">angepasst</span>' : ''
   ].join('') || '<span class="pc rest">Ruhetag</span>';
 }
 
@@ -2859,7 +2862,7 @@ function bindPlanner(){
     if (!confirm('Diese Woche wieder wie die Standardwoche planen? Anpassungen dieser Woche gehen verloren.')) return;
     DAYS.forEach((_, i) => { const d = addDays(mon, i); daysStore[ymd(d)] = tplDay(d); }); saveDays(); plannerOpen = null; redraw(); };
   if (plannerOpen){
-    const d = W[plannerOpen], upd = () => { if (!tpl) d.edited = true; save(); redraw(); };
+    const d = W[plannerOpen], upd = () => { if (!tpl){ d.edited = true; d.extra = !!d.ice && !week[plannerOpen].ice; } save(); redraw(); };
     $('pe-ice').onchange = e => { d.ice = e.target.checked; if (d.ice) d.offIce = true; upd(); };
     $('pe-off').onchange = e => { d.offIce = e.target.checked; upd(); };
     $('pe-match').onchange = e => { d.match = e.target.checked; upd(); };
@@ -3742,12 +3745,14 @@ function reportData(from, to){
   const badges = BADGES.filter(b => progress.badges && progress.badges[b.id] && inR(progress.badges[b.id])).map(b => ({ b, at:progress.badges[b.id] })).sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
   const tests = (progress.tests || []).filter(t => inR(t.at));
   // Club-Trainings (On-Ice, Off-Ice, Match/Turnier) ab Beginn des Protokolls bis heute
-  const club = { on:{ plan:0, done:0, missed:0, cancelled:0, open:0 }, off:{ plan:0, done:0, missed:0, cancelled:0, open:0 }, game:{ plan:0, done:0, missed:0, cancelled:0, open:0 }, why:{}, day:{} };
+  const club = { on:{ plan:0, done:0, missed:0, cancelled:0, open:0, xplan:0, xdone:0 }, off:{ plan:0, done:0, missed:0, cancelled:0, open:0, xplan:0, xdone:0 }, game:{ plan:0, done:0, missed:0, cancelled:0, open:0 }, why:{}, day:{} };
   { const since = progress.clubSince ? ymdDate(progress.clubSince).getTime() : Infinity, end = Math.min(T, Date.now());
     for (let d = rpDay0(Math.max(F, Math.min(since, end + 1))); d.getTime() <= end; d = addDays(d, 1)){
       const day = ymd(d), e = clubLog()[day] || {}, ks = new Set(clubItems(planFor(d)).map(i => i[0])); Object.keys(e).forEach(k => ks.add(k));
       const st = [];
+      const extra = isExtra(daysStore[day], d);
       ks.forEach(k => { const c = club[k], v = e[k]; if (!c) return; c.plan++;
+        if (extra && k !== 'game'){ c.xplan++; if (v && v.s === 'done') c.xdone++; }
         if (!v) { c.open++; st.push('open'); } else { c[v.s]++; st.push(v.s);
           if (v.s === 'missed'){ const w = club.why[k] = club.why[k] || {}; w[v.r || 'ohne'] = (w[v.r || 'ohne'] || 0) + 1; } } });
       if (st.length) club.day[d.getTime()] = st.includes('missed') ? 'missed' : st.includes('open') ? 'open' : st.includes('done') ? 'done' : 'cancelled';
@@ -3761,7 +3766,8 @@ const CLUB_WHY_TXT = Object.assign(Object.fromEntries(CLUB_WHY), { ohne:'ohne Gr
 const clubWhyTxt = w => Object.entries(w || {}).sort((a, b) => b[1] - a[1]).map(([r, n]) => `${n}× ${CLUB_WHY_TXT[r] || r}`).join(', ');
 function clubFazit(D){
   const c = D.club, out = [], warn = [], part = (k, l) => { const x = c[k]; if (!x.plan) return '';
-    const n = x.plan - x.cancelled; return `${l} ${x.done} von ${n}${x.missed ? ` (${x.missed}× ausgelassen)` : ''}`; };
+    const n = x.plan - x.cancelled, add = [x.xplan ? `davon ${x.xplan} Zusatztraining${x.xplan > 1 ? 's' : ''}` : '', x.missed ? `${x.missed}× ausgelassen` : ''].filter(Boolean);
+    return `${l} ${x.done} von ${n}${add.length ? ` (${add.join(', ')})` : ''}`; };
   const t = [part('on', 'On-Ice'), part('off', 'Off-Ice'), part('game', 'Matches/Turniere')].filter(Boolean);
   if (t.length) out.push(`Club-Trainings: ${t.join(', ')}.`);
   if (c.off.missed >= 3) warn.push(`Off-Ice ${c.off.missed}× ausgelassen (${clubWhyTxt(c.why.off)}).`);
@@ -3796,7 +3802,7 @@ function rpClubHTML(D){
   const c = D.club, rows = RP_CLUB_ROWS.filter(([k]) => c[k].plan);
   const why = rows.filter(([k]) => c.why[k]).map(([k, l]) => `${l}: ${clubWhyTxt(c.why[k])}`);
   return `<section class="rp-sec"><h2>Club-Trainings</h2>${rows.length ? `<table class="rp-tab rp-grid"><thead><tr><th>Training</th><th class="r">Geplant</th><th class="r">Gemacht</th><th class="r">Ausgelassen</th><th class="r">Ausgefallen</th><th class="r">Offen</th><th class="r">Quote</th></tr></thead><tbody>
-      ${rows.map(([k, l]) => { const x = c[k]; return `<tr><td>${l}</td><td class="r">${x.plan}</td><td class="r"><b>${x.done}</b></td><td class="r" style="color:${x.missed ? RP_C.warn : 'inherit'}">${x.missed}</td><td class="r">${x.cancelled}</td><td class="r">${x.open}</td><td class="r"><b>${rpQuote(x)}</b></td></tr>`; }).join('')}</tbody></table>
+      ${rows.map(([k, l]) => { const x = c[k]; return `<tr><td>${l}${x.xplan ? `<br><small class="rp-d">davon ${x.xplan} Zusatz, ${x.xdone} gemacht</small>` : ''}</td><td class="r">${x.plan}</td><td class="r"><b>${x.done}</b></td><td class="r" style="color:${x.missed ? RP_C.warn : 'inherit'}">${x.missed}</td><td class="r">${x.cancelled}</td><td class="r">${x.open}</td><td class="r"><b>${rpQuote(x)}</b></td></tr>`; }).join('')}</tbody></table>
     ${why.length ? `<p class="rp-cap"><b>Gründe für Auslassen</b> · ${why.join(' · ')}</p>` : ''}
     <p class="rp-cap">Quote = gemacht von gemacht + ausgelassen. «Ausgefallen» = vom Club abgesagt, zählt nicht. «Offen» = noch nicht bestätigt.</p>`
     : '<p class="rp-empty">Keine Club-Trainings im Zeitraum erfasst.</p>'}</section>`;
@@ -4072,10 +4078,11 @@ async function buildReportPDF(D){
       hd.forEach((h, i) => i ? txt(h, cx[i] - 6, y + 4.5, 8.3, { bold:true, color:C.white, align:'right' }) : txt(h, M + 6, y + 4.5, 8.3, { bold:true, color:C.white }));
       y += 17;
       rows.forEach(([k, l], i) => { const x = c[k]; if (i % 2) rect(M, y, CW, 17, col('#F6F8FA'));
-        txt(l, M + 6, y + 4.5, 8.5);
+        txt(l + (x.xplan ? ` (davon ${x.xplan} Zusatz)` : ''), M + 6, y + 4.5, 8.5);
         [x.plan, x.done, x.missed, x.cancelled, x.open, rpQuote(x)].forEach((v, j) => txt(String(v), cx[j + 1] - 6, y + 4.5, 8.5, { align:'right', bold:j === 1 || j === 5, color:j === 2 && x.missed ? C.warn : (j === 1 || j === 5 ? C.navy : C.text) }));
         line(M, y + 17, M + CW, y + 17, C.line); y += 17; });
       y += 6;
+      { const xs = rows.filter(([k]) => c[k].xplan).map(([k, l]) => `${l} ${c[k].xplan} geplant, ${c[k].xdone} gemacht`); if (xs.length) y += caption('Zusatztrainings (nicht in der Standardwoche) · ' + xs.join(' · ')) + 2; }
       if (why.length) y += caption('Gründe für Auslassen · ' + why.join(' · ')) + 2;
       y += caption('Quote = gemacht von gemacht + ausgelassen. «Ausgefallen» = vom Club abgesagt, zählt nicht. «Offen» = noch nicht bestätigt.');
     }
