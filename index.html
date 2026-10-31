@@ -779,6 +779,17 @@ body.voice-off .stage .coach p{font-size:clamp(1.4rem,3.6vw,2rem)}
 .px-list li{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding:2px 0}
 .px-del{border:0;background:none;color:var(--muted);font-size:1.4rem;cursor:pointer;min-width:44px;min-height:44px}
 .pc.xday{border-left-color:var(--gold)}
+/* Grosser Pause-Knopf rechts neben dem Übungstext */
+.pb-wrap{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:20px;width:100%;min-width:0}
+.pause-big{flex:none;width:120px;height:120px;margin-right:10px;border-radius:50%;border:2.5px solid var(--ice);background:rgba(16,26,44,.88);color:var(--ice);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font:800 1.05rem var(--f-display);letter-spacing:.14em;text-transform:uppercase;
+  box-shadow:0 0 0 6px rgba(127,212,255,.12), 0 14px 28px -8px rgba(0,0,0,.6);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.pause-big svg{width:40px;height:40px}
+.pause-big:active{transform:scale(.96)}
+.pause-big.on{background:var(--ice);color:var(--on-ice);animation:pbGlow 1.6s ease-in-out infinite}
+@keyframes pbGlow{0%,100%{box-shadow:0 0 0 6px rgba(127,212,255,.25), 0 0 24px rgba(127,212,255,.35)}50%{box-shadow:0 0 0 12px rgba(127,212,255,.12), 0 0 40px rgba(127,212,255,.6)}}
+@media (max-width:560px){.pause-big{width:88px;height:88px;font-size:.82rem;gap:5px;margin-right:4px}.pause-big svg{width:30px;height:30px}.pb-wrap{gap:12px}}
+@media (prefers-reduced-motion:reduce){.pause-big.on{animation:none}}
 .pl-tabs{display:flex;flex-wrap:wrap;gap:8px}
 .pl-nav{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .pl-nav b{font-family:var(--f-display);font-size:1.2rem;letter-spacing:.04em;text-align:center;flex:1}
@@ -4591,7 +4602,7 @@ function onPhaseEnter(p, i, prev){
       const hasCap = !!(ANIMS[p.exId] && ANIMS[p.exId].caption);
       html = `<div class="inner split">
         ${ringHTML('', '<div class="figwrap" id="fig"></div>')}
-        <div class="side">
+        <div class="pb-wrap"><div class="side">
           <p class="eyebrow red">Live · ${p.ex.goal}</p>
           <h2>${p.ex.name}</h2>
           <p class="secs"><span id="secs"></span><small>Sek</small></p>
@@ -4599,7 +4610,7 @@ function onPhaseEnter(p, i, prev){
           ${p.ex.calls ? '<p class="callbox" id="callbox" hidden></p>' : ''}
           ${coachHTML(p.ex.coach)}
           ${nx ? `<p class="next">Danach: <b>${nx}</b></p>` : ''}
-        </div></div>`;
+        </div>${pauseBigHTML()}</div></div>`;
       after = () => Anim.mount($('fig'), p.exId, { caption: hasCap ? $('cap') : null });
       { const tips = coachTips(p);
         const first = (p.ex.instruction || '').split(/[.!?]/)[0];
@@ -5429,6 +5440,18 @@ function miniCard(pro, on, attrs){
   return `<button class="mcard${on ? ' on' : ''}" ${attrs || ''}><span class="mnum">${on ? pro.num : '?'}</span><span class="mnm">${on ? pro.last : 'Gesperrt'}</span></button>`;
 }
 const fmtDate = iso => new Date(iso).toLocaleDateString('de-CH', { day:'2-digit', month:'2-digit', year:'numeric' });
+
+/* ---- Grosser Pause-Knopf in der Übung: 1. Tipp = Pause, 2. Tipp = weiter (ohne Fenster) ---- */
+const PB_ICO = { pause:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1.5"/><rect x="14" y="4" width="5" height="16" rx="1.5"/></svg>',
+  play:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.6v14.8a1 1 0 0 0 1.53.85l11.8-7.4a1 1 0 0 0 0-1.7L8.53 3.75A1 1 0 0 0 7 4.6z"/></svg>' };
+function pauseBigHTML(){ const on = Engine.paused; return `<button class="pause-big${on ? ' on' : ''}" id="pause-big" aria-pressed="${on}">${on ? PB_ICO.play + 'Weiter' : PB_ICO.pause + 'Pause'}</button>`; }
+function syncPauseBig(){ const b = $('pause-big'); if (b) b.outerHTML = pauseBigHTML(); }
+['pause', 'resume', 'skip', 'stop'].forEach(k => { const f = Engine[k]; Engine[k] = function(){ const r = f.apply(this, arguments); syncPauseBig(); return r; }; });
+document.addEventListener('click', e => {
+  if (!e.target.closest || !e.target.closest('#pause-big') || !Engine.active) return;
+  if (Engine.paused){ if (!$('pause').hidden) closePause(); Sound.duck(false); Engine.resume(); }
+  else { Engine.pause(); Voice.stop(); Sound.duck(true); }
+});
 
 /* ---- Pause ---- */
 function openPause(){
