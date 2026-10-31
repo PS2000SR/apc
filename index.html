@@ -697,11 +697,24 @@ body.voice-off .stage .coach p{font-size:clamp(1.4rem,3.6vw,2rem)}
 .fbk-o svg{width:44px;height:44px}
 .fbk-o.ok{border-color:var(--ok)}.fbk-o.bad{border-color:var(--red)}
 .fbk-o small{font-family:var(--f-body);font-weight:500;font-size:.85rem;letter-spacing:0;text-transform:none;color:var(--muted)}
-.fbk-body{display:grid;grid-template-columns:170px minmax(0,1fr);gap:18px;align-items:center}
-@media (max-width:560px){.fbk-body{grid-template-columns:1fr}.fbk-body svg.fig{max-height:200px}}
-.fbk-body svg.fig{width:100%;max-height:300px}
-.fig .hs{fill:rgba(255,68,88,.18);stroke:var(--red);stroke-width:1.5;cursor:pointer}
-.fig .hs.sel{fill:var(--red)}
+.fbk-body{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:18px;align-items:center}
+@media (max-width:560px){.fbk-body{grid-template-columns:1fr}}
+.pfig{width:100%;max-height:min(62vh,460px);display:block;margin:0 auto}
+.pfig .pr{fill:var(--skin);stroke:var(--skin-2);stroke-width:.8;cursor:pointer;transition:fill .15s}
+.pfig .pr:hover{fill:#D49A72}
+.pfig .pr.sel{fill:var(--red);stroke:#B0182A}
+.pfig .deco{pointer-events:none}
+.pfig text{font-size:11px;fill:var(--muted)}
+.fbk-side{display:flex;flex-direction:column;gap:14px}
+.pchips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;min-height:40px;align-items:center}
+.pchip{background:var(--red);color:#fff;border:0;border-radius:999px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer}
+.fbk-o.pback{min-height:56px}
+.fbk-o.on{border-color:var(--gold);background:rgba(244,198,78,.12)}
+.fbk-o.bad.on{border-color:var(--red);background:rgba(255,68,88,.18)}
+.plrow{display:flex;flex-direction:column;gap:8px;text-align:left}
+.plrow b{font-family:var(--f-display);font-size:1.3rem;text-transform:uppercase;letter-spacing:.04em}
+.plrow .fbk-o{min-height:72px}
+.btn[disabled]{opacity:.45}
 .fbk-skip{align-self:center;background:none;border:0;color:var(--muted);font:inherit;text-decoration:underline;cursor:pointer;padding:6px}
 .pain-follow{border-radius:18px;border:2px solid var(--red);background:var(--panel);padding:16px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
 .pain-follow h3{text-transform:none;font-size:clamp(1.4rem,3vw,1.8rem)}
@@ -2805,16 +2818,25 @@ const FEELS = [
   { id:'pain',  label:'Etwas tut weh', icon:'M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9zM12 9v6M9 12h6' }
 ];
 /* ---- Feedback nach dem Training und Schmerzmodus (alles nur lokal in progress) ---- */
-const PAIN_AREAS = [
-  { id:'knie',     label:'Knie',          art:'Dein',  noun:'Knie' },
-  { id:'fuss',     label:'Fuss / Knöchel', art:'Dein',  noun:'Fuss' },
-  { id:'huefte',   label:'Hüfte / Leiste', art:'Deine', noun:'Hüfte' },
-  { id:'ruecken',  label:'Rücken',        art:'Dein',  noun:'Rücken' },
-  { id:'schulter', label:'Schulter',      art:'Deine', noun:'Schulter' },
-  { id:'anderes',  label:'Anderes',       art:'',      noun:'Etwas' }
-];
-const painInfo = id => PAIN_AREAS.find(a => a.id === id) || PAIN_AREAS[5];
-const painPhrase = (id, cap) => { const a = painInfo(id); if (!a.art) return cap ? 'Etwas' : 'etwas'; return (cap ? a.art : a.art.toLowerCase()) + ' ' + a.noun; };
+/* Körperstellen: id[-l|-r] (links/rechts aus Sicht des Spielers). [Nomen, Geschlecht, Beschriftung] */
+const PAIN_PARTS = {
+  kopf:['Kopf','m'], nacken:['Hals','m','Nacken / Hals'], brust:['Brust','f'], bauch:['Bauch','m'], ruecken:['Rücken','m'],
+  schulter:['Schulter','f'], oberarm:['Oberarm','m'], ellbogen:['Ellbogen','m'], unterarm:['Unterarm','m'], hand:['Hand','f','Hand / Handgelenk'],
+  leiste:['Hüfte','f','Hüfte / Leiste'], oberschenkel:['Oberschenkel','m'], knie:['Knie','n'], schienbein:['Schienbein','n'], fuss:['Fuss','m','Fuss / Knöchel'],
+  huefte:['Hüfte','f','Hüfte / Leiste'], anderes:['Etwas','x','Anderes']
+};
+function painInfo(key){
+  const [id, side] = String(key || 'anderes').split('-'), p = PAIN_PARTS[id] || PAIN_PARTS.anderes;
+  const sideW = side ? (side === 'l' ? 'link' : 'recht') + ({ m:'er', f:'e', n:'es' }[p[1]] || '') : '';
+  const lab = p[2] || p[0];
+  return { label: sideW ? sideW[0].toUpperCase() + sideW.slice(1) + ' ' + lab : lab, noun:p[0], g:p[1], sideW };
+}
+function painPhrase(key, cap){
+  const a = painInfo(key); if (a.g === 'x') return cap ? 'Etwas' : 'etwas';
+  const art = a.g === 'f' ? 'Deine' : 'Dein';
+  return (cap ? art : art.toLowerCase()) + ' ' + (a.sideW ? a.sideW + ' ' : '') + a.noun;
+}
+const painListText = keys => keys.map(k => painInfo(k).label).join(', ');
 const dayOf = t => new Date(t).toDateString();
 const painList = () => progress.pain || (progress.pain = []);
 function addPain(area, level, src){
@@ -2839,8 +2861,9 @@ function painState(){
   const last = L[L.length - 1];
   if (progress.painOk && Date.parse(progress.painOk) > Date.parse(last.at)) return { mode:'none' };
   const age = (Date.now() - Date.parse(last.at)) / 864e5;
-  if (dayOf(last.at) === dayOf(Date.now())) return { mode:'schonung', area:last.area };
-  if (age < 3) return { mode:'nachfragen', area:last.area };
+  const areas = [...new Set(L.filter(r => dayOf(r.at) === dayOf(last.at)).map(r => r.area))];
+  if (dayOf(last.at) === dayOf(Date.now())) return { mode:'schonung', area:last.area, areas };
+  if (age < 3) return { mode:'nachfragen', area:last.area, areas };
   return { mode:'none' };
 }
 const lastFeedbacks = n => (progress.log || []).filter(e => e.fb && e.fb.strain).sort((a, b) => Date.parse(a.at) - Date.parse(b.at)).slice(-n);
@@ -2849,22 +2872,45 @@ function saveTrainingFeedback(res, test){
   const log = progress.log || []; if (!log.length) return;
   const e = log.reduce((x, y) => Date.parse(y.at) > Date.parse(x.at) ? y : x, log[0]);
   e.fb = { strain:res.strain || null, fun:res.fun || null };
-  if (res.pain && res.area){ e.fb.pain = { area:res.area, level:res.level || 'leicht' }; addPain(res.area, res.level || 'leicht', 'training'); }
+  if (res.pain && res.areas && res.areas.length){ e.fb.pain = res.areas; res.areas.forEach(a => addPain(a.area, a.level, 'training')); }
   else saveProgress();
 }
 const STRAIN = [ ['Locker','#3FE0A5'], ['Leicht','#A6E05A'], ['Mittel','#F4C64E'], ['Streng','#FF8A3D'], ['Hammer','#FF4458'] ];
 const strainSVG = v => `<svg viewBox="0 0 50 40" aria-hidden="true">${[0,1,2,3,4].map(k => `<rect x="${k * 10 + 1}" y="${32 - k * 7}" width="8" height="${8 + k * 7}" rx="2" fill="${k < v ? STRAIN[v - 1][1] : 'var(--line)'}"/>`).join('')}</svg>`;
 const faceSVG = v => `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="20" cy="20" r="17"/><circle cx="14" cy="16" r="1.5" fill="currentColor"/><circle cx="26" cy="16" r="1.5" fill="currentColor"/><path d="${v === 1 ? 'M13 28q7-6 14 0' : v === 2 ? 'M13 26h14' : 'M12 24q8 8 16 0'}"/></svg>`;
+/* Ganzkörper-Avatar von vorne. Flächen sind antippbar; rechte Körperhälfte des Spielers links im Bild */
+const BODY_REGIONS = [
+  ['kopf',0,'M100 16c11 0 19 9 19 22 0 9-3 16-7 20-3 3-7 5-12 5s-9-2-12-5c-4-4-7-11-7-20 0-13 8-22 19-22z M81 36c-3 0-4 3-3 7 1 3 3 5 4 4z M119 36c3 0 4 3 3 7-1 3-3 5-4 4z'],
+  ['nacken',0,'M91 58c3 3 6 5 9 5s6-2 9-5l1 11c3 3 7 4 9 5-9 2-15 3-19 3s-10-1-19-3c2-1 6-2 9-5z'],
+  ['schulter',1,'M81 74c-9 1-17 3-23 7-6 4-9 10-10 18 4 2 9 3 14 3 1-7 4-13 9-17 4-3 9-5 14-6z'],
+  ['brust',0,'M85 79c-5 1-10 3-14 6-5 4-8 10-9 17l3 8c1 7 3 13 5 19h60c2-6 4-12 5-19l3-8c-1-7-4-13-9-17-4-3-9-5-14-6-4 2-9 3-15 3s-11-1-15-3z'],
+  ['bauch',0,'M70 129h60c-1 9-2 18-2 27 0 10 1 19 3 27H69c2-8 3-17 3-27 0-9-1-18-2-27z'],
+  ['leiste',1,'M69 183h31v31c-9 0-18-2-26-5-5-3-8-8-8-14 0-4 1-8 3-12z'],
+  ['oberarm',1,'M48 99c4 2 9 3 14 3l1 9c-1 12-3 24-5 35H44c-2-11-2-23 0-34 1-5 2-9 4-13z'],
+  ['ellbogen',1,'M44 146h14c1 3 1 7 0 11H43c-1-4-1-8 1-11z'],
+  ['unterarm',1,'M43 157h15c0 12-2 25-5 38H43c-2-13-2-26 0-38z'],
+  ['hand',1,'M43 195h10c2 4 4 8 4 13 0 6-1 12-3 17-1 3-4 4-6 3-3-1-5-5-6-9-1-8-1-16 1-24z'],
+  ['oberschenkel',1,'M74 209c8 3 17 5 26 5l-1 6c-1 22-3 44-5 64H77c-3-16-5-33-5-50 0-9 1-17 2-25z'],
+  ['knie',1,'M77 284h17c2 5 2 11 0 17H77c-2-6-2-12 0-17z'],
+  ['schienbein',1,'M77 301h17c1 19 0 38-2 56h-11c-3-18-5-37-4-56z'],
+  ['fuss',1,'M81 357h11c1 6 2 11 4 15 2 4 2 8-1 9-5 2-14 2-20 0-3-1-3-4-1-6 4-4 6-11 7-18z']
+];
 function bodySVG(sel){
-  const hs = [ ['schulter',38,58],['schulter',82,58],['ruecken',60,92],['huefte',60,122],['knie',49,170],['knie',71,170],['fuss',47,212],['fuss',73,212] ];
-  return `<svg class="fig" viewBox="0 0 120 230" role="img" aria-label="Körperfigur">
-    <g fill="var(--panel-2)" stroke="var(--muted)" stroke-width="2"><circle cx="60" cy="24" r="15"/><path d="M38 48h44l6 70H32z"/>
-    <path d="M38 50l-14 60M82 50l14 60" fill="none" stroke-width="9" stroke-linecap="round"/><path d="M46 118l-2 100M74 118l2 100" fill="none" stroke-width="12" stroke-linecap="round"/></g>
-    ${hs.map(([id, x, y]) => `<circle class="hs${sel === id ? ' sel' : ''}" data-area="${id}" cx="${x}" cy="${y}" r="10"><title>${painInfo(id).label}</title></circle>`).join('')}</svg>`;
+  const on = k => sel.includes(k) ? ' sel' : '', reg = (k, d, t) => `<path class="pr${on(k)}" data-area="${k}" d="${d}"${t ? ` transform="${t}"` : ''}><title>${painInfo(k).label}</title></path>`;
+  return `<svg class="pfig" viewBox="20 0 160 400" role="img" aria-label="Körperfigur von vorne">
+    <path class="deco" d="M86 68Q100 74 114 68L120 76Q118 84 100 86Q82 84 80 76Z" fill="var(--skin)"/>
+    ${BODY_REGIONS.map(([id, sided, d]) => sided ? reg(id + '-r', d) + reg(id + '-l', d, 'matrix(-1 0 0 1 200 0)') : reg(id, d)).join('')}
+    <g class="deco" fill="none" stroke="var(--skin-2)" stroke-width=".8" stroke-linecap="round">
+      <path d="M100 18c-10 0-17 4-19 12c3-5 9-8 19-8s16 3 19 8c-2-8-9-12-19-12z" fill="var(--hair)" stroke="none"/>
+      <path d="M92 37q3-2 6 0M102 37q3-2 6 0"/><circle cx="95" cy="40" r="1.2" fill="var(--hair)" stroke="none"/><circle cx="105" cy="40" r="1.2" fill="var(--hair)" stroke="none"/>
+      <path d="M100 41v6l-2 1M96 52q4 2 8 0"/><path d="M74 112q12 8 25 4M126 112q-12 8-25 4M100 92v28"/>
+      <path d="M90 140h20M90 155h20M90 170h20M100 132v48" opacity=".6"/><path d="M100 196l-6 10M100 196l6 10" opacity=".5"/></g>
+    <text x="30" y="396">rechts</text><text x="170" y="396" text-anchor="end">links</text></svg>`;
 }
 /* Abfrage als Vollbild-Karte. steps: strain, fun, pain, area, level */
 function feedbackFlow(o){
   const res = Object.assign({}, o.preset || {}), steps = o.steps.slice();
+  res.sel = (res.sel || []).slice(); res.lv = res.lv || {};
   document.querySelectorAll('.fbk').forEach(x => x.remove());
   const ov = document.createElement('div'); ov.className = 'fbk'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
   document.body.appendChild(ov);
@@ -2877,18 +2923,36 @@ function feedbackFlow(o){
     if (st === 'strain'){ h = head('Wie streng war\'s?'); body = `<div class="fbk-opts n5" style="--n:5">${STRAIN.map((s, k) => opt(k + 1, strainSVG(k + 1) + s[0])).join('')}</div>`; }
     if (st === 'fun'){ h = head('Wie viel Spass hat\'s gemacht?'); body = `<div class="fbk-opts" style="--n:3">${opt(1, faceSVG(1) + 'Ging so')}${opt(2, faceSVG(2) + 'Okay')}${opt(3, faceSVG(3) + 'Mega')}</div>`; }
     if (st === 'pain'){ h = head('Tut dir etwas weh?'); body = `<div class="fbk-opts" style="--n:2">${opt('no', 'Nein, alles gut', 'ok')}${opt('yes', 'Ja, etwas tut weh', 'bad')}</div>`; }
-    if (st === 'area'){ h = head('Wo tut es weh?', 'Tippe auf die Stelle.'); body = `<div class="fbk-body">${bodySVG(res.area)}<div class="fbk-opts n6" style="--n:2">${PAIN_AREAS.map(a => opt(a.id, a.label, res.area === a.id ? 'bad' : '')).join('')}</div></div>`; }
-    if (st === 'level'){ h = head(`Wie stark tut ${painPhrase(res.area, false)} weh?`); body = `<div class="fbk-opts" style="--n:2">${opt('leicht', 'Zwickt nur<small>Ich kann gut laufen und springen</small>')}${opt('stark', 'Tut richtig weh<small>Es stört bei Bewegung</small>', 'bad')}</div>`; }
+    if (st === 'area'){ h = head('Wo tut es weh?', 'Tippe auf die Stelle. Mehrere sind möglich.');
+      body = `<div class="fbk-body">${bodySVG(res.sel)}<div class="fbk-side">
+        <div class="pchips">${res.sel.filter(k => k !== 'ruecken').map(k => `<button class="pchip" data-tg="${k}">${painInfo(k).label} ×</button>`).join('') || '<span class="muted">Noch nichts ausgewählt</span>'}</div>
+        <button class="fbk-o pback${res.sel.includes('ruecken') ? ' on bad' : ''}" data-tg="ruecken">Rücken</button>
+        <button class="btn btn-primary" data-next${res.sel.length ? '' : ' disabled'}>Weiter</button></div></div>`; }
+    if (st === 'level'){ h = head(res.sel.length > 1 ? 'Wie stark tut es weh?' : `Wie stark tut ${painPhrase(res.sel[0], false)} weh?`, res.sel.length > 1 ? 'Für jede Stelle einzeln.' : '');
+      body = `${res.sel.map(k => `<div class="plrow"><b>${painInfo(k).label}</b><div class="fbk-opts" style="--n:2">
+          <button class="fbk-o${res.lv[k] === 'leicht' ? ' on' : ''}" data-k="${k}" data-lv="leicht">Zwickt nur<small>Ich kann gut laufen und springen</small></button>
+          <button class="fbk-o bad${res.lv[k] === 'stark' ? ' on' : ''}" data-k="${k}" data-lv="stark">Tut richtig weh<small>Es stört bei Bewegung</small></button></div></div>`).join('')}
+        <button class="btn btn-primary" data-next${res.sel.every(k => res.lv[k]) ? '' : ' disabled'}>Fertig</button>`; }
     ov.innerHTML = `<div class="fbk-card">${h}${body}<button class="fbk-skip">${o.training ? 'Überspringen' : 'Abbrechen'}</button></div>`;
     ov.querySelector('.fbk-skip').onclick = () => { res.skipped = true; if (o.training) done(); else { ov.remove(); if (o.onCancel) o.onCancel(); } };
-    ov.querySelectorAll('[data-v],[data-area]').forEach(b => b.onclick = () => {
+    const next = () => { i++; if (i >= steps.length){ res.areas = res.sel.map(k => ({ area:k, level:res.lv[k] || 'leicht' })); done(); } else render(); };
+    if (st === 'area'){
+      const tg = k => { res.sel = res.sel.includes(k) ? res.sel.filter(x => x !== k) : res.sel.concat(k); render(); };
+      ov.querySelectorAll('[data-area],[data-tg]').forEach(b => b.onclick = () => tg(b.dataset.area || b.dataset.tg));
+      ov.querySelector('[data-next]').onclick = () => { if (res.sel.length) next(); };
+      return;
+    }
+    if (st === 'level'){
+      ov.querySelectorAll('[data-lv]').forEach(b => b.onclick = () => { res.lv[b.dataset.k] = b.dataset.lv; render(); });
+      ov.querySelector('[data-next]').onclick = () => { if (res.sel.every(k => res.lv[k])) next(); };
+      return;
+    }
+    ov.querySelectorAll('[data-v]').forEach(b => b.onclick = () => {
       const v = b.dataset.v || b.dataset.area;
       if (st === 'strain') res.strain = +v;
       if (st === 'fun') res.fun = +v;
       if (st === 'pain'){ res.pain = v === 'yes'; if (res.pain) steps.push('area', 'level'); }
-      if (st === 'area') res.area = v;
-      if (st === 'level') res.level = v;
-      i++; if (i >= steps.length) done(); else render();
+      next();
     });
   }
   render();
@@ -2903,7 +2967,7 @@ function painPauseHTML(ps){
         <p class="muted">Deine Serie bleibt geschützt. Trainieren geht wieder, sobald deine Eltern es im Eltern-Bereich freigeben.</p>
       </div></article>`;
 }
-const painFollowHTML = ps => `<div class="pain-follow"><h3>Tut ${painPhrase(ps.area, false)} noch weh?</h3><div><button class="btn btn-ghost btn-small" data-follow="yes">Ja, noch</button><button class="btn btn-primary btn-small" data-follow="no">Nein, alles gut</button></div></div>`;
+const painFollowHTML = ps => `<div class="pain-follow"><h3>${(ps.areas || []).length > 1 ? `Tut es noch weh? <small class="muted">${painListText(ps.areas)}</small>` : `Tut ${painPhrase(ps.area, false)} noch weh?`}</h3><div><button class="btn btn-ghost btn-small" data-follow="yes">Ja, noch</button><button class="btn btn-primary btn-small" data-follow="no">Nein, alles gut</button></div></div>`;
 function painParentsHTML(){
   const pp = progress.painPause, L = painList().slice(-10).reverse(), fb = lastFeedbacks(8);
   const fd = t => new Date(t).toLocaleDateString('de-CH', { weekday:'short', day:'numeric', month:'numeric' });
@@ -3053,7 +3117,7 @@ function renderCenter(){
   document.querySelectorAll('[data-feel]').forEach(b => b.onclick = () => {
     if (b.dataset.feel === 'pain'){
       feedbackFlow({ steps:['area', 'level'], title:'Etwas tut weh', onDone:res => {
-        if (res.area){ addPain(res.area, res.level || 'leicht', 'checkin'); store.set('apc.feel.v1', { day:new Date().toDateString(), id:'pain' }); }
+        if (res.areas && res.areas.length){ res.areas.forEach(a => addPain(a.area, a.level, 'checkin')); store.set('apc.feel.v1', { day:new Date().toDateString(), id:'pain' }); }
         renderCenter(); } });
       return;
     }
@@ -3062,7 +3126,7 @@ function renderCenter(){
   });
   document.querySelectorAll('[data-follow]').forEach(b => b.onclick = () => {
     if (b.dataset.follow === 'no'){ progress.painOk = new Date().toISOString(); saveProgress(); renderCenter(); return; }
-    feedbackFlow({ steps:['level'], preset:{ area:ps.area }, title:'Etwas tut weh', onDone:res => { addPain(ps.area, res.level || 'leicht', 'checkin'); renderCenter(); } });
+    feedbackFlow({ steps:['area', 'level'], preset:{ sel:(ps.areas || [ps.area]).slice() }, title:'Tut noch weh', onDone:res => { (res.areas || []).forEach(a => addPain(a.area, a.level, 'checkin')); if (!(res.areas || []).length){ progress.painOk = new Date().toISOString(); saveProgress(); } renderCenter(); } });
   });
   { const o = $('mc2-other'); if (o) o.onclick = openMissions; }
   { const tb = $('btn-testday'); if (tb) tb.onclick = openTestday; }
@@ -3204,7 +3268,7 @@ function openAnalytics(){
   const p90 = pains.filter(r => now - Date.parse(r.at) < 90 * DAY), byArea = {};
   p90.forEach(r => { const a = byArea[r.area] = byArea[r.area] || { n:0, stark:0 }; a.n++; if (r.level === 'stark') a.stark++; });
   const maxA = Math.max(1, ...Object.values(byArea).map(a => a.n));
-  const painHTML = p90.length ? `<div class="an-bars">${PAIN_AREAS.filter(a => byArea[a.id]).sort((a, b) => byArea[b.id].n - byArea[a.id].n).map(a => `<div class="an-bar"><span>${a.label}</span><div><span style="width:${byArea[a.id].n / maxA * 100}%;background:${byArea[a.id].stark ? 'var(--red)' : 'var(--gold)'}"></span></div><b>${byArea[a.id].n}×</b></div>`).join('')}</div>
+  const painHTML = p90.length ? `<div class="an-bars">${Object.keys(byArea).sort((a, b) => byArea[b].n - byArea[a].n).map(id => `<div class="an-bar"><span>${painInfo(id).label}</span><div><span style="width:${byArea[id].n / maxA * 100}%;background:${byArea[id].stark ? 'var(--red)' : 'var(--gold)'}"></span></div><b>${byArea[id].n}×</b></div>`).join('')}</div>
       <div class="an-legend"><span><i style="background:var(--gold)"></i>nur «zwickt»</span><span><i style="background:var(--red)"></i>mindestens einmal «tut richtig weh»</span></div>
       <p class="muted">Letzte Meldung: ${fd(pains[pains.length - 1].at)} · ${painInfo(pains[pains.length - 1].area).label} · ${pains[pains.length - 1].level === 'stark' ? 'tut richtig weh' : 'zwickt'}</p>`
     : '<p class="an-empty">In den letzten 90 Tagen keine Schmerzen gemeldet.</p>';
