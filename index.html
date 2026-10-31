@@ -748,25 +748,31 @@ body.voice-off .stage .coach p{font-size:clamp(1.4rem,3.6vw,2rem)}
 .an-bar b{text-align:right;font-family:var(--f-display)}
 .an-empty{color:var(--muted)}
 /* Club-Protokoll (On-Ice, Off-Ice, Match) und Abweichungen vom Wochenplan */
-.club-card{border-radius:20px;border:1px solid var(--blue);background:var(--panel);padding:16px 20px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--e2);background-image:var(--sheen)}
-.club-card h3{text-transform:none;font-size:clamp(1.3rem,3vw,1.6rem);margin:0}
-.club-card .eyebrow{margin:0}
-.cl-row{display:flex;flex-direction:column;gap:8px;padding-top:10px;border-top:1px solid var(--line)}
-.cl-head{display:flex;align-items:baseline;gap:10px}
-.cl-head b{font-family:var(--f-display);font-size:1.25rem;text-transform:uppercase;letter-spacing:.04em}
-.cl-head small{color:var(--muted)}
-.cl-opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.cl-o{min-height:52px;border-radius:12px;border:2px solid var(--line);background:var(--panel-2);color:var(--text);font:700 1rem var(--f-display);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;box-shadow:var(--e1);padding:4px}
-.cl-o.done[aria-pressed="true"]{border-color:var(--ok);background:rgba(63,224,165,.16)}
-.cl-o.missed[aria-pressed="true"]{border-color:var(--red);background:rgba(255,68,88,.16)}
-.cl-o.cancelled[aria-pressed="true"]{border-color:var(--muted);background:rgba(134,151,179,.2)}
-.cl-why{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.cl-r{min-height:40px;padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);font:600 .95rem var(--f-body);cursor:pointer}
+.clc{gap:6px}
+.clc-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.clc-head .eyebrow{margin:0}.clc-head .muted{font-size:.85rem}
+.cl-dayblk{border-top:1px solid var(--line);padding-top:6px}
+.cl-day{font-family:var(--f-display);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ice);margin:0 0 2px;font-size:.95rem;display:flex;gap:10px;align-items:center}
+.cl-row{display:grid;grid-template-columns:96px minmax(0,1fr);gap:4px 10px;align-items:center;padding:3px 0}
+.cl-lbl{display:flex;flex-direction:column;line-height:1.1}
+.cl-lbl b{font-family:var(--f-display);font-size:1.05rem;text-transform:uppercase;letter-spacing:.03em}
+.cl-lbl small{color:var(--muted);font-size:.8rem}
+.cl-opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.cl-o{min-height:38px;border-radius:10px;border:1.5px solid var(--line);background:var(--panel-2);color:var(--text);font:700 .85rem var(--f-display);letter-spacing:.04em;text-transform:uppercase;cursor:pointer;padding:2px 6px;display:flex;align-items:center;justify-content:center;gap:6px}
+.cl-o i{font-style:normal;font-size:1rem;opacity:.7}
+.cl-o.done[aria-pressed="true"]{border-color:var(--ok);background:rgba(63,224,165,.18)}
+.cl-o.missed[aria-pressed="true"]{border-color:var(--red);background:rgba(255,68,88,.18)}
+.cl-o.cancelled[aria-pressed="true"]{border-color:var(--muted);background:rgba(134,151,179,.22)}
+.cl-o[aria-pressed="true"] i{opacity:1}
+.cl-why{grid-column:2;display:flex;flex-wrap:wrap;gap:6px}
+.cl-r{min-height:32px;padding:3px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);font:600 .85rem var(--f-body);cursor:pointer}
 .cl-r[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:#fff}
-.club-done{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;padding:12px 18px;border-radius:16px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit;text-align:left;cursor:pointer;box-shadow:var(--e1)}
-.club-done b{color:var(--ok)}
-.club-done span:last-child{color:var(--ice);font-weight:700;white-space:nowrap}
-.cl-day{font-family:var(--f-display);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ice);margin:8px 0 0}
+.cl-link{background:none;border:0;color:var(--ice);font:600 .9rem var(--f-body);cursor:pointer;padding:4px 0;text-transform:none;letter-spacing:0}
+.cl-done{border-top:1px solid var(--line);padding-top:6px}
+.cl-done summary{cursor:pointer;color:var(--muted);font-size:.9rem;padding:4px 0}
+.cl-sum{display:flex;justify-content:space-between;gap:10px;width:100%;background:none;border:0;border-bottom:1px solid var(--line);color:var(--text);font:inherit;font-size:.9rem;text-align:left;padding:6px 0;cursor:pointer}
+.cl-sum b{font-weight:700;margin-right:6px}
+@media (max-width:560px){.cl-row{grid-template-columns:minmax(0,1fr)}.cl-lbl{flex-direction:row;gap:8px;align-items:baseline}.cl-why{grid-column:1}.cl-o{font-size:.74rem;letter-spacing:0;padding:2px 3px}.cl-o i{display:none}}
 .px-form{display:flex;flex-direction:column;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--panel-2)}
 .px-form input[type=text]{flex:1;min-width:0}
 .px-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
@@ -2658,15 +2664,16 @@ function setClub(day, k, s, r){
 }
 /* Offen = geplant, aber noch nicht bestätigt (oder ausgelassen ohne Grund) */
 const clubOpen = day => { const e = clubLog()[day] || {}; return clubItems(planFor(ymdDate(day))).filter(([k]) => !e[k] || (e[k].s === 'missed' && !e[k].r)); };
+const CLUB_ICO = { done:'✓', missed:'✗', cancelled:'–' };
 function clubRowsHTML(day){
   const e = clubLog()[day] || {};
   return clubItems(planFor(ymdDate(day))).map(([k, label, time]) => { const v = e[k] || {};
-    return `<div class="cl-row"><div class="cl-head"><b>${label}</b>${time ? `<small>${time}</small>` : ''}</div>
-      <div class="cl-opts" role="group" aria-label="${label}">${Object.entries(CLUB_ST).map(([s, l]) => `<button class="cl-o ${s}" data-cl="${day}|${k}|${s}" aria-pressed="${v.s === s}">${l}</button>`).join('')}</div>
-      ${v.s === 'missed' ? `<div class="cl-why" role="group" aria-label="Grund"><span class="muted">Grund:</span>${CLUB_WHY.map(([r, l]) => `<button class="cl-r" data-clr="${day}|${k}|${r}" aria-pressed="${v.r === r}">${l}</button>`).join('')}</div>` : ''}
+    return `<div class="cl-row"><span class="cl-lbl"><b>${label}</b>${time ? `<small>${time}</small>` : ''}</span>
+      <div class="cl-opts" role="group" aria-label="${label}">${Object.entries(CLUB_ST).map(([s, l]) => `<button class="cl-o ${s}" data-cl="${day}|${k}|${s}" aria-pressed="${v.s === s}" aria-label="${label} ${l}"><i aria-hidden="true">${CLUB_ICO[s]}</i>${l}</button>`).join('')}</div>
+      ${v.s === 'missed' ? `<div class="cl-why" role="group" aria-label="Grund">${CLUB_WHY.map(([r, l]) => `<button class="cl-r" data-clr="${day}|${k}|${r}" aria-pressed="${v.r === r}">${l}</button>`).join('')}</div>` : ''}
     </div>`; }).join('');
 }
-const clubSumTxt = day => { const e = clubLog()[day] || {}; return clubItems(planFor(ymdDate(day))).map(([k, l]) => `${l} ${e[k] ? CLUB_ST[e[k].s].toLowerCase() : 'offen'}`).join(' · '); };
+const clubSumTxt = day => { const e = clubLog()[day] || {}; return clubItems(planFor(ymdDate(day))).map(([k, l]) => `${l} ${e[k] ? CLUB_ICO[e[k].s] : '?'}${e[k] && e[k].r ? ' (' + (Object.fromEntries(CLUB_WHY)[e[k].r] || e[k].r) + ')' : ''}`).join(' · '); };
 function clubRedraw(){
   const sc = $('screen-' + curScreen), y = sc ? sc.scrollTop : 0;
   if (curScreen === 'parents') renderParents(); else if (curScreen === 'center') renderCenter(); else return;
@@ -3546,20 +3553,23 @@ function openAnalytics(){
 
 /* ---- Eltern: Wochenplan und Einstellungen ---- */
 /* ---- Eltern: offene Club-Trainings der letzten 14 Tage bestätigen ---- */
+let clubShowAll = false;
 function clubParentsHTML(){
   const today = new Date(), days = [];
   for (let i = 0; i < 14; i++){ const day = ymd(addDays(today, -i)); if (clubItems(planFor(ymdDate(day))).length || clubLog()[day]) days.push(day); }
-  const fd = day => ymdDate(day).toLocaleDateString('de-CH', { weekday:'long', day:'numeric', month:'numeric' });
-  const open = days.filter(d => clubOpen(d).length);
-  return `<div class="parents"><div class="pbox">
-      <p class="eyebrow">Club-Trainings bestätigen</p>
-      <p>Hier wird festgehalten, welche On-Ice- und Off-Ice-Trainings, Matches und Turniere effektiv stattgefunden haben (letzte 14 Tage). Der Bericht zählt daraus, was gemacht, ausgelassen oder vom Club abgesagt wurde.</p>
-      ${!days.length ? '<p class="muted">In den letzten 14 Tagen war kein Club-Training geplant. Clubtage im Wochenplan oder unter «Abweichungen» eintragen.</p>'
-        : `${open.length ? '' : '<p class="muted">Alles bestätigt ✓</p>'}${days.map(day => (clubOpen(day).length || clubParentsEdit === day)
-          ? `<p class="cl-day">${fd(day)}</p>${clubRowsHTML(day)}${clubOpen(day).length ? '' : '<div><button class="btn btn-ghost btn-small" data-cledit="">Fertig</button></div>'}`
-          : `<button class="club-done" data-cledit="${day}"><span><b>✓</b> ${fd(day)}: ${clubSumTxt(day)}</span><span>Ändern</span></button>`).join('')}`}
+  const fd = day => ymdDate(day).toLocaleDateString('de-CH', { weekday:'short', day:'numeric', month:'numeric' });
+  const open = days.filter(d => clubOpen(d).length || clubParentsEdit === d), done = days.filter(d => !open.includes(d));
+  const shown = clubShowAll ? open : open.slice(0, 3);
+  return `<div class="parents"><div class="pbox clc">
+      <div class="clc-head"><p class="eyebrow">Club-Trainings bestätigen</p><span class="muted">${open.length ? `${open.filter(d => clubOpen(d).length).length} offen` : 'Alles bestätigt ✓'} · letzte 14 Tage</span></div>
+      ${!days.length ? '<p class="muted">Kein Club-Training geplant.</p>' : ''}
+      ${shown.map(day => `<div class="cl-dayblk"><p class="cl-day">${fd(day)}${clubParentsEdit === day && !clubOpen(day).length ? ' <button class="cl-link" data-cledit="">Fertig</button>' : ''}</p>${clubRowsHTML(day)}</div>`).join('')}
+      ${open.length > 3 ? `<button class="cl-link" data-clall="1">${clubShowAll ? 'Weniger anzeigen' : `Weitere ${open.length - 3} Tage anzeigen`}</button>` : ''}
+      ${done.length ? `<details class="cl-done"><summary>${done.length} ${done.length === 1 ? 'Tag' : 'Tage'} bestätigt</summary>
+        ${done.map(day => `<button class="cl-sum" data-cledit="${day}"><span><b>${fd(day)}</b> ${clubSumTxt(day)}</span><span class="cl-link">Ändern</span></button>`).join('')}</details>` : ''}
     </div></div>`;
 }
+document.addEventListener('click', e => { const t = e.target.closest && e.target.closest('[data-clall]'); if (!t) return; clubShowAll = !clubShowAll; clubRedraw(); });
 let clubParentsEdit = null;
 document.addEventListener('click', e => { const t = e.target.closest && e.target.closest('[data-cledit]'); if (!t) return; clubParentsEdit = t.dataset.cledit || null; clubRedraw(); });
 
