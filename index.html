@@ -107,12 +107,14 @@ body.bg-progress #bg-prog{opacity:1}
 #intro .i-flash{position:absolute;left:50%;top:48%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:#fff;opacity:0;animation:iFlash .45s ease-out forwards}
 #intro.boom .i-t{z-index:2;animation:iTitelBoom .55s ease-in forwards;opacity:1}
 @keyframes iFlash{0%{opacity:.85;transform:scale(1)}100%{opacity:0;transform:scale(40)}}
+/* Intro bewusst auch bei «Bewegung reduzieren» vollständig abspielen (übersteuert die globale Regel) */
+@media (prefers-reduced-motion:reduce){#intro{transition-duration:.3s!important}#intro .i-bg{animation-duration:7s!important}#intro path{animation-duration:2.6s,7s!important}#intro .i-t{animation-duration:1.2s!important}#intro.boom .i-t{animation-duration:.55s!important}#intro .i-shard{animation-duration:.85s!important}#intro .i-flash{animation-duration:.45s!important}}
 @keyframes iTitelBoom{from{opacity:1;transform:scale(1);letter-spacing:.18em}to{opacity:0;transform:scale(1.7);letter-spacing:.5em}}
 @keyframes iZoom{from{transform:scale(1.08)}to{transform:scale(1)}}
 @keyframes iPuls{to{stroke-dashoffset:0}}
 @keyframes iPulsFade{0%,40%{opacity:.75}100%{opacity:.3}}
 @keyframes iTitel{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
-@media (prefers-reduced-motion:reduce){#intro .i-bg,#intro path{animation:none}#intro path{stroke-dashoffset:0;opacity:.3}#intro .i-t{animation-delay:0s;animation-duration:.3s}}
+
 
 .inner{margin:auto 0;width:100%;display:flex;flex-direction:column;align-items:center;gap:20px;padding-block:14px}
 h1,h2,h3{font-family:var(--f-display);font-weight:800;line-height:.95;margin:0;text-transform:uppercase;letter-spacing:.01em;text-wrap:balance}
@@ -886,7 +888,7 @@ html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:
 <div id="intro" aria-hidden="true"><div class="i-bg"></div><div class="i-dim"></div><svg viewBox="0 0 1000 100" preserveAspectRatio="none"><path pathLength="1" vector-effect="non-scaling-stroke" d="M0 60 H440 L465 30 L490 85 L515 10 L540 75 L560 60 H1000"/></svg><div class="i-t">Athlete Performance Centre</div></div>
 <script>(function(){
   var el=document.getElementById('intro'),done=false;
-  var ruhig=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var ruhig=false; /* Intro läuft bewusst auch bei «Bewegung reduzieren» vollständig */
   function aufraeumen(ms){setTimeout(function(){el.remove();},ms);}
   /* Ende: Bild zerspringt in Splitter, die nach aussen fliegen */
   function boom(){
