@@ -3333,7 +3333,7 @@ function renderParents(){
     </div></div>
     <div class="parents"><div class="pbox">
       <p class="eyebrow">Demomodus</p>
-      <p>30-Sekunden-Rundgang durch alle Funktionen der App, mit Beispieldaten. Eure echten Daten bleiben unverändert.</p>
+      <p>Rund 36 Sekunden Rundgang durch alle Funktionen der App, mit Beispieldaten. Eure echten Daten bleiben unverändert.</p>
       <div><button class="btn btn-primary btn-small" data-demo>Demo starten</button></div>
     </div></div>
     <div class="parents"><div class="pbox">
@@ -4711,10 +4711,10 @@ function confetti(){
   })(t0);
 }
 
-/* ---- Demomodus: 30-Sekunden-Rundgang mit Beispieldaten. Während der Demo wird nichts gespeichert,
+/* ---- Demomodus: Rundgang (3 Sekunden je Station) mit Beispieldaten. Während der Demo wird nichts gespeichert,
    danach sind die echten Daten wieder da (auch wenn die App mittendrin geschlossen wird). ---- */
 const Demo = (() => {
-  const TOTAL = 30000;
+  const PER = 3000;   // 3 Sekunden je Station
   let timers = [], saved = null, origSet = null, layer = null;
   const iso = d => new Date(Date.now() - d * 864e5).toISOString();
   const later = (fn, ms) => timers.push(setTimeout(fn, ms));
@@ -4755,13 +4755,12 @@ const Demo = (() => {
       <button class="btn btn-ghost btn-small" id="d-stop">Demo beenden</button></div><p class="d-txt" id="d-txt"></p><div class="d-bar"><span id="d-bar"></span></div></div>`;
     document.body.appendChild(layer);
     $('d-stop').onclick = stop;
-    const bar = $('d-bar'); requestAnimationFrame(() => { bar.style.transition = `width ${TOTAL}ms linear`; bar.style.width = '100%'; });
-    const per = TOTAL / STEPS.length;
+    const TOTAL = PER * STEPS.length, bar = $('d-bar'); requestAnimationFrame(() => { bar.style.transition = `width ${TOTAL}ms linear`; bar.style.width = '100%'; });
     STEPS.forEach(([txt, fn], k) => later(() => {
       $('d-tag').textContent = `Demo · ${k + 1}/${STEPS.length}`; $('d-txt').textContent = txt;
       document.querySelectorAll('.demo-hl').forEach(x => x.classList.remove('demo-hl'));
       try { fn(); } catch(e){}
-    }, k * per));
+    }, k * PER));
     later(stop, TOTAL);
   }
   function stop(){
