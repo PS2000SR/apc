@@ -684,7 +684,47 @@ body.voice-off .stage .coach p{font-size:clamp(1.4rem,3.6vw,2rem)}
 .mc2-ctx{display:flex;gap:8px;flex-wrap:wrap}
 .mc2-ctx span{padding:6px 12px;border-radius:999px;background:var(--panel);border:1px solid var(--line);font-weight:600;font-size:.95rem}
 .mc2-ctx .ice{border-color:var(--blue)}.mc2-ctx .game{border-color:var(--red)}
-.mc2-feels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.mc2-feels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:640px){.mc2-feels{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* Feedback nach dem Training und Schmerzmodus */
+.fbk{position:fixed;inset:0;z-index:500;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto}
+.fbk-card{width:min(760px,100%);margin:auto;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:18px;text-align:center}
+.fbk-card h2{text-transform:none}
+.fbk-opts{display:grid;gap:12px;grid-template-columns:repeat(var(--n),minmax(0,1fr))}
+@media (max-width:560px){.fbk-opts.n5{grid-template-columns:repeat(3,minmax(0,1fr))}.fbk-opts.n6{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fbk-o{min-height:112px;border-radius:16px;border:2px solid var(--line);background:var(--panel-2);color:var(--text);font:inherit;font-family:var(--f-display);font-weight:700;font-size:1.15rem;letter-spacing:.04em;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;padding:10px}
+.fbk-o:active{transform:scale(.97)}
+.fbk-o svg{width:44px;height:44px}
+.fbk-o.ok{border-color:var(--ok)}.fbk-o.bad{border-color:var(--red)}
+.fbk-o small{font-family:var(--f-body);font-weight:500;font-size:.85rem;letter-spacing:0;text-transform:none;color:var(--muted)}
+.fbk-body{display:grid;grid-template-columns:170px minmax(0,1fr);gap:18px;align-items:center}
+@media (max-width:560px){.fbk-body{grid-template-columns:1fr}.fbk-body svg.fig{max-height:200px}}
+.fbk-body svg.fig{width:100%;max-height:300px}
+.fig .hs{fill:rgba(255,68,88,.18);stroke:var(--red);stroke-width:1.5;cursor:pointer}
+.fig .hs.sel{fill:var(--red)}
+.fbk-skip{align-self:center;background:none;border:0;color:var(--muted);font:inherit;text-decoration:underline;cursor:pointer;padding:6px}
+.pain-follow{border-radius:18px;border:2px solid var(--red);background:var(--panel);padding:16px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.pain-follow h3{text-transform:none;font-size:clamp(1.4rem,3vw,1.8rem)}
+.pain-follow div{display:flex;gap:10px;flex-wrap:wrap}
+.mc2-rec.pain-pause{grid-template-columns:1fr;border-color:var(--red)}
+.pain-list{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.pain-list li{display:flex;justify-content:space-between;gap:12px;color:var(--text);border-bottom:1px solid var(--line);padding:4px 0}
+.pain-alert{color:var(--text);border-left:4px solid var(--red);padding-left:10px}
+.strain-row{display:flex;gap:6px;align-items:flex-end;height:60px}
+.strain-row span{flex:1;max-width:28px;border-radius:4px 4px 0 0;background:var(--ice)}
+/* Analytics */
+.an-box{width:100%;max-width:880px;background:var(--glass);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:16px;padding:16px 20px;display:flex;flex-direction:column;gap:10px}
+.an-box h3{font-size:clamp(1.3rem,3vw,1.6rem)}
+.an-box svg{width:100%;height:auto;display:block}
+.an-legend{display:flex;flex-wrap:wrap;gap:14px;color:var(--muted);font-size:.9rem}
+.an-legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.an-hints{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;color:var(--text)}
+.an-bars{display:flex;flex-direction:column;gap:8px}
+.an-bar{display:grid;grid-template-columns:130px minmax(0,1fr) 44px;gap:10px;align-items:center;color:var(--text)}
+.an-bar div{height:14px;border-radius:7px;background:var(--line);overflow:hidden}
+.an-bar div span{display:block;height:100%;border-radius:7px}
+.an-bar b{text-align:right;font-family:var(--f-display)}
+.an-empty{color:var(--muted)}
 .mc2-feel{min-height:92px;border-radius:18px;border:2px solid var(--line);background:var(--panel);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-family:var(--f-display);font-weight:800;font-size:1.5rem;letter-spacing:.03em;transition:transform .08s ease,background .15s ease}
 .mc2-feel:active{transform:scale(.97)}
 .mc2-feel svg{width:32px;height:32px}
@@ -946,6 +986,7 @@ html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:
     <section id="screen-progress" class="screen" hidden></section>
     <section id="screen-parents" class="screen" hidden></section>
     <section id="screen-log" class="screen" hidden></section>
+    <section id="screen-analytics" class="screen" hidden></section>
     <section id="screen-player" class="screen" hidden>
       <div class="ptop">
         <div class="chip" id="p-chip">Start</div>
@@ -2396,8 +2437,8 @@ function faceoffSVG(){
 const MUSIC_SCREENS = new Set(['center','missions','briefing','progress','parents','log','card','avatar','trophies','records','season','music']);
 let curScreen = 'center';
 function show(name){
-  ['center','briefing','trophies','missions','music','records','test','card','avatar','season','player','progress','parents','log'].forEach(n => { $('screen-' + n).hidden = (n !== name); });
-  { const tab = { center:'heute', music:'eltern', missions:'trainings', briefing:'trainings', progress:'fortschritt', card:'fortschritt', avatar:'fortschritt', trophies:'fortschritt', records:'fortschritt', test:'fortschritt', season:'fortschritt', log:'fortschritt', parents:'eltern' }[name];
+  ['center','briefing','trophies','missions','music','records','test','card','avatar','season','player','progress','parents','log','analytics'].forEach(n => { $('screen-' + n).hidden = (n !== name); });
+  { const tab = { center:'heute', music:'eltern', missions:'trainings', briefing:'trainings', progress:'fortschritt', card:'fortschritt', avatar:'fortschritt', trophies:'fortschritt', records:'fortschritt', test:'fortschritt', season:'fortschritt', log:'fortschritt', analytics:'fortschritt', parents:'eltern' }[name];
     document.querySelectorAll('#tabbar [data-tab]').forEach(b => { if (b.dataset.tab === tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }); }
   $('btn-home').hidden = (name === 'center');
   $('tog-theme').hidden = (name !== 'center');
@@ -2751,16 +2792,135 @@ const weekCount = (prog, ref) => (prog.log || []).filter(e => weekStart(e.at) ==
 /* Serie in Wochen: jede Woche mit mindestens 2 Trainings zählt (Ruhetage brechen nichts) */
 function weekStreak(prog){
   const cnt = {}; (prog.log || []).forEach(e => { const k = weekStart(e.at); cnt[k] = (cnt[k] || 0) + 1; });
+  const pw = prog.pauseWeeks || {}, ok = k => (cnt[k] || 0) >= 2 || pw[k];   // Pausenwochen (Schmerz) brechen die Serie nicht
   let k = weekStart(new Date().toISOString()), n = 0;
-  if ((cnt[k] || 0) < 2) k = weekStart(new Date(k - 3 * 864e5).toISOString());     // laufende Woche zählt erst ab 2
-  while ((cnt[k] || 0) >= 2){ n++; k = weekStart(new Date(k - 3 * 864e5).toISOString()); }
+  if (!ok(k)) k = weekStart(new Date(k - 3 * 864e5).toISOString());     // laufende Woche zählt erst ab 2
+  while (ok(k)){ n++; k = weekStart(new Date(k - 3 * 864e5).toISOString()); }
   return n;
 }
 const FEELS = [
   { id:'fit',   label:'Voll fit',     icon:'M13 2L4 14h7l-1 8 9-12h-7z' },
   { id:'tired', label:'Etwas müde',   icon:'M21 13a9 9 0 1 1-10-10 7 7 0 0 0 10 10z' },
-  { id:'match', label:'Match steht an', icon:'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4M9 15l2 2 4-4' }
+  { id:'match', label:'Match steht an', icon:'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4M9 15l2 2 4-4' },
+  { id:'pain',  label:'Etwas tut weh', icon:'M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9zM12 9v6M9 12h6' }
 ];
+/* ---- Feedback nach dem Training und Schmerzmodus (alles nur lokal in progress) ---- */
+const PAIN_AREAS = [
+  { id:'knie',     label:'Knie',          art:'Dein',  noun:'Knie' },
+  { id:'fuss',     label:'Fuss / Knöchel', art:'Dein',  noun:'Fuss' },
+  { id:'huefte',   label:'Hüfte / Leiste', art:'Deine', noun:'Hüfte' },
+  { id:'ruecken',  label:'Rücken',        art:'Dein',  noun:'Rücken' },
+  { id:'schulter', label:'Schulter',      art:'Deine', noun:'Schulter' },
+  { id:'anderes',  label:'Anderes',       art:'',      noun:'Etwas' }
+];
+const painInfo = id => PAIN_AREAS.find(a => a.id === id) || PAIN_AREAS[5];
+const painPhrase = (id, cap) => { const a = painInfo(id); if (!a.art) return cap ? 'Etwas' : 'etwas'; return (cap ? a.art : a.art.toLowerCase()) + ' ' + a.noun; };
+const dayOf = t => new Date(t).toDateString();
+const painList = () => progress.pain || (progress.pain = []);
+function addPain(area, level, src){
+  painList().push({ at:new Date().toISOString(), area, level, src });
+  if (painList().length > 60) painList().splice(0, painList().length - 60);
+  const days = new Set(painList().map(r => dayOf(r.at)));
+  const three = [0, 1, 2].every(k => days.has(dayOf(Date.now() - k * 864e5)));
+  if (!progress.painPause && (level === 'stark' || three))
+    progress.painPause = { since:new Date().toISOString(), area, why:level === 'stark' ? 'tut richtig weh' : '3 Tage in Folge gemeldet' };
+  progress.painOk = null;
+  saveProgress();
+}
+function markPauseWeek(){
+  progress.pauseWeeks = progress.pauseWeeks || {};
+  const k = weekStart(new Date().toISOString());
+  if (!progress.pauseWeeks[k]){ progress.pauseWeeks[k] = 1; saveProgress(); }
+}
+/* none · schonung (heute gemeldet) · nachfragen (in den letzten Tagen gemeldet) · pause */
+function painState(){
+  if (progress.painPause){ markPauseWeek(); return { mode:'pause', area:progress.painPause.area }; }
+  const L = painList(); if (!L.length) return { mode:'none' };
+  const last = L[L.length - 1];
+  if (progress.painOk && Date.parse(progress.painOk) > Date.parse(last.at)) return { mode:'none' };
+  const age = (Date.now() - Date.parse(last.at)) / 864e5;
+  if (dayOf(last.at) === dayOf(Date.now())) return { mode:'schonung', area:last.area };
+  if (age < 3) return { mode:'nachfragen', area:last.area };
+  return { mode:'none' };
+}
+const lastFeedbacks = n => (progress.log || []).filter(e => e.fb && e.fb.strain).sort((a, b) => Date.parse(a.at) - Date.parse(b.at)).slice(-n);
+function saveTrainingFeedback(res, test){
+  if (test || !res || res.skipped) return;
+  const log = progress.log || []; if (!log.length) return;
+  const e = log.reduce((x, y) => Date.parse(y.at) > Date.parse(x.at) ? y : x, log[0]);
+  e.fb = { strain:res.strain || null, fun:res.fun || null };
+  if (res.pain && res.area){ e.fb.pain = { area:res.area, level:res.level || 'leicht' }; addPain(res.area, res.level || 'leicht', 'training'); }
+  else saveProgress();
+}
+const STRAIN = [ ['Locker','#3FE0A5'], ['Leicht','#A6E05A'], ['Mittel','#F4C64E'], ['Streng','#FF8A3D'], ['Hammer','#FF4458'] ];
+const strainSVG = v => `<svg viewBox="0 0 50 40" aria-hidden="true">${[0,1,2,3,4].map(k => `<rect x="${k * 10 + 1}" y="${32 - k * 7}" width="8" height="${8 + k * 7}" rx="2" fill="${k < v ? STRAIN[v - 1][1] : 'var(--line)'}"/>`).join('')}</svg>`;
+const faceSVG = v => `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="20" cy="20" r="17"/><circle cx="14" cy="16" r="1.5" fill="currentColor"/><circle cx="26" cy="16" r="1.5" fill="currentColor"/><path d="${v === 1 ? 'M13 28q7-6 14 0' : v === 2 ? 'M13 26h14' : 'M12 24q8 8 16 0'}"/></svg>`;
+function bodySVG(sel){
+  const hs = [ ['schulter',38,58],['schulter',82,58],['ruecken',60,92],['huefte',60,122],['knie',49,170],['knie',71,170],['fuss',47,212],['fuss',73,212] ];
+  return `<svg class="fig" viewBox="0 0 120 230" role="img" aria-label="Körperfigur">
+    <g fill="var(--panel-2)" stroke="var(--muted)" stroke-width="2"><circle cx="60" cy="24" r="15"/><path d="M38 48h44l6 70H32z"/>
+    <path d="M38 50l-14 60M82 50l14 60" fill="none" stroke-width="9" stroke-linecap="round"/><path d="M46 118l-2 100M74 118l2 100" fill="none" stroke-width="12" stroke-linecap="round"/></g>
+    ${hs.map(([id, x, y]) => `<circle class="hs${sel === id ? ' sel' : ''}" data-area="${id}" cx="${x}" cy="${y}" r="10"><title>${painInfo(id).label}</title></circle>`).join('')}</svg>`;
+}
+/* Abfrage als Vollbild-Karte. steps: strain, fun, pain, area, level */
+function feedbackFlow(o){
+  const res = Object.assign({}, o.preset || {}), steps = o.steps.slice();
+  document.querySelectorAll('.fbk').forEach(x => x.remove());
+  const ov = document.createElement('div'); ov.className = 'fbk'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
+  document.body.appendChild(ov);
+  let i = 0;
+  const done = () => { ov.remove(); o.onDone(res); };
+  const opt = (v, inner, cls) => `<button class="fbk-o${cls ? ' ' + cls : ''}" data-v="${v}">${inner}</button>`;
+  function render(){
+    const st = steps[i]; let h = '', body = '';
+    const head = (q, sub) => `<p class="eyebrow${o.training ? '' : ' red'}">${o.title || 'Kurze Frage'}${steps.length > 1 ? ` · ${i + 1}/${steps.length}` : ''}</p><h2>${q}</h2>${sub ? `<p class="muted">${sub}</p>` : ''}`;
+    if (st === 'strain'){ h = head('Wie streng war\'s?'); body = `<div class="fbk-opts n5" style="--n:5">${STRAIN.map((s, k) => opt(k + 1, strainSVG(k + 1) + s[0])).join('')}</div>`; }
+    if (st === 'fun'){ h = head('Wie viel Spass hat\'s gemacht?'); body = `<div class="fbk-opts" style="--n:3">${opt(1, faceSVG(1) + 'Ging so')}${opt(2, faceSVG(2) + 'Okay')}${opt(3, faceSVG(3) + 'Mega')}</div>`; }
+    if (st === 'pain'){ h = head('Tut dir etwas weh?'); body = `<div class="fbk-opts" style="--n:2">${opt('no', 'Nein, alles gut', 'ok')}${opt('yes', 'Ja, etwas tut weh', 'bad')}</div>`; }
+    if (st === 'area'){ h = head('Wo tut es weh?', 'Tippe auf die Stelle.'); body = `<div class="fbk-body">${bodySVG(res.area)}<div class="fbk-opts n6" style="--n:2">${PAIN_AREAS.map(a => opt(a.id, a.label, res.area === a.id ? 'bad' : '')).join('')}</div></div>`; }
+    if (st === 'level'){ h = head(`Wie stark tut ${painPhrase(res.area, false)} weh?`); body = `<div class="fbk-opts" style="--n:2">${opt('leicht', 'Zwickt nur<small>Ich kann gut laufen und springen</small>')}${opt('stark', 'Tut richtig weh<small>Es stört bei Bewegung</small>', 'bad')}</div>`; }
+    ov.innerHTML = `<div class="fbk-card">${h}${body}<button class="fbk-skip">${o.training ? 'Überspringen' : 'Abbrechen'}</button></div>`;
+    ov.querySelector('.fbk-skip').onclick = () => { res.skipped = true; if (o.training) done(); else { ov.remove(); if (o.onCancel) o.onCancel(); } };
+    ov.querySelectorAll('[data-v],[data-area]').forEach(b => b.onclick = () => {
+      const v = b.dataset.v || b.dataset.area;
+      if (st === 'strain') res.strain = +v;
+      if (st === 'fun') res.fun = +v;
+      if (st === 'pain'){ res.pain = v === 'yes'; if (res.pain) steps.push('area', 'level'); }
+      if (st === 'area') res.area = v;
+      if (st === 'level') res.level = v;
+      i++; if (i >= steps.length) done(); else render();
+    });
+  }
+  render();
+}
+function painPauseHTML(ps){
+  return `
+      <div class="mc2-coach"><div class="mc2-bubble"><small>Coach</small><h1>Heute ist Pause, ${PROFILE.name}.</h1></div></div>
+      <article class="mc2-rec pain-pause"><div class="mc2-rec-txt">
+        <p class="eyebrow red">Pausenmodus · ${painPhrase(ps.area, true)} tut weh</p>
+        <h2>Erst wieder gesund werden</h2>
+        <p class="mc2-why">Sag Mama oder Papa Bescheid, dass ${painPhrase(ps.area, false)} weh tut. Wird es nicht besser, lass es von einer Ärztin, einem Arzt oder in der Physio anschauen.</p>
+        <p class="muted">Deine Serie bleibt geschützt. Trainieren geht wieder, sobald deine Eltern es im Eltern-Bereich freigeben.</p>
+      </div></article>`;
+}
+const painFollowHTML = ps => `<div class="pain-follow"><h3>Tut ${painPhrase(ps.area, false)} noch weh?</h3><div><button class="btn btn-ghost btn-small" data-follow="yes">Ja, noch</button><button class="btn btn-primary btn-small" data-follow="no">Nein, alles gut</button></div></div>`;
+function painParentsHTML(){
+  const pp = progress.painPause, L = painList().slice(-10).reverse(), fb = lastFeedbacks(8);
+  const fd = t => new Date(t).toLocaleDateString('de-CH', { weekday:'short', day:'numeric', month:'numeric' });
+  return `<div class="parents"><div class="pbox">
+      <p class="eyebrow">Schmerzen und Belastung</p>
+      ${pp ? `<p class="pain-alert"><b>Pausenmodus aktiv</b> seit ${fd(pp.since)}: ${painInfo(pp.area).label} (${pp.why}). Trainings sind gesperrt.</p>
+        <div><button class="btn btn-primary btn-small" data-pain-release>Training wieder freigeben</button></div>` : '<p>Kein Pausenmodus aktiv.</p>'}
+      ${L.length ? `<ul class="pain-list">${L.map(r => `<li><span>${fd(r.at)} · ${painInfo(r.area).label}</span><span>${r.level === 'stark' ? 'Tut richtig weh' : 'Zwickt'} · ${r.src === 'training' ? 'nach Training' : 'Check-in'}</span></li>`).join('')}</ul>` : '<p>Noch keine Schmerzmeldungen.</p>'}
+      ${fb.length ? `<p>Wie streng die letzten Trainings waren (links alt, rechts neu):</p>
+        <div class="strain-row" aria-label="Belastung der letzten Trainings">${fb.map(e => `<span title="${STRAIN[e.fb.strain - 1][0]}" style="height:${e.fb.strain * 20}%;background:${STRAIN[e.fb.strain - 1][1]}"></span>`).join('')}</div>` : ''}
+    </div></div>`;
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('[data-pain-release]'); if (!b) return;
+  if (!confirm('Training wieder freigeben?')) return;
+  progress.painPause = null; progress.painOk = new Date().toISOString(); saveProgress(); renderParents();
+});
 const feelStore = () => { const f = store.get('apc.feel.v1', null); return f && f.day === new Date().toDateString() ? f.id : null; };
 function gameSoon(){ const t = new Date(), tm = new Date(Date.now() + 864e5); return { today:isGame(week[dayKey(t)]), tomorrow:isGame(week[dayKey(tm)]) }; }
 function nextInRotation(after){
@@ -2773,6 +2933,19 @@ function nextInRotation(after){
 const leastDone = list => list.slice().sort((a, b) => timesDone(a) - timesDone(b) || MISSIONS.indexOf(a) - MISSIONS.indexOf(b))[0];
 function recommend(feel, today){
   const AV = MISSIONS.filter(m => !isLocked(m)), low = AV.filter(m => m.load === 'niedrig'), g = gameSoon();
+  const ps = painState();
+  if (ps.mode === 'schonung' || ps.mode === 'nachfragen'){
+    const easy = low.filter(m => m.pillars.some(p => /Beweglichkeit|Regeneration|Konzentration|Mentale/.test(p)));
+    return { m: leastDone(easy) || leastDone(low) || nextInRotation(), why:`${painPhrase(ps.area, true)} zwickt – heute nur leichte Belastung. Hör auf deinen Körper.` };
+  }
+  const fb = lastFeedbacks(2);
+  if (feel === 'fit' && fb.length === 2 && fb.every(e => e.fb.strain >= 5)){
+    return { m: leastDone(low) || nextInRotation(), why:'Die letzten zwei Trainings waren «Hammer» – heute etwas ruhiger, damit du stärker zurückkommst.' };
+  }
+  if (feel === 'fit' && fb.length && fb[fb.length - 1].fb.fun === 1 && !(today.planned && !today.done)){
+    const lastId = fb[fb.length - 1].mission, other = AV.filter(m => m.id !== lastId && m.id !== (today.m && today.m.id));
+    if (other.length) return { m: leastDone(other), why:'Letztes Mal war\'s nicht so lustig – heute probieren wir etwas anderes.' };
+  }
   if (feel === 'tired'){
     return { m: leastDone(low) || nextInRotation(), why:'Heute ruhiger: wenig Belastung, trotzdem XP für deine Saison.' };
   }
@@ -2804,7 +2977,9 @@ function renderCenter(){
   const feel = feelStore() || (g.today || g.tomorrow ? 'match' : 'fit');
   const h = new Date().getHours(), hello = h < 11 ? 'Guten Morgen' : h < 18 ? 'Hey' : 'Guten Abend';
   let mainHTML;
-  if (today.done){
+  const ps = painState();
+  if (ps.mode === 'pause'){ mainHTML = painPauseHTML(ps); renderCenter.rec = null; }
+  else if (today.done){
     const nx = nextInRotation(today.m.id);
     mainHTML = `
       <div class="mc2-coach"><div class="mc2-bubble"><small>Coach</small><h1>Stark, ${PROFILE.name}! Heute ist erledigt.</h1></div></div>
@@ -2826,6 +3001,7 @@ function renderCenter(){
     mainHTML = `
       <div class="mc2-coach"><div class="mc2-bubble"><small>Coach · ${DAYS[(new Date().getDay() + 6) % 7][1]}</small><h1>${hello} ${PROFILE.name}! Wie fühlst du dich heute?</h1></div></div>
       ${dayContextHTML()}
+      ${ps.mode === 'nachfragen' ? painFollowHTML(ps) : ''}
       <div class="mc2-feels" role="group" aria-label="Wie fühlst du dich?">
         ${FEELS.map(f => `<button class="mc2-feel" data-feel="${f.id}" aria-pressed="${f.id === feel}">${ICO(f.icon)}<span>${f.label}</span></button>`).join('')}
       </div>
@@ -2871,12 +3047,22 @@ function renderCenter(){
     </div>
     ${weekViewHTML()}
   </div>`;
-  const fig = today.done ? today.m : renderCenter.rec;
+  const fig = ps.mode === 'pause' ? null : today.done ? today.m : renderCenter.rec;
   if (fig) Anim.mount($('mc2-fig'), fig.demo);
   bindMissionButtons($('screen-center'));
   document.querySelectorAll('[data-feel]').forEach(b => b.onclick = () => {
+    if (b.dataset.feel === 'pain'){
+      feedbackFlow({ steps:['area', 'level'], title:'Etwas tut weh', onDone:res => {
+        if (res.area){ addPain(res.area, res.level || 'leicht', 'checkin'); store.set('apc.feel.v1', { day:new Date().toDateString(), id:'pain' }); }
+        renderCenter(); } });
+      return;
+    }
     store.set('apc.feel.v1', { day:new Date().toDateString(), id:b.dataset.feel });
     renderCenter();
+  });
+  document.querySelectorAll('[data-follow]').forEach(b => b.onclick = () => {
+    if (b.dataset.follow === 'no'){ progress.painOk = new Date().toISOString(); saveProgress(); renderCenter(); return; }
+    feedbackFlow({ steps:['level'], preset:{ area:ps.area }, title:'Etwas tut weh', onDone:res => { addPain(ps.area, res.level || 'leicht', 'checkin'); renderCenter(); } });
   });
   { const o = $('mc2-other'); if (o) o.onclick = openMissions; }
   { const tb = $('btn-testday'); if (tb) tb.onclick = openTestday; }
@@ -2962,14 +3148,100 @@ function openProgress(){
     ${seasonCardHTML()}
     <div class="hub-grid">${playerBtnHTML()}${trophyButtonHTML()}</div>
     <button class="all-trainings" id="btn-records"><span><b>Rekorde &amp; Testtag</b><small>${Object.keys(METRICS).filter(m => recList(m).length).length} von ${Object.keys(METRICS).length} Messwerten erfasst${(progress.tests || []).length ? ' · ' + progress.tests.length + ' Testtag' + (progress.tests.length > 1 ? 'e' : '') : ''}</small></span><span class="arrow" aria-hidden="true"></span></button>
+    <button class="all-trainings" id="btn-analytics"><span><b>Analytics</b><small>${(progress.log || []).filter(e => e.fb && e.fb.strain).length} Feedbacks · Belastung, Spass und Schmerzen auswerten</small></span><span class="arrow" aria-hidden="true"></span></button>
     <button class="all-trainings" id="btn-log"><span><b>Logbuch</b><small>${(progress.log || []).length} Trainings · Kalender und Liste</small></span><span class="arrow" aria-hidden="true"></span></button>
   </div>`;
   $('btn-log').onclick = () => openLog();
+  $('btn-analytics').onclick = openAnalytics;
   $('btn-season').onclick = openSeason;
   $('btn-card').onclick = openCard;
   $('btn-trophies').onclick = openTrophies;
   $('btn-records').onclick = openRecords;
   show('progress');
+}
+
+/* ---- Analytics: Auswertung der Feedbacks (Belastung, Spass, Schmerzen, Trainings pro Woche) ---- */
+function openAnalytics(){
+  Voice.stop();
+  const DAY = 864e5, now = Date.now();
+  const log = (progress.log || []).slice().sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
+  const fbl = log.filter(e => e.fb && e.fb.strain), last = fbl.slice(-20);
+  const pains = painList().slice().sort((a, b) => Date.parse(a.at) - Date.parse(b.at)), p30 = pains.filter(r => now - Date.parse(r.at) < 30 * DAY);
+  const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+  const aS = avg(last.map(e => e.fb.strain)), aF = avg(last.filter(e => e.fb.fun).map(e => e.fb.fun));
+  const fd = t => new Date(t).toLocaleDateString('de-CH', { day:'numeric', month:'numeric' });
+  const mName = id => { const m = MISSIONS.find(x => x.id === id); return m ? m.title : id; };
+  const FUN = ['Ging so', 'Okay', 'Mega'];
+
+  // 1) Verlauf Belastung (Balken) und Spass (Linie) der letzten 20 Trainings
+  let trend = '<p class="an-empty">Noch keine Feedbacks. Nach jedem Training erscheinen hier Belastung und Spass.</p>';
+  if (last.length){
+    const W = 600, H = 200, pl = 34, pb = 26, cw = (W - pl - 10) / Math.max(last.length, 1), bw = Math.min(26, cw * .62), y = v => H - pb - (v / 5) * (H - pb - 14);
+    const grid = [1, 2, 3, 4, 5].map(v => `<line x1="${pl}" x2="${W - 6}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${pl - 8}" y="${y(v) + 4}" fill="var(--muted)" font-size="11" text-anchor="end">${v}</text>`).join('');
+    const bars = last.map((e, k) => { const x = pl + k * cw + (cw - bw) / 2, v = e.fb.strain; return `<rect x="${x.toFixed(1)}" y="${y(v).toFixed(1)}" width="${bw.toFixed(1)}" height="${(H - pb - y(v)).toFixed(1)}" rx="3" fill="${STRAIN[v - 1][1]}"><title>${fd(e.at)} · ${mName(e.mission)} · ${STRAIN[v - 1][0]}${e.fb.fun ? ' · Spass: ' + FUN[e.fb.fun - 1] : ''}</title></rect>`; }).join('');
+    const pts = last.map((e, k) => e.fb.fun ? [pl + k * cw + cw / 2, y(e.fb.fun * 5 / 3)] : null).filter(Boolean);
+    const line = pts.length > 1 ? `<polyline points="${pts.map(q => q.map(n => n.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="var(--ice)" stroke-width="2.5" stroke-linejoin="round"/>` : '';
+    const dots = pts.map(q => `<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="4" fill="var(--ice)"/>`).join('');
+    const pain = last.map((e, k) => e.fb.pain ? `<text x="${(pl + k * cw + cw / 2).toFixed(1)}" y="${H - 8}" fill="var(--red)" font-size="14" font-weight="800" text-anchor="middle">!</text>` : '').join('');
+    trend = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Belastung und Spass der letzten ${last.length} Trainings">${grid}${bars}${line}${dots}${pain}</svg>
+      <div class="an-legend"><span><i style="background:${STRAIN[3][1]}"></i>Belastung (1 Locker – 5 Hammer)</span><span><i style="background:var(--ice)"></i>Spass</span><span><b style="color:var(--red)">!</b> Schmerz gemeldet</span></div>`;
+  }
+
+  // 2) Trainings pro Woche (letzte 8 Wochen) mit Wochenziel
+  const wk0 = weekStart(new Date().toISOString()), weeks = [];
+  for (let k = 7; k >= 0; k--){ const ws = weekStart(new Date(wk0 - k * 7 * DAY + DAY).toISOString()); weeks.push({ ws, n:log.filter(e => weekStart(e.at) === ws).length, pause:!!(progress.pauseWeeks || {})[ws] }); }
+  const maxN = Math.max(weekTarget(), ...weeks.map(w => w.n), 1);
+  const WW = 600, WH = 170, wb = 24, wy = v => WH - wb - (v / maxN) * (WH - wb - 14), wcw = (WW - 20) / 8;
+  const weekSVG = `<svg viewBox="0 0 ${WW} ${WH}" role="img" aria-label="Trainings pro Woche">
+    <line x1="10" x2="${WW - 10}" y1="${wy(weekTarget())}" y2="${wy(weekTarget())}" stroke="var(--gold)" stroke-dasharray="6 5" stroke-width="1.5"/>
+    ${weeks.map((w, k) => { const x = 10 + k * wcw + wcw * .2, bwid = wcw * .6;
+      return `${w.n ? `<rect x="${x.toFixed(1)}" y="${wy(w.n).toFixed(1)}" width="${bwid.toFixed(1)}" height="${(WH - wb - wy(w.n)).toFixed(1)}" rx="4" fill="${w.n >= weekTarget() ? 'var(--ok)' : 'var(--ice)'}"/>` : ''}
+        <text x="${(x + bwid / 2).toFixed(1)}" y="${(w.n ? wy(w.n) - 6 : WH - wb - 6).toFixed(1)}" fill="var(--text)" font-size="13" text-anchor="middle">${w.n}${w.pause ? ' · Pause' : ''}</text>
+        <text x="${(x + bwid / 2).toFixed(1)}" y="${WH - 6}" fill="var(--muted)" font-size="11" text-anchor="middle">${k === 7 ? 'Diese' : fd(w.ws)}</text>`; }).join('')}</svg>
+    <div class="an-legend"><span><i style="background:var(--ok)"></i>Wochenziel erreicht</span><span><i style="background:var(--gold)"></i>Wochenziel (${weekTarget()})</span></div>`;
+
+  // 3) Schmerzen nach Körperstelle (90 Tage)
+  const p90 = pains.filter(r => now - Date.parse(r.at) < 90 * DAY), byArea = {};
+  p90.forEach(r => { const a = byArea[r.area] = byArea[r.area] || { n:0, stark:0 }; a.n++; if (r.level === 'stark') a.stark++; });
+  const maxA = Math.max(1, ...Object.values(byArea).map(a => a.n));
+  const painHTML = p90.length ? `<div class="an-bars">${PAIN_AREAS.filter(a => byArea[a.id]).sort((a, b) => byArea[b.id].n - byArea[a.id].n).map(a => `<div class="an-bar"><span>${a.label}</span><div><span style="width:${byArea[a.id].n / maxA * 100}%;background:${byArea[a.id].stark ? 'var(--red)' : 'var(--gold)'}"></span></div><b>${byArea[a.id].n}×</b></div>`).join('')}</div>
+      <div class="an-legend"><span><i style="background:var(--gold)"></i>nur «zwickt»</span><span><i style="background:var(--red)"></i>mindestens einmal «tut richtig weh»</span></div>
+      <p class="muted">Letzte Meldung: ${fd(pains[pains.length - 1].at)} · ${painInfo(pains[pains.length - 1].area).label} · ${pains[pains.length - 1].level === 'stark' ? 'tut richtig weh' : 'zwickt'}</p>`
+    : '<p class="an-empty">In den letzten 90 Tagen keine Schmerzen gemeldet.</p>';
+
+  // 4) Spass nach Trainings-Set
+  const byM = {}; fbl.filter(e => e.fb.fun).forEach(e => { const m = byM[e.mission] = byM[e.mission] || { s:0, n:0, st:0 }; m.s += e.fb.fun; m.st += e.fb.strain; m.n++; });
+  const mRows = Object.entries(byM).map(([id, m]) => ({ id, fun:m.s / m.n, strain:m.st / m.n, n:m.n })).sort((a, b) => b.fun - a.fun || b.n - a.n);
+  const funHTML = mRows.length ? `<div class="an-bars">${mRows.slice(0, 8).map(r => `<div class="an-bar"><span title="${mName(r.id)}">${mName(r.id)}</span><div><span style="width:${(r.fun / 3 * 100).toFixed(0)}%;background:var(--ice)"></span></div><b>${r.fun >= 2.5 ? 'Mega' : r.fun >= 1.75 ? 'Okay' : 'Ging so'}</b></div>`).join('')}</div><p class="muted">Durchschnitt pro Set, ${mRows.length > 8 ? 'die 8 beliebtesten' : 'alle bewerteten Sets'}.</p>`
+    : '<p class="an-empty">Noch keine Bewertungen.</p>';
+
+  // 5) Hinweise
+  const hints = [];
+  const l3 = fbl.slice(-3);
+  if (l3.length === 3 && l3.every(e => e.fb.strain >= 4)) hints.push('Die letzten 3 Trainings waren «Streng» oder «Hammer». Ein lockerer Tag dazwischen tut gut.');
+  if (aS !== null && aS <= 2 && fbl.length >= 5) hints.push('Die Trainings wirken eher locker. Es darf ruhig mal ein Set mit hoher Belastung sein.');
+  Object.entries(byArea).forEach(([id, a]) => { if (a.n >= 3) hints.push(`${painInfo(id).label}: ${a.n} Meldungen in 90 Tagen. Das sollte sich eine Fachperson anschauen.`); });
+  if (progress.painPause) hints.push(`Pausenmodus aktiv (${painInfo(progress.painPause.area).label}). Freigabe im Eltern-Bereich.`);
+  const lowFun = mRows.filter(r => r.n >= 2 && r.fun < 1.75); if (lowFun.length) hints.push(`Wenig Spass bei: ${lowFun.map(r => mName(r.id)).join(', ')}.`);
+  if (!hints.length) hints.push(fbl.length ? 'Alles im grünen Bereich – weiter so!' : 'Sobald ein paar Feedbacks da sind, erscheinen hier Hinweise.');
+
+  $('screen-analytics').innerHTML = `
+  <div class="inner trophies hub">
+    <div class="tr-head"><div><p class="eyebrow">Fortschritt</p><h1>Analytics</h1></div>
+      <button class="btn btn-ghost btn-small" id="btn-an-back"><span class="arrow back" aria-hidden="true"></span> Fortschritt</button></div>
+    <div class="stats">
+      <div class="stat"><small>Feedbacks</small><b>${fbl.length}</b></div>
+      <div class="stat"><small>Ø Belastung (letzte 20)</small><b>${aS === null ? '–' : STRAIN[Math.round(aS) - 1][0]}<em>${aS === null ? '' : ' ' + aS.toFixed(1)}</em></b></div>
+      <div class="stat"><small>Ø Spass (letzte 20)</small><b>${aF === null ? '–' : FUN[Math.round(aF) - 1]}</b></div>
+    </div>
+    <section class="an-box"><p class="eyebrow">Hinweise</p><ul class="an-hints">${hints.map(h => `<li>${h}</li>`).join('')}</ul></section>
+    <section class="an-box"><p class="eyebrow">Verlauf</p><h3>Belastung und Spass</h3>${trend}</section>
+    <section class="an-box"><p class="eyebrow">Regelmässigkeit</p><h3>Trainings pro Woche</h3>${weekSVG}</section>
+    <section class="an-box"><p class="eyebrow">Schmerzen · 90 Tage</p><h3>Nach Körperstelle</h3>${painHTML}<p class="muted">${p30.length} Meldungen in den letzten 30 Tagen.</p></section>
+    <section class="an-box"><p class="eyebrow">Spass</p><h3>Beliebteste Sets</h3>${funHTML}</section>
+  </div>`;
+  $('btn-an-back').onclick = openProgress;
+  show('analytics');
 }
 
 /* ---- Eltern: Wochenplan und Einstellungen ---- */
@@ -2993,6 +3265,7 @@ function renderParents(){
       <div class="bk-row">${CardImgs.list().length < CardImgs.MAX ? '<label class="btn btn-ghost btn-small">Bilder hinzufügen<input type="file" id="btn-img-add" accept="image/*" multiple class="file-hidden"></label>' : ''}</div>
       <p id="img-msg" aria-live="polite"></p>
     </div></div>
+    ${painParentsHTML()}
     <div class="parents"><div class="pbox backup">
       <p class="eyebrow">Sicherung</p>
       <p>Speichert Name, Fortschritt, Wochenplan, Einstellungen und Coach-Aufnahmen als Datei. Damit lässt sich der Stand nach einem Gerätewechsel oder Datenverlust wiederherstellen.</p>
@@ -3291,6 +3564,7 @@ async function keepAwake(){ try { if ('wakeLock' in navigator && !wake){ wake = 
 function releaseWake(){ try { if (wake) wake.release(); } catch(e){} wake = null; }
 
 function startMission(){
+  if (progress.painPause){ renderCenter(); show('center'); return; }   // Pausenmodus: erst nach Freigabe der Eltern
   Sound.unlock(); Voice.stop();
   preloadClips(); coachSay('Ready…', 'en');   // im Tipp: Aufnahme abspielen bzw. Stimme auf dem iPad freischalten
   show('player');
@@ -3306,6 +3580,7 @@ function startMission(){
   });
 }
 function backToCenter(){
+  document.querySelectorAll('.fbk').forEach(x => x.remove());
   Engine.stop(); releaseWake(); closePause();
   renderCenter(); show('center');
   Sound.setMode('calm');
@@ -3489,6 +3764,7 @@ function onPhaseEnter(p, i, prev){
         <p class="muted">${r.test ? 'Testlauf: wird nicht gespeichert. ' : ''}${hasReward ? 'Gleich: deine Belohnungen …' : 'Zurück zum Mission Center …'}</p></div>`;
       Voice.speak(COACH.complete);
       confetti();
+      after = () => { Engine.pause(); feedbackFlow({ steps:['strain', 'fun', 'pain'], training:true, title:'Wie war\'s?', onDone:res => { saveTrainingFeedback(res, r.test); Engine.resume(); } }); };
       break;
     }
     case 'REWARD': {
