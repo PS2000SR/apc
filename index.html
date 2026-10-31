@@ -2602,7 +2602,8 @@ const secSeconds = (T, sec) => T.filter(p => p.sec === sec).reduce((a, p) => a +
    ===================================================================== */
 const DAYS = [ ['mo','Montag','Mo'], ['di','Dienstag','Di'], ['mi','Mittwoch','Mi'], ['do','Donnerstag','Do'], ['fr','Freitag','Fr'], ['sa','Samstag','Sa'], ['so','Sonntag','So'] ];
 const CLUB_DEFAULT = ['di', 'mi', 'fr'];   // übliche Club-Trainingstage (On-Ice + Off-Ice)
-const week = (() => { const saved = store.get('apc.week.v1', null), w = saved || {}; if (!saved) CLUB_DEFAULT.forEach(k => { w[k] = { ice:true, offIce:true }; }); DAYS.forEach(([k]) => { w[k] = Object.assign({ ice:false, iceTime:'', offIce:true, match:false, tour:false, gameTime:'', set:'' }, w[k] || {}); }); return w; })();
+const week = (() => { const saved = store.get('apc.week.v1', null), w = saved || {}; if (!saved || (!store.get('apc.clubdef.v1', false) && !Object.values(saved).some(d => d && d.ice))) CLUB_DEFAULT.forEach(k => { w[k] = Object.assign({}, w[k] || {}, { ice:true, offIce:true }); });   // einmalig: ohne Eistage die üblichen Clubtage Di, Mi, Fr setzen
+  store.set('apc.clubdef.v1', true); DAYS.forEach(([k]) => { w[k] = Object.assign({ ice:false, iceTime:'', offIce:true, match:false, tour:false, gameTime:'', set:'' }, w[k] || {}); }); store.set('apc.week.v1', w); return w; })();
 const saveWeek = () => store.set('apc.week.v1', week);
 const dayKey = d => DAYS[(d.getDay() + 6) % 7][0];
 const dayIdx = k => DAYS.findIndex(d => d[0] === k);
