@@ -1410,7 +1410,7 @@ Object.assign(EXERCISES, {
 Object.assign(EXERCISES, {
   kbGoblet:     { anim:'kbGoblet', name:'Kettlebell Goblet Squat', goal:'Beinkraft und tiefe Skating-Position', instruction:'Kettlebell (6 kg) an den Griffen vor der Brust halten. Füsse schulterbreit, langsam tief in die Hocke, Brust bleibt oben, Knie zeigen über die Zehen. Kräftig hochdrücken.', coach:'Brust hoch, tief runter, kräftig hoch!' },
   kbDead:       { anim:'kbDead', name:'Kettlebell Kreuzheben', goal:'Hüftkraft für den Skating-Abstoss', instruction:'Kettlebell (8 kg) zwischen den Füssen. Po nach hinten schieben, Rücken gerade, mit gestreckten Armen greifen. Hüfte nach vorn drücken und aufrichten, dann kontrolliert absenken.', coach:'Rücken gerade, Hüfte nach vorn!' },
-  kbFarmer:     { anim:'kbFarmer', name:'Farmer’s Carry', goal:'Griffkraft und stabiler Rumpf', instruction:'In jeder Hand eine Kettlebell (je 6 kg). Aufrecht und mit ruhigen Schritten zwischen zwei Markierungstellern hin und her gehen. Schultern tief, Bauch fest.', coach:'Gross machen, Schultern tief!' },
+  kbFarmer:     { anim:'kbFarmer', name:'Goblet Carry', goal:'Stabiler Rumpf und aufrechte Haltung', instruction:'Eine Kettlebell (8 kg) an den Griffen vor der Brust halten. Aufrecht und mit ruhigen Schritten zwischen zwei Markierungstellern hin und her gehen. Ellbogen nah am Körper, Bauch fest.', coach:'Gross machen, Bauch fest!' },
   kbSuitcase:   { anim:'kbSuitcase', name:'Suitcase Carry', goal:'Seitliche Rumpfstabilität für Zweikämpfe', instruction:'Eine Kettlebell (6–8 kg) nur in einer Hand tragen und hin und her gehen, ohne zur Seite zu kippen. Nach der Hälfte die Hand wechseln.', coach:'Nicht kippen, ganz gerade bleiben!' },
   kbHalo:       { anim:'kbHalo', name:'Kettlebell Halo', goal:'Freie Schultern für Schuss und Pass', instruction:'Leichte Kettlebell (4 kg) an den Griffen kopfüber halten und langsam um den Kopf kreisen. Bauch fest, Kopf ruhig. Nach der Hälfte die Richtung wechseln.', coach:'Langsam kreisen, Bauch fest!' },
   kbSwing:      { anim:'kbSwing', name:'Kettlebell Swing', goal:'Explosive Hüfte', instruction:'Leichte Kettlebell (6 kg) mit beiden Händen. Hüfte nach hinten schieben, Kettlebell zwischen den Beinen nach hinten schwingen, dann die Hüfte explosiv nach vorn strecken. Die Kettlebell schwingt nur bis Brusthöhe – die Kraft kommt aus der Hüfte, nicht aus den Armen.', coach:'Hüfte schnappt nach vorn!' },
@@ -1725,16 +1725,16 @@ const SETS = [
     challenge:{ name:'Complete Champion', text:'Schaffe alle 6 Stationen ohne Überspringen – mit sauberer Technik bis zur letzten Wiederholung!', levels:['4 Stationen sauber','5 Stationen sauber','alle 6 Stationen sauber'] } }),
   /* ===== Neue Trainings (Nov. 2026) mit den neuen Geräten – Vermerk «Neues Training» ===== */
   makeSet({ n:22, isNew:true, load:'mittel', title:'Kettlebell Strength', tagline:'Stark im Zweikampf. Stabil an der Bande.', desc:'Kraft-Grundlagen mit der Kettlebell: Beine, Hüfte, Rumpf und Schultern.',
-    pillars:['Kraft','Stabilität'], equipment:['Kettlebells 4 / 6 / 8 kg','Markierungsteller','Springseil','Blackroll Mat'], dauer:'25–30',
+    pillars:['Kraft','Stabilität'], equipment:['Kettlebell 4 kg','Kettlebell 6 kg','Kettlebell 8 kg','Markierungsteller','Springseil','Blackroll Mat'], dauer:'25–30',
     why:'Wer im Zweikampf stabil steht und kräftig aus der Hüfte abstösst, gewinnt mehr Pucks. Die Kettlebell trainiert genau diese Grundmuster – mit leichtem Gewicht und sauberer Technik.',
     warmup:[ W('jog', 30), W('hampelmann', 30), W('kniebeugen', 30, { name:'Kniebeugen ohne Gewicht' }), W('hueftkreisen', 30, { cues:[ { at:15, text:'Richtung wechseln!' } ] }), W('armRot', 30), W('ausfallRot', 30, S2), W('ropeBasic', 30, { name:'Springseil locker' }) ],
     wTip:'Zuerst ohne Gewicht sauber bewegen – dann kommt die Kettlebell.',
     mSub:'Saubere Technik vor Gewicht. Jede Wiederholung kontrolliert. Am Schluss ein kurzer Ausdauer-Finisher.',
     main:[ B('kbGoblet', 40, 3, 15), B('kbDead', 40, 3, 15), B('kbFarmer', 40, 3, 15), B('kbSuitcase', 60, 2, 15, S2), B('kbHalo', 40, 2, 15, { cues:[ { at:20, text:'Richtung wechseln!' } ] }),
            { repeat:2, between:RF(30), proAfter:false, steps:[ W('kbSwing', 15, { name:'Finisher: Kettlebell Swing' }), RF(15), W('ropeBasic', 30, { name:'Finisher: Springseil' }) ] } ],
-    tip:'Gewichte: Goblet Squat 6 kg, Kreuzheben 8 kg, Carries je 6 kg, Halo 4 kg. Wenn die Technik nachlässt: leichter nehmen.',
+    tip:'Gewichte: Goblet Squat 6 kg, Kreuzheben 8 kg, Goblet Carry 8 kg, Suitcase Carry 6 kg, Halo 4 kg, Swing 6 kg. Die 10 kg erst beim Kreuzheben, wenn die Technik über alle Durchgänge sauber bleibt. Wenn die Technik nachlässt: leichter nehmen.',
     cTip:'Starke Arbeit! Kraft wächst in der Erholung – trink genug und iss etwas.',
-    challenge:{ name:'Iron Grip', text:'Schaffe alle Farmer’s-Carry-Durchgänge, ohne die Kettlebells abzustellen!', levels:['1 Durchgang','2 Durchgänge','alle 3 Durchgänge'] } }),
+    challenge:{ name:'Iron Grip', text:'Schaffe alle Goblet-Carry-Durchgänge, ohne die Kettlebell abzusetzen!', levels:['1 Durchgang','2 Durchgänge','alle 3 Durchgänge'] } }),
 
   makeSet({ n:23, isNew:true, load:'hoch', title:'Medball & Slamball Power', tagline:'Mehr Power im Schuss. Mehr Wucht im Zweikampf.', desc:'Explosive Würfe mit Rebound-Medizinball und Slamball für Schuss, Pass und Check.',
     pillars:['Kraft','Schnelligkeit'], equipment:['Rebound-Medizinball 1 kg','Rebound-Medizinball 2 kg','Slamball 2 kg','Wand','Blackroll Mat'], ort:'Home / Garage (feste Wand)', dauer:'30',
@@ -1818,7 +1818,7 @@ const SETS = [
     challenge:{ name:'Third Period', text:'Schaffe alle 3 Runden mit sauberer Technik – auch in der letzten Station!', levels:['2 Runden','3 Runden','3 Runden ohne Pause verkürzt'] } }),
 
   makeSet({ n:29, isNew:true, load:'mittel', title:'Off-Ice komplett', tagline:'Dein ganzes Off-Ice-Training – zu Hause.', desc:'Ersatz für das Club-Off-Ice: Speed, Kraft, Ausdauer und Mobility in einer Einheit.',
-    pillars:['Schnelligkeit','Kraft','Ausdauer','Beweglichkeit'], equipment:['Mini-Hürden (6 Stück)','Markierungsteller','Kettlebells 6 / 8 kg','Rebound-Medizinball 2 kg','Springseil Velites','Blackroll Mat','Wand'], dauer:'45',
+    pillars:['Schnelligkeit','Kraft','Ausdauer','Beweglichkeit'], equipment:['Mini-Hürden (6 Stück)','Markierungsteller','Kettlebell 6 kg','Kettlebell 8 kg','Rebound-Medizinball 2 kg','Springseil Velites','Blackroll Mat','Wand'], dauer:'45',
     why:'Wenn du das Off-Ice-Training im Club auslässt, deckt diese Einheit alles ab: Schnelligkeit, Kraft, Ausdauer und Beweglichkeit – in der richtigen Reihenfolge.',
     wSub:'Fussgelenke, Knie und Hüfte gründlich bereit machen!',
     warmup:WARM8(), wTip:'Stell alle Geräte vor dem Start bereit.',
@@ -1826,7 +1826,7 @@ const SETS = [
     main:[ B('hhRun', 15, 3, 15, { name:'Speed: Hürden-Kniehebelauf' }), B('hhSprint', 15, 3, 15, { name:'Speed: Hürden + Sprint' }), B('mkColor', 20, 3, 15, { name:'Speed: Farben-Sprint' }),
            B('kbGoblet', 40, 3, 15, { name:'Kraft: Goblet Squat' }), B('kbDead', 40, 3, 15, { name:'Kraft: Kreuzheben' }),
            B('mbChest', 20, 3, 15, { name:'Kraft: Brustpass an die Wand' }), B('mbRot', 30, 2, 15, { name:'Kraft: Rotationswurf an die Wand', sides:true }),
-           B('kbFarmer', 40, 2, 15, { name:'Kraft: Farmer’s Carry' }), B('kbSuitcase', 40, 2, 15, { name:'Kraft: Suitcase Carry', sides:true }), B('plankHold', 40, 2, 15, { name:'Kraft: Plank' }),
+           B('kbFarmer', 40, 2, 15, { name:'Kraft: Goblet Carry' }), B('kbSuitcase', 40, 2, 15, { name:'Kraft: Suitcase Carry', sides:true }), B('plankHold', 40, 2, 15, { name:'Kraft: Plank' }),
            B('mkShuttle', 20, 3, 15, { name:'Ausdauer: Pendellauf' }),
            { repeat:6, between:RF(20), proAfter:false, steps:[ W('ropeEndu', 40, { name:'Ausdauer: Springseil 40/20' }) ] } ],
     tip:'Speed immer zuerst, solange du frisch bist. Am Freitag vor einem Spielwochenende: ruhiges Tempo, nicht ans Limit.',
@@ -2376,6 +2376,7 @@ Object.assign(ANIMS, {
   const chest = { la1:25, la2:165, ra1:22, ra2:162 };            // Ball / Kettlebell vor der Brust
   const kbStand = { t:4, ll1:3, ll2:0, rl1:-3, rl2:0, ...chest };
   const walkA = { ll1:18, ll2:5, rl1:-15, rl2:-10, la1:16, la2:12, ra1:12, ra2:8 };
+  const carryA = { ...walkA, la1:25, la2:165, ra1:22, ra2:162 }, carryB = { rl1:18, rl2:5, ll1:-15, ll2:-10, la1:25, la2:165, ra1:22, ra2:162 };
   const walkB = { rl1:18, rl2:5, ll1:-15, ll2:-10, la1:16, la2:12, ra1:12, ra2:8 };
   const hopLow = { t:28, ll1:62, ll2:-28, rl1:60, rl2:-30, la1:-40, la2:-25, ra1:-38, ra2:-23, lift:0 };
   const hopAir = { t:12, ll1:88, ll2:-42, rl1:86, rl2:-44, la1:110, la2:120, ra1:108, ra2:118, lift:30 };
@@ -2394,8 +2395,8 @@ Object.assign(ANIMS, {
                   { t:55, ll1:35, ll2:-15, rl1:33, rl2:-17, la1:-28, la2:-35, ra1:-30, ra2:-37, w:.8 },
                   { t:-4, ll1:2, ll2:0, rl1:-2, rl2:0, la1:88, la2:90, ra1:86, ra2:88, w:.7 } ],
                   props:J => kb(mid(J.lh, J.rh), armDir(J.re, J.rh)) },
-    kbFarmer:   { view:'side', period:1.3, bounce:2, keys:[ walkA, walkB ],
-                  props:(J, ph) => X.scroll(ph, .5, 120, x => dot(x, 'yellow')) + kb([J.lh[0] + 4, J.lh[1]]) + kb([J.rh[0] + 9, J.rh[1]]) },
+    kbFarmer:   { view:'side', period:1.3, bounce:2, keys:[ carryA, carryB ],
+                  props:(J, ph) => X.scroll(ph, .5, 120, x => dot(x, 'yellow')) + kb(mid(J.lh, J.rh), [0, 1]) },
     kbSuitcase: { view:'side', period:1.3, bounce:2, keys:[ walkA, walkB ],
                   props:(J, ph) => X.scroll(ph, .5, 120, x => dot(x, 'blue')) + kb([J.rh[0] + 5, J.rh[1]]) },
     kbHalo:     { view:'front', period:3, fn:ph => { const a = ph * Math.PI * 2, T = [Math.sin(a) * 20, -58 + Math.cos(a) * 4];
