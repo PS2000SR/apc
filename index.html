@@ -633,6 +633,10 @@ body.voice-off .stage .coach p{font-size:clamp(1.4rem,3.6vw,2rem)}
 .p-box{fill:var(--panel-2);stroke:var(--line);stroke-width:2}
 .p-boxtop{fill:var(--gold)}
 .p-hurdle{fill:none;stroke:var(--gold);stroke-width:4;stroke-linejoin:round}
+.p-kb{fill:#4A5568;stroke:var(--silver);stroke-width:1.6}
+.p-kbh{stroke:var(--silver);stroke-width:3.2;stroke-linecap:round}
+.p-numtxt{fill:var(--text);font:800 12px var(--f-display);text-anchor:middle}
+.new-badge{display:inline-block;align-self:flex-start;width:max-content;margin:3px 0 2px;padding:2px 9px;border-radius:999px;background:var(--red);color:#fff;font-family:var(--f-display);font-weight:800;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;line-height:1.5}
 .p-band{stroke:var(--red);stroke-width:3;stroke-linecap:round}
 .p-pad{fill:var(--blue)}
 .p-rope{fill:none;stroke:var(--ice);stroke-width:2.5}
@@ -1402,6 +1406,39 @@ Object.assign(EXERCISES, {
   dualThink:    { anim:'ladder', name:'Dual Task – Denken & Bewegen', goal:'Multitasking, Fokus unter Belastung', instruction:'In Bewegung bleiben (Leiter, Skater Jumps oder Ausfallschritte) und dabei die Rechenaufgaben lösen. Laut antworten.', coach:'Bewegen und denken!', calls:'math' }
 });
 
+/* ---- Neue Übungen mit den neuen Geräten (Nov. 2026) ---- */
+Object.assign(EXERCISES, {
+  kbGoblet:     { anim:'kbGoblet', name:'Kettlebell Goblet Squat', goal:'Beinkraft und tiefe Skating-Position', instruction:'Kettlebell (6 kg) an den Griffen vor der Brust halten. Füsse schulterbreit, langsam tief in die Hocke, Brust bleibt oben, Knie zeigen über die Zehen. Kräftig hochdrücken.', coach:'Brust hoch, tief runter, kräftig hoch!' },
+  kbDead:       { anim:'kbDead', name:'Kettlebell Kreuzheben', goal:'Hüftkraft für den Skating-Abstoss', instruction:'Kettlebell (8 kg) zwischen den Füssen. Po nach hinten schieben, Rücken gerade, mit gestreckten Armen greifen. Hüfte nach vorn drücken und aufrichten, dann kontrolliert absenken.', coach:'Rücken gerade, Hüfte nach vorn!' },
+  kbFarmer:     { anim:'kbFarmer', name:'Farmer’s Carry', goal:'Griffkraft und stabiler Rumpf', instruction:'In jeder Hand eine Kettlebell (je 6 kg). Aufrecht und mit ruhigen Schritten zwischen zwei Markierungstellern hin und her gehen. Schultern tief, Bauch fest.', coach:'Gross machen, Schultern tief!' },
+  kbSuitcase:   { anim:'kbSuitcase', name:'Suitcase Carry', goal:'Seitliche Rumpfstabilität für Zweikämpfe', instruction:'Eine Kettlebell (6–8 kg) nur in einer Hand tragen und hin und her gehen, ohne zur Seite zu kippen. Nach der Hälfte die Hand wechseln.', coach:'Nicht kippen, ganz gerade bleiben!' },
+  kbHalo:       { anim:'kbHalo', name:'Kettlebell Halo', goal:'Freie Schultern für Schuss und Pass', instruction:'Leichte Kettlebell (4 kg) an den Griffen kopfüber halten und langsam um den Kopf kreisen. Bauch fest, Kopf ruhig. Nach der Hälfte die Richtung wechseln.', coach:'Langsam kreisen, Bauch fest!' },
+  kbSwing:      { anim:'kbSwing', name:'Kettlebell Swing', goal:'Explosive Hüfte', instruction:'Leichte Kettlebell (6 kg) mit beiden Händen. Hüfte nach hinten schieben, Kettlebell zwischen den Beinen nach hinten schwingen, dann die Hüfte explosiv nach vorn strecken. Die Kettlebell schwingt nur bis Brusthöhe – die Kraft kommt aus der Hüfte, nicht aus den Armen.', coach:'Hüfte schnappt nach vorn!' },
+  mbChest:      { anim:'mbChest', name:'Rebound-Brustpass an die Wand', goal:'Explosive Arme für Pass und Check', instruction:'Rebound-Medizinball (2 kg) vor der Brust. Einen Meter vor der Wand stehen, den Ball explosiv an die Wand stossen, fangen und sofort wieder werfen.', coach:'Explosiv stossen, schnell fangen!' },
+  mbRot:        { anim:'mbRot', name:'Rotationswurf an die Wand', goal:'Rumpfkraft für den Schuss', instruction:'Seitlich zur Wand in Schussstellung stehen. Rebound-Ball (1 kg) auf Hüfthöhe nach hinten führen, dann aus Beinen und Hüfte drehen und kräftig an die Wand werfen. Nach der Hälfte die Seite wechseln – wie Vorhand und Rückhand.', coach:'Aus der Hüfte drehen – wie beim Schuss!' },
+  mbOverhead:   { anim:'mbOverhead', name:'Überkopfwurf an die Wand', goal:'Ganzkörper-Power', instruction:'Schrittstellung vor der Wand. Rebound-Ball (1 kg) über den Kopf nach hinten führen und mit dem ganzen Körper kräftig an die Wand werfen. Fangen und wiederholen.', coach:'Der ganze Körper wirft!' },
+  mbSquatThrow: { anim:'mbSquatThrow', name:'Squat-to-Throw', goal:'Sprungkraft und Power-Übertragung', instruction:'Rebound-Ball (2 kg) vor der Brust, tief in die Hocke. Explosiv aufrichten und den Ball hoch an die Wand werfen. Fangen und zurück in die Hocke.', coach:'Tief runter, explodieren!' },
+  slamBall:     { anim:'slam', name:'Slamball Slam', goal:'Explosivkraft und Rumpfspannung', instruction:'Slamball (2 kg) über den Kopf heben, mit dem ganzen Körper kräftig auf den Boden schlagen und wieder aufnehmen. Der Slamball springt nicht zurück – beim Aufheben in die Knie gehen, Rücken gerade.', coach:'Hoch – und mit Power runter!' },
+  slamRot:      { anim:'slam', name:'Slamball Slam mit Rotation', goal:'Rotationskraft für den Schuss', instruction:'Slamball (2 kg) über den Kopf heben und diagonal neben den Fuss schlagen. Seiten abwechseln. Beim Aufheben in die Knie gehen.', coach:'Diagonal und mit Power!' },
+  hhHop:        { anim:'hhHop', name:'Mini-Hürden Sprünge beidbeinig', goal:'Sprungkraft und schnelle Bodenkontakte', instruction:'6 Mini-Hürden im Abstand von etwa einem Meter. Beidbeinig über alle Hürden springen, leise auf den Fussballen landen und sofort weiter. Pro Durchgang eine Reihe (6 Sprünge), locker zurückgehen.', coach:'Leise landen, sofort weiter!' },
+  hhLat:        { anim:'hhLat', name:'Seitliche Hürdensprünge', goal:'Seitlicher Abstoss wie beim Crossover', instruction:'Neben einer Mini-Hürde stehen und beidbeinig seitlich hin und her springen. Knie leicht gebeugt, Oberkörper ruhig. Höchstens 12 Sprünge pro Durchgang, dann ausschütteln.', coach:'Kurz am Boden, schnell rüber!' },
+  hhRun:        { anim:'hhRun', name:'Hürden-Kniehebelauf', goal:'Schnelle Füsse und Kniehub', instruction:'Mit kurzen, schnellen Schritten und hohen Knien durch die 6 Mini-Hürden laufen – ein Fuss pro Zwischenraum. Die Arme arbeiten mit.', coach:'Knie hoch, schnelle Füsse!' },
+  hhSprint:     { anim:'hhRun', name:'Hürden + Sprint', goal:'Erster Schritt nach der Koordination', instruction:'Kniehebelauf durch die 6 Mini-Hürden, dann sofort 5 Meter Vollgas-Sprint bis zum Markierungsteller. Locker zurückgehen.', coach:'Raus aus den Hürden – Vollgas!' },
+  ropeBasic:    { anim:'rope', name:'Springseil Grundsprung', goal:'Fussgelenke und Rhythmus', instruction:'Velites-Seil locker aus den Handgelenken drehen, beidbeinig auf den Fussballen springen. Ellbogen nah am Körper.', coach:'Locker aus den Handgelenken!' },
+  ropeAlt:      { anim:'ropeKnees', name:'Springseil Laufschritt', goal:'Schnelle Füsse', instruction:'Im Laufschritt über das Seil – abwechselnd links und rechts, schnell und leicht auf den Fussballen.', coach:'Schnell und leicht!' },
+  ropeEndu:     { anim:'rope', name:'Springseil Ausdauer-Intervall', goal:'Ausdauer', instruction:'Ein gleichmässiges Tempo wählen, das du die ganze Zeit schaffst. Bei einem Fehler sofort weiterspringen.', coach:'Tempo halten, weiter atmen!' },
+  mkColor:      { anim:'markerColor', name:'Farben-Sprint zu den Markern', goal:'Reaktion und schnelle Entscheidung', instruction:'Je 2 Markierungsteller in Rot, Blau, Grün und Gelb im Halbkreis um dich, 3–4 Meter entfernt. Der Coach ruft eine Farbe: hinsprinten, Teller berühren, zurück zur Mitte.', coach:'Hören – sprinten – zurück!', calls:'colors5' },
+  mkNumber:     { anim:'markerNumbers', name:'Zahlen-Hütchen', goal:'Merken unter Belastung', instruction:'6 Hütchen mit Zahlenkarten 1–6 im Kreis verteilen. Der Coach ruft eine Zahlenfolge: merken und die Hütchen in dieser Reihenfolge antippen, dann zurück zur Mitte.', coach:'Merken, dann los!', calls:'seq6' },
+  mkShuttle:    { anim:'shuttle', name:'Pendellauf zwischen den Markern', goal:'Ausdauer und Richtungswechsel', instruction:'Zwei Markierungsteller 5 Meter auseinander. Hin und her laufen und bei jedem Teller mit der Hand den Boden berühren.', coach:'Tief wenden, weiter!' },
+  rbWall:       { anim:'throwCatchRed', name:'Reaktionsball an die Wand', goal:'Reaktion wie bei Rebounds vor dem Tor', instruction:'Reaktionsball aus 2 Metern auf den Boden vor der Wand werfen. Er springt unberechenbar zurück – fangen, egal wohin.', coach:'Augen auf den Ball!' },
+  rbDrop:       { anim:'dribble', name:'Reaktionsball Drop & Catch', goal:'Hand-Auge-Koordination', instruction:'Reaktionsball auf Brusthöhe fallen lassen und nach dem ersten Aufprall fangen. Profi-Stufe: nach dem Fangen 2 Shuffle-Schritte zur Seite und zurück.', coach:'Fangen nach dem ersten Bounce!' },
+  boxSprint:    { anim:'boxJump', name:'Box Jump + Sprint', goal:'Explosiver Antritt', instruction:'Soft-Plyo-Box auf 40 oder 50 cm. Beidbeinig hinaufspringen, leise landen, aufrichten, heruntersteigen – nie herunterspringen. Nach dem 3. Sprung 5 Meter Sprint zum Teller. Pro Durchgang 3 Sprünge.', coach:'Leise landen – dann Vollgas!' },
+  skaterBound:  { anim:'bounds', name:'Skater-Sprünge weit', goal:'Einbeiniger Abstoss wie beim Skating', instruction:'Weit seitlich von einem Bein aufs andere springen, auf einem Bein stabil landen und kurz halten. Höchstens 10 Sprünge pro Durchgang.', coach:'Weit abstossen, stabil landen!' },
+  boxStepUp:    { anim:'stepUp', name:'Step-ups mit Knieeinsatz', goal:'Einbeinige Kraft', instruction:'Einen Fuss ganz auf die Box (40 cm), hochdrücken und das andere Knie kräftig hochziehen. Kontrolliert absteigen. Nach der Hälfte das Bein wechseln.', coach:'Ganzer Fuss auf die Box, Knie hoch!' },
+  boxStepFast:  { anim:'boxStepFast', name:'Box-Step Intervall', goal:'Ausdauer', instruction:'Im zügigen Rhythmus auf die Box (40 cm) und wieder hinunter steigen: rauf, rauf, runter, runter. Nicht springen.', coach:'Rauf, rauf, runter, runter!' },
+  matAdductor:  { anim:'schmetterling', name:'Adduktoren dehnen (Schmetterling)', goal:'Leiste – beim Skating stark belastet', instruction:'Auf der Blackroll Mat sitzen, Fusssohlen zusammen, die Knie sanft nach unten sinken lassen. Rücken lang.', coach:'Locker lassen, ruhig atmen.' },
+  matOpenBook:  { anim:'lyingTwist', name:'Open Book', goal:'Brustwirbelsäule für Schuss und Rotation', instruction:'Seitlich auf der Matte liegen, Knie angewinkelt, Arme gestreckt vor dem Körper. Den oberen Arm wie ein Buch nach hinten aufklappen, der Blick folgt der Hand. Nach der Hälfte die Seite wechseln.', coach:'Langsam aufklappen, ausatmen.' }
+});
 /* =====================================================================
    ÜBUNGSSETS – Phase 1 · Athletic Foundation · Block 1
    Aufbau aus den Übungsset-Grafiken: Warm-up, Hauptteil (Durchgänge + Pause), Cool-down.
@@ -1411,6 +1448,10 @@ const B = (id, work, rounds, pause, o) => ({ repeat:rounds, between: pause ? brk
 const S2 = { sides:true };
 const COOL_STD = () => [ W('wadeWand', 40, S2), W('quad', 40, S2), W('hueftbeuger', 40, S2), W('ruecken', 20), W('breathSeat', 60) ];
 const WARM6 = last => [ W('jog', 30), W('hampelmann', 30), W('kniehebelauf', 30, { name:'High Knees' }), W('shuffle', 30, { name:'Seitliche Shuffle' }), W('armRot', 30), last ];
+const RF = d => ({ kind:'break', type:'rest', duration:d, fixed:true });   // Pause mit fester Länge (Zirkel / Intervalle)
+const WARM8 = () => [ W('jog', 40), W('hampelmann', 30), W('skipping', 30), W('askip', 30), W('anfersen', 30), W('dynAusfall', 40, S2),
+  W('beinpendel', 40, S2), W('ankleWall', 30, S2), W('pogo', 20), W('startschritt', 20) ];
+
 
 function makeSet(o){
   const id = 'set-' + String(o.n).padStart(2, '0');
@@ -1419,7 +1460,7 @@ function makeSet(o){
   return {
     id, n:o.n, label:'Übungsset ' + o.n, title:o.title, tagline:o.tagline || '', description:o.desc, desc:o.desc,
     load:o.load || 'mittel', pillars:o.pillars || [], equipment:o.equipment || [], ort:o.ort || 'Home / Garage', dauer:o.dauer || '',
-    why:o.why || null, challenge:o.challenge || null, tip:o.tip || null, playable:o.playable !== false,
+    why:o.why || null, challenge:o.challenge || null, isNew:!!o.isNew, tip:o.tip || null, playable:o.playable !== false,
     demo: firstMain ? animOf(firstMain) : 'jog',
     greeting:`Hallo ${PROFILE.name}! Übungsset ${o.n}: ${o.title}. Bereit?`,
     goal:o.desc, completionXP:100, previewSeconds:6, previewRepeatSeconds:4, countdownSeconds:3,
@@ -1681,7 +1722,118 @@ const SETS = [
     mSub:'Sechs Stationen aus Block 1. Volle Konzentration, saubere Technik.',
     main:[ B('sprintStart', 15, 3, 60), B('latCones', 20, 3, 45), B('jumpSquat', 15, 3, 75), B('reactiveCones', 20, 3, 45), B('plankTap', 30, 3, 30), B('ropeRun', 60, 2, 45) ],
     tip:'Champion heisst: Technik auch dann sauber, wenn du müde bist.',
-    challenge:{ name:'Complete Champion', text:'Schaffe alle 6 Stationen ohne Überspringen – mit sauberer Technik bis zur letzten Wiederholung!', levels:['4 Stationen sauber','5 Stationen sauber','alle 6 Stationen sauber'] } })
+    challenge:{ name:'Complete Champion', text:'Schaffe alle 6 Stationen ohne Überspringen – mit sauberer Technik bis zur letzten Wiederholung!', levels:['4 Stationen sauber','5 Stationen sauber','alle 6 Stationen sauber'] } }),
+  /* ===== Neue Trainings (Nov. 2026) mit den neuen Geräten – Vermerk «Neues Training» ===== */
+  makeSet({ n:22, isNew:true, load:'mittel', title:'Kettlebell Strength', tagline:'Stark im Zweikampf. Stabil an der Bande.', desc:'Kraft-Grundlagen mit der Kettlebell: Beine, Hüfte, Rumpf und Schultern.',
+    pillars:['Kraft','Stabilität'], equipment:['Kettlebells 4 / 6 / 8 kg','Markierungsteller','Springseil','Blackroll Mat'], dauer:'25–30',
+    why:'Wer im Zweikampf stabil steht und kräftig aus der Hüfte abstösst, gewinnt mehr Pucks. Die Kettlebell trainiert genau diese Grundmuster – mit leichtem Gewicht und sauberer Technik.',
+    warmup:[ W('jog', 30), W('hampelmann', 30), W('kniebeugen', 30, { name:'Kniebeugen ohne Gewicht' }), W('hueftkreisen', 30, { cues:[ { at:15, text:'Richtung wechseln!' } ] }), W('armRot', 30), W('ausfallRot', 30, S2), W('ropeBasic', 30, { name:'Springseil locker' }) ],
+    wTip:'Zuerst ohne Gewicht sauber bewegen – dann kommt die Kettlebell.',
+    mSub:'Saubere Technik vor Gewicht. Jede Wiederholung kontrolliert. Am Schluss ein kurzer Ausdauer-Finisher.',
+    main:[ B('kbGoblet', 40, 3, 15), B('kbDead', 40, 3, 15), B('kbFarmer', 40, 3, 15), B('kbSuitcase', 60, 2, 15, S2), B('kbHalo', 40, 2, 15, { cues:[ { at:20, text:'Richtung wechseln!' } ] }),
+           { repeat:2, between:RF(30), proAfter:false, steps:[ W('kbSwing', 15, { name:'Finisher: Kettlebell Swing' }), RF(15), W('ropeBasic', 30, { name:'Finisher: Springseil' }) ] } ],
+    tip:'Gewichte: Goblet Squat 6 kg, Kreuzheben 8 kg, Carries je 6 kg, Halo 4 kg. Wenn die Technik nachlässt: leichter nehmen.',
+    cTip:'Starke Arbeit! Kraft wächst in der Erholung – trink genug und iss etwas.',
+    challenge:{ name:'Iron Grip', text:'Schaffe alle Farmer’s-Carry-Durchgänge, ohne die Kettlebells abzustellen!', levels:['1 Durchgang','2 Durchgänge','alle 3 Durchgänge'] } }),
+
+  makeSet({ n:23, isNew:true, load:'hoch', title:'Medball & Slamball Power', tagline:'Mehr Power im Schuss. Mehr Wucht im Zweikampf.', desc:'Explosive Würfe mit Rebound-Medizinball und Slamball für Schuss, Pass und Check.',
+    pillars:['Kraft','Schnelligkeit'], equipment:['Rebound-Medizinball 1 kg','Rebound-Medizinball 2 kg','Slamball 2 kg','Wand','Blackroll Mat'], ort:'Home / Garage (feste Wand)', dauer:'30',
+    why:'Schuss, Pass und Check entstehen aus Beinen, Hüfte und Rumpf. Die Würfe trainieren genau diese Kraftübertragung – schnell und explosiv, wie auf dem Eis.',
+    warmup:[ W('jog', 30), W('hampelmann', 30), W('armRot', 30), W('ausfallRot', 30, S2), W('hueftkreisen', 30, { cues:[ { at:15, text:'Richtung wechseln!' } ] }), W('mbChest', 20, { name:'Brustpass locker (1 kg)' }) ],
+    wTip:'Schultern und Rumpf gut aufwärmen – gleich wird explosiv geworfen.',
+    mSub:'Jeder Wurf mit voller Power. Lieber weniger Würfe, dafür explosiv.',
+    main:[ B('mbChest', 20, 3, 90), B('mbRot', 30, 2, 90, S2), B('mbOverhead', 15, 2, 90), B('slamBall', 20, 3, 90),
+           { repeat:2, between:RF(30), proAfter:false, steps:[ W('slamRot', 20, { name:'Finisher: Slam mit Rotation' }), RF(15), W('climbers', 20, { name:'Finisher: Mountain Climbers' }) ] } ],
+    tip:'Nur an eine feste Wand werfen. Rebound-Bälle (1–2 kg) an die Wand, den Slamball nur auf den Boden.',
+    cTip:'Gut gemacht! Deine Schüsse werden es dir danken.',
+    challenge:{ name:'Power Thrower', text:'Schaffe alle Rotationswürfe auf beiden Seiten gleich kräftig!', levels:['1 Durchgang','2 Durchgänge','alle 3 Durchgänge'] } }),
+
+  makeSet({ n:24, isNew:true, load:'hoch', title:'Hurdle & Rope Speed', tagline:'Schnelle Füsse. Schneller erster Schritt.', desc:'Mini-Hürden, Sprints und Springseil-Intervalle für Schnelligkeit und Ausdauer.',
+    pillars:['Schnelligkeit','Koordination','Ausdauer'], equipment:['Mini-Hürden (6 Stück)','Markierungsteller','Springseil Velites','Blackroll Mat'], dauer:'30–35',
+    why:'Schnelle, leise Bodenkontakte machen deine Füsse auf dem Eis schneller. Der seitliche Abstoss ist wie ein Crossover, und der Sprint nach den Hürden trainiert den ersten Schritt. Das Springseil am Schluss baut Ausdauer auf.',
+    wSub:'Fussgelenke, Knie und Hüfte gründlich bereit machen!',
+    warmup:WARM8(), wTip:'Gründlich aufwärmen – Sprünge brauchen warme Fussgelenke und Knie.',
+    mSub:'Erst Sprünge und Sprints, dann der Ausdauerblock mit dem Springseil.',
+    main:[ B('hhHop', 10, 4, 90), B('hhLat', 20, 2, 90), B('hhSprint', 15, 3, 90),
+           { repeat:4, between:RF(20), proAfter:false, steps:[ W('ropeEndu', 40, { name:'Ausdauerblock: Springseil 40/20' }) ] } ],
+    tip:'Sprungzähler: rund 65 Sprünge in diesem Set – nicht mehr. Leise Landungen sind das Ziel, nicht möglichst viele Sprünge.',
+    cTip:'Atme tief durch. Deine Füsse haben heute richtig gearbeitet!',
+    challenge:{ name:'Silent Feet', text:'Spring über alle 6 Hürden, ohne eine zu berühren – und so leise, dass man dich kaum hört!', levels:['1 Reihe sauber','3 Reihen sauber','alle 4 Reihen sauber'] } }),
+
+  makeSet({ n:25, isNew:true, load:'niedrig', title:'Marker & Reaction', tagline:'Sehen. Entscheiden. Los!', desc:'Reaktion und Entscheidungen mit Markierungstellern, Zahlen-Hütchen und Reaktionsball.',
+    pillars:['Reaktion','Konzentration'], equipment:['Markierungsteller (4 Farben)','Hütchen','Zahlenkarten / Marker','Reaktionsball','Wand'], dauer:'20–25',
+    why:'Im Spiel entscheidest du in Sekundenbruchteilen, wohin der Puck geht. Farben, Zahlen und der unberechenbare Reaktionsball trainieren Kopf und Füsse gleichzeitig. Auch am Tag nach einem Spiel geeignet.',
+    wSub:'Aktiviere Körper und Kopf!',
+    warmup:[ W('jog', 30), W('hampelmann', 30), W('shuffle', 30, { name:'Seitliche Shuffle', sides:true }), W('kniehebelauf', 30, { name:'High Knees' }), W('armRot', 30), W('atmenStand', 30) ],
+    wTip:'Sei wach – gleich zählt jede Zehntelsekunde.',
+    mSub:'Hören, sehen, entscheiden – und erst dann bewegen.',
+    main:[ B('mkColor', 30, 4, 20), B('mkNumber', 45, 3, 20), B('rbWall', 30, 4, 20), B('rbDrop', 30, 4, 20),
+           { repeat:3, between:RF(20), proAfter:false, steps:[ W('mkShuttle', 20, { name:'Finisher: Pendellauf' }) ] } ],
+    tip:'Fehler sind erlaubt – wichtig ist, dass du schnell wieder bereit bist.',
+    cSub:'Runterfahren und den Kopf frei bekommen.', cTip:'Dein Kopf ist dein grösster Vorteil auf dem Eis!',
+    challenge:{ name:'Sharp Mind', text:'Merke dir 3 Zahlenfolgen hintereinander ohne Fehler!', levels:['1 Folge','2 Folgen','3 Folgen fehlerfrei'] } }),
+
+  makeSet({ n:26, isNew:true, load:'hoch', title:'Box Power', tagline:'Explodieren. Leise landen. Losrennen.', desc:'Explosive Sprünge auf die Soft-Plyo-Box, Skater-Sprünge und Hüft-Power.',
+    pillars:['Kraft','Schnelligkeit'], equipment:['Soft-Plyo-Box 40/50 cm','Kettlebell 6 kg','Markierungsteller','Blackroll Mat'], dauer:'30–35',
+    why:'Ein explosiver Antritt entscheidet, wer zuerst am Puck ist. Box Jumps und Skater-Sprünge machen deine Beine explosiver, der Swing deine Hüfte – und die leise Landung schützt Knie und Sprunggelenke.',
+    wSub:'Fussgelenke, Knie und Hüfte gründlich bereit machen!',
+    warmup:WARM8(), wTip:'Gründlich aufwärmen – gleich wird gesprungen.',
+    mSub:'Qualität vor Höhe: jede Landung leise und stabil.',
+    main:[ B('boxSprint', 15, 3, 90), B('skaterBound', 20, 2, 90), B('kbSwing', 20, 2, 90), B('boxStepUp', 40, 2, 90, S2),
+           { repeat:2, between:RF(30), proAfter:false, steps:[ W('boxStepFast', 30, { name:'Finisher: Box-Step Intervall' }) ] } ],
+    tip:'Box auf 40 oder 50 cm – die 60 cm erst, wenn alle Landungen leise und stabil sind. Nach dem Sprung immer heruntersteigen. Rund 30 Sprünge in diesem Set.',
+    cTip:'Atme tief ein und aus. Deine Beine haben heute Power getankt!',
+    challenge:{ name:'Silent Box', text:'Schaffe alle Box Jumps mit leiser, stabiler Landung!', levels:['3 leise Landungen','6 leise Landungen','alle 9 leise'] } }),
+
+  makeSet({ n:27, isNew:true, load:'niedrig', title:'Blackroll Mat Mobility', tagline:'Beweglich bleiben. Verletzungen vorbeugen.', desc:'Hüfte, Leiste, Rücken und Schultern mobilisieren – auf der Blackroll Mat.',
+    pillars:['Beweglichkeit','Regeneration'], equipment:['Blackroll Mat'], dauer:'20',
+    why:'Eishockey belastet Hüfte, Leiste und Rücken stark. Regelmässige Mobility hält dich beweglich, beugt Leisten- und Rückenproblemen vor und hilft dir, dich schneller zu erholen. Ideal nach einem Spiel oder nach dem Eistraining.',
+    wSub:'Komm auf der Matte an.',
+    warmup:[ W('catcow', 40), W('atmenStand', 30, { name:'Ankommen und atmen' }) ],
+    wTip:'Langsam bewegen – hier gibt es keine Eile.',
+    mSub:'Jede Position ruhig halten und tief atmen. Nicht wippen.',
+    main:[ { repeat:1, between:null, proAfter:true, steps:[ W('hip9090', 90, S2), W('pigeon', 90, S2), W('matAdductor', 60) ] },
+           { repeat:1, between:null, proAfter:true, steps:[ W('mobilisation', 90, { name:'World’s Greatest Stretch', sides:true }), W('matOpenBook', 90, S2), W('catcow', 45) ] },
+           { repeat:1, between:null, proAfter:false, steps:[ W('hamstring', 90, S2), W('hueftbeuger', 60, S2), W('kneeChest', 60, S2), W('ankleWall', 60, S2), W('kindhaltung', 45, { name:'Child’s Pose' }) ] } ],
+    tip:'Dehnen soll ziehen, aber nie schmerzen.',
+    cSub:'Zur Ruhe kommen.', cooldown:[ W('breathSeat', 90) ],
+    cTip:'Schliesse die Augen und atme tief ein und aus.',
+    challenge:{ name:'Mobility Master', text:'Mach die Routine 3-mal in einer Woche!', levels:['1-mal','2-mal','3-mal'] } }),
+
+  makeSet({ n:28, isNew:true, load:'mittel', title:'Ausdauer-Zirkel', tagline:'Bis zum Schluss stark. Auch im dritten Drittel.', desc:'Zirkel mit 6 Stationen: 40 Sekunden Arbeit, 20 Sekunden Pause, 3 Runden.',
+    pillars:['Ausdauer','Kraft'], equipment:['Springseil Velites','Rebound-Medizinball 2 kg','Slamball 2 kg','Markierungsteller','Soft-Plyo-Box 40 cm','Blackroll Mat','Wand'], dauer:'35',
+    why:'Ein Spiel dauert drei Drittel. Mit guter Ausdauer bist du auch am Ende noch schnell und triffst gute Entscheidungen. Der Zirkel ersetzt ein Off-Ice-Training im Club.',
+    wSub:'Fussgelenke, Knie und Hüfte gründlich bereit machen!',
+    warmup:WARM8(), wTip:'Stell alle 6 Stationen vor dem Start bereit.',
+    mSub:'6 Stationen, je 40 Sekunden Arbeit und 20 Sekunden Pause. 3 Runden – warst du heute schon auf dem Eis, reichen 2.',
+    main:[ { repeat:3, between:RF(90), proAfter:false, steps:[
+      W('ropeEndu', 40, { name:'Station 1: Springseil' }), RF(20),
+      W('mbChest', 40, { name:'Station 2: Brustpass an die Wand' }), RF(20),
+      W('slamBall', 40, { name:'Station 3: Slamball' }), RF(20),
+      W('mkShuttle', 40, { name:'Station 4: Pendellauf' }), RF(20),
+      W('boxStepFast', 40, { name:'Station 5: Box-Step' }), RF(20),
+      W('plankHold', 40, { name:'Station 6: Plank' }) ] } ],
+    tip:'Gleichmässiges Tempo: Die dritte Runde soll so sauber sein wie die erste. Warst du heute schon auf dem Eis, beende das Training nach Runde 2.',
+    cTip:'Stark durchgezogen! Trink genug und gönn dir Erholung.',
+    challenge:{ name:'Third Period', text:'Schaffe alle 3 Runden mit sauberer Technik – auch in der letzten Station!', levels:['2 Runden','3 Runden','3 Runden ohne Pause verkürzt'] } }),
+
+  makeSet({ n:29, isNew:true, load:'mittel', title:'Off-Ice komplett', tagline:'Dein ganzes Off-Ice-Training – zu Hause.', desc:'Ersatz für das Club-Off-Ice: Speed, Kraft, Ausdauer und Mobility in einer Einheit.',
+    pillars:['Schnelligkeit','Kraft','Ausdauer','Beweglichkeit'], equipment:['Mini-Hürden (6 Stück)','Markierungsteller','Kettlebells 6 / 8 kg','Rebound-Medizinball 2 kg','Springseil Velites','Blackroll Mat','Wand'], dauer:'45',
+    why:'Wenn du das Off-Ice-Training im Club auslässt, deckt diese Einheit alles ab: Schnelligkeit, Kraft, Ausdauer und Beweglichkeit – in der richtigen Reihenfolge.',
+    wSub:'Fussgelenke, Knie und Hüfte gründlich bereit machen!',
+    warmup:WARM8(), wTip:'Stell alle Geräte vor dem Start bereit.',
+    mSub:'Erst Speed, dann Kraft, zum Schluss der Ausdauerblock.',
+    main:[ B('hhRun', 15, 3, 15, { name:'Speed: Hürden-Kniehebelauf' }), B('hhSprint', 15, 3, 15, { name:'Speed: Hürden + Sprint' }), B('mkColor', 20, 3, 15, { name:'Speed: Farben-Sprint' }),
+           B('kbGoblet', 40, 3, 15, { name:'Kraft: Goblet Squat' }), B('kbDead', 40, 3, 15, { name:'Kraft: Kreuzheben' }),
+           B('mbChest', 20, 3, 15, { name:'Kraft: Brustpass an die Wand' }), B('mbRot', 30, 2, 15, { name:'Kraft: Rotationswurf an die Wand', sides:true }),
+           B('kbFarmer', 40, 2, 15, { name:'Kraft: Farmer’s Carry' }), B('kbSuitcase', 40, 2, 15, { name:'Kraft: Suitcase Carry', sides:true }), B('plankHold', 40, 2, 15, { name:'Kraft: Plank' }),
+           B('mkShuttle', 20, 3, 15, { name:'Ausdauer: Pendellauf' }),
+           { repeat:6, between:RF(20), proAfter:false, steps:[ W('ropeEndu', 40, { name:'Ausdauer: Springseil 40/20' }) ] } ],
+    tip:'Speed immer zuerst, solange du frisch bist. Am Freitag vor einem Spielwochenende: ruhiges Tempo, nicht ans Limit.',
+    cSub:'Mobility auf der Matte – Hüfte, Leiste und Rücken.',
+    cooldown:[ W('hip9090', 90, S2), W('pigeon', 90, S2), W('matAdductor', 60), W('matOpenBook', 90, S2), W('hamstring', 60, S2), W('catcow', 40), W('breathSeat', 60) ],
+    cTip:'Komplettes Off-Ice geschafft – genau so wie im Club!',
+    challenge:{ name:'Full Session', text:'Zieh das komplette Training durch, ohne eine Übung zu überspringen!', levels:['Speed und Kraft','dazu 3 Seil-Intervalle','alles komplett'] } })
 ];
 const MISSIONS = SETS.filter(m => m.playable);
 const LOAD_TXT = { hoch:'Hoch', mittel:'Mittel', niedrig:'Niedrig' };
@@ -1698,6 +1850,8 @@ const CALLS = (() => {
   const COL = [ { text:'Rot', cls:'c-red' }, { text:'Blau', cls:'c-blue' }, { text:'Grün', cls:'c-green' }, { text:'Gelb', cls:'c-yellow' } ];
   const one = arr => () => { const c = arr[rnd(arr.length)]; return { text:c.text, say:c.say || c.text, cls:c.cls || '' }; };
   return {
+    colors5:{ every:5, gen:one(COL) },
+    seq6:{ every:12, gen:() => { const d = Array.from({ length:3 + rnd(2) }, () => 1 + rnd(6)); return { text:d.join(' – '), say:d.join(', ') }; } },
     colors:{ every:3.5, gen:one(COL) },
     rgb:{ every:3, gen:one(COL.slice(0, 3)) },
     numbers:{ every:4, gen:() => { const n = 1 + rnd(10); return { text:String(n), say:String(n) }; } },
@@ -2194,6 +2348,87 @@ Object.assign(ANIMS, {
   });
 })();
 
+/* ---- Neue Geräte (Nov. 2026): Kettlebell, Rebound-Medizinball, Slamball, Mini-Hürden, Marker ---- */
+(function(){
+  const nrm = v => { const L = Math.hypot(v[0], v[1]) || 1; return [v[0] / L, v[1] / L]; };
+  const mid = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+  // Kettlebell: Griff in der Hand, Kugel in Richtung dir (Standard: hängt nach unten)
+  const kb = (h, dir, s) => { s = (s || 1) * 1.3; const d = nrm(dir || [0, 1]), c = [h[0] + d[0] * 9 * s, h[1] + d[1] * 9 * s];
+    return `<line class="p-kbh" x1="${f1(h[0])}" y1="${f1(h[1])}" x2="${f1(c[0])}" y2="${f1(c[1])}"/><circle class="p-kb" cx="${f1(c[0])}" cy="${f1(c[1])}" r="${f1(7.5 * s)}"/>`; };
+  const armDir = (e, h) => [h[0] - e[0], h[1] - e[1]];
+  // Rebound-Ball: in den Händen, Flug zur Wand (a→b), zurück (b→c)
+  const wallBall = (J, ph, wallX, o) => { o = o || {};
+    const h = mid(J.lh, J.rh), a = o.a !== undefined ? o.a : .3, b = o.b !== undefined ? o.b : .5, c = o.c !== undefined ? o.c : .74;
+    const w = wallX - 9, hy = o.hy !== undefined ? o.hy : h[1], arc = o.arc !== undefined ? o.arc : 12;
+    let x = h[0] + (o.hx || 0), y = h[1];
+    if (ph > a && ph <= b){ const k = (ph - a) / (b - a); x = h[0] + (w - h[0]) * k; y = h[1] + (hy - h[1]) * k - arc * Math.sin(Math.PI * k); }
+    else if (ph > b && ph < c){ const k = (ph - b) / (c - b); x = w - (w - h[0]) * k; y = hy + (h[1] - hy) * k - arc * .5 * Math.sin(Math.PI * k); }
+    return X.wall(wallX) + X.ball(x, y, o.cls || 'med', o.r || 8); };
+  const dot = (x, c) => `<ellipse class="p-cone ${c}" cx="${f1(x)}" cy="${GROUND + 1}" rx="10" ry="3.2"/>`;
+  const numCone = (x, c, n) => X.cone(x, c) + `<text class="p-numtxt" x="${f1(x)}" y="${GROUND - 20}">${n}</text>`;
+  const frontHurdle = x => `<path class="p-hurdle" d="M${f1(x - 5)} ${GROUND + 2} V${GROUND - 15} H${f1(x + 5)} V${GROUND + 2}"/>`;
+  // Arm-Stellung aus Schulter und Zielpunkt der Hand (für den Halo)
+  const ik = (S, T, out) => { const dx = T[0] - S[0], dy = T[1] - S[1]; const d = Math.max(6, Math.min(53, Math.hypot(dx, dy)));
+    const phi = Math.atan2(dx, dy) / DEG, al = Math.acos(Math.max(-1, Math.min(1, (28 * 28 + d * d - 26 * 26) / (2 * 28 * d)))) / DEG;
+    const a1 = phi + out * al, E = [S[0] + Math.sin(a1 * DEG) * 28, S[1] + Math.cos(a1 * DEG) * 28];
+    return [a1, Math.atan2(T[0] - E[0], T[1] - E[1]) / DEG]; };
+
+  const chest = { la1:25, la2:165, ra1:22, ra2:162 };            // Ball / Kettlebell vor der Brust
+  const kbStand = { t:4, ll1:3, ll2:0, rl1:-3, rl2:0, ...chest };
+  const walkA = { ll1:18, ll2:5, rl1:-15, rl2:-10, la1:16, la2:12, ra1:12, ra2:8 };
+  const walkB = { rl1:18, rl2:5, ll1:-15, ll2:-10, la1:16, la2:12, ra1:12, ra2:8 };
+  const hopLow = { t:28, ll1:62, ll2:-28, rl1:60, rl2:-30, la1:-40, la2:-25, ra1:-38, ra2:-23, lift:0 };
+  const hopAir = { t:12, ll1:88, ll2:-42, rl1:86, rl2:-44, la1:110, la2:120, ra1:108, ra2:118, lift:30 };
+  const latLow = d => ({ dx:d, ll1:-28, ll2:-4, rl1:28, rl2:4, la1:-35, la2:-15, ra1:35, ra2:15 });
+  const latAir = { dx:0, lift:28, ll1:-18, ll2:8, rl1:18, rl2:-8, la1:-55, la2:-40, ra1:55, ra2:40 };
+
+  Object.assign(ANIMS, {
+    kbGoblet:   { view:'side', period:2.8, plant:'feet', keys:[ { ...kbStand, w:.6 },
+                  { t:22, ll1:88, ll2:-28, rl1:86, rl2:-30, la1:35, la2:170, ra1:32, ra2:167, w:.9 } ],
+                  props:J => kb(mid(J.lh, J.rh), [0, 1]) },
+    kbDead:     { view:'side', period:3, plant:'feet', keys:[
+                  { t:3, ll1:4, ll2:0, rl1:2, rl2:0, la1:1, la2:0, ra1:-1, ra2:-1, w:.6 },
+                  { t:62, ll1:28, ll2:-12, rl1:26, rl2:-14, la1:-1, la2:-2, ra1:-3, ra2:-4, w:.9 } ],
+                  props:J => kb(mid(J.lh, J.rh), [0, 1]) },
+    kbSwing:    { view:'side', period:1.6, plant:'feet', keys:[
+                  { t:55, ll1:35, ll2:-15, rl1:33, rl2:-17, la1:-28, la2:-35, ra1:-30, ra2:-37, w:.8 },
+                  { t:-4, ll1:2, ll2:0, rl1:-2, rl2:0, la1:88, la2:90, ra1:86, ra2:88, w:.7 } ],
+                  props:J => kb(mid(J.lh, J.rh), armDir(J.re, J.rh)) },
+    kbFarmer:   { view:'side', period:1.3, bounce:2, keys:[ walkA, walkB ],
+                  props:(J, ph) => X.scroll(ph, .5, 120, x => dot(x, 'yellow')) + kb([J.lh[0] + 4, J.lh[1]]) + kb([J.rh[0] + 9, J.rh[1]]) },
+    kbSuitcase: { view:'side', period:1.3, bounce:2, keys:[ walkA, walkB ],
+                  props:(J, ph) => X.scroll(ph, .5, 120, x => dot(x, 'blue')) + kb([J.rh[0] + 5, J.rh[1]]) },
+    kbHalo:     { view:'front', period:3, fn:ph => { const a = ph * Math.PI * 2, T = [Math.sin(a) * 20, -58 + Math.cos(a) * 4];
+                    const L = ik([-11, -50], [T[0] - 3, T[1]], 1), R = ik([11, -50], [T[0] + 3, T[1]], -1);
+                    return { la1:L[0], la2:L[1], ra1:R[0], ra2:R[1] }; },
+                  props:J => kb(mid(J.lh, J.rh), [0, -1], .85) },
+    mbChest:    { view:'side', period:1.6, keys:[
+                  { t:8, dx:-30, ll1:18, ll2:-6, rl1:-12, rl2:-14, ...chest },
+                  { t:4, dx:-30, ll1:18, ll2:-6, rl1:-12, rl2:-14, la1:88, la2:90, ra1:86, ra2:88 } ],
+                  props:(J, ph) => wallBall(J, ph, CX + 56, { a:.36, b:.54, c:.8, arc:4, hx:6 }) },
+    mbOverhead: { view:'side', period:1.8, keys:[
+                  { t:-8, dx:-34, ll1:20, ll2:-4, rl1:-18, rl2:-20, la1:195, la2:220, ra1:192, ra2:218 },
+                  { t:14, dx:-34, ll1:20, ll2:-4, rl1:-18, rl2:-20, la1:115, la2:110, ra1:112, ra2:108 } ],
+                  props:(J, ph) => wallBall(J, ph, CX + 58, { a:.4, b:.56, c:.85, hy:J.head[1] - 8, arc:10 }) },
+    mbRot:      { view:'front', period:2, keys:[
+                  { t:-3, ll1:-10, ll2:-6, rl1:10, rl2:6, la1:-75, la2:-85, ra1:-35, ra2:-80 },
+                  { t:3, ll1:-10, ll2:-6, rl1:10, rl2:6, la1:35, la2:80, ra1:75, ra2:85 } ],
+                  props:(J, ph) => wallBall(J, ph, CX + 74, { a:.42, b:.58, c:.86, arc:8 }) },
+    mbSquatThrow:{ view:'side', period:2.2, plant:'feet', keys:[
+                  { t:30, ll1:86, ll2:-26, rl1:84, rl2:-28, ...chest, w:.8 },
+                  { t:-2, ll1:2, ll2:0, rl1:-2, rl2:0, la1:150, la2:160, ra1:148, ra2:158, lift:6, w:.5 } ],
+                  props:(J, ph) => wallBall(J, ph, CX + 48, { a:.34, b:.5, c:.82, hy:J.head[1] - 30, arc:6 }) },
+    hhHop:      { view:'side', period:.95, keys:[ hopLow, hopAir ], props:(J, ph) => X.scroll(ph, 1, 80, x => X.hurdle(x)) },
+    hhLat:      { view:'front', period:1.3, keys:[ latLow(-30), latAir, latLow(30), latAir ], props:() => frontHurdle(CX) },
+    hhRun:      { view:'side', period:.7, bounce:4, keys:ANIMS.kniehebelauf.keys, props:(J, ph) => X.scroll(ph, 1, 70, x => X.hurdle(x)) },
+    markerColor:{ view:'front', period:1.1, keys:ANIMS.shuffle.keys,
+                  props:() => dot(CX - 92, 'red') + dot(CX - 46, 'blue') + dot(CX + 46, 'green') + dot(CX + 92, 'yellow') },
+    markerNumbers:{ view:'side', period:1.4, keys:ANIMS.podTouch.keys,
+                  props:() => numCone(CX - 50, 'red', 3) + numCone(CX + 8, 'blue', 1) + numCone(CX + 66, 'green', 5) },
+    boxStepFast:{ ...ANIMS.stepUp, period:1.9, _cum:null }
+  });
+})();
+
 /* =====================================================================
    3. EINSTELLUNGEN & FORTSCHRITT – nur lokal im Browser
    ===================================================================== */
@@ -2257,7 +2492,7 @@ function buildTimeline(m){
   let proIdx = 0;
   const nextPro = () => PROS[proIdx++ % PROS.length];
   const brkPhase = (b, sec, si, r, rounds, pro) => ({
-    type:'BREAK', breakType:b.type, dur: hi && sec.type === 'main' ? PAUSE_HIGH : b.type === 'water' ? Math.min(b.duration, 10) : b.duration,
+    type:'BREAK', breakType:b.type, dur: b.fixed ? b.duration : hi && sec.type === 'main' ? PAUSE_HIGH : b.type === 'water' ? Math.min(b.duration, 10) : b.duration,
     sec, si, round:r, rounds, pro: pro ? nextPro() : null
   });
   T.push({ type:'MISSION_COUNTDOWN', dur:4 });
@@ -2268,7 +2503,7 @@ function buildTimeline(m){
         b.steps.forEach(st => {
           if (st.kind === 'exercise'){
             const ex = Object.assign({}, EXERCISES[st.ex], st.o || {});
-            const base = { sec, si, exId:ex.anim || st.ex, ex, round:r, rounds:b.repeat, pause: b.between ? (hi && sec.type === 'main' ? PAUSE_HIGH : b.between.duration) : 0 };
+            const base = { sec, si, exId:ex.anim || st.ex, ex, round:r, rounds:b.repeat, pause: b.between ? (b.between.fixed ? b.between.duration : hi && sec.type === 'main' ? PAUSE_HIGH : b.between.duration) : 0 };
             if (r === 1 || !b.between) T.push({ ...base, type:'EXERCISE_PREVIEW', dur: r === 1 ? m.previewSeconds : m.previewRepeatSeconds });   // ab Durchgang 2 zeigt die Pause schon die nächste Übung
             T.push({ ...base, type:'EXERCISE_COUNTDOWN', dur: m.countdownSeconds });
             T.push({ ...base, type:'EXERCISE_RUNNING',   dur: st.duration });
@@ -2758,6 +2993,8 @@ function weekWarnings(W){
     if (m && pm && m.load === 'hoch' && pm.load === 'hoch') out.push(`${name}: zwei Sets mit hoher Belastung an aufeinanderfolgenden Tagen.`);
     if (m && m.load === 'hoch' && isGame(prev)) out.push(`${name}: Tag nach dem Spiel – Erholung oder lockeres Set ist besser.`);
   });
+  const highs = DAYS.filter(([k]) => { const m = setOf(k); return m && m.load === 'hoch'; }).length;
+  if (highs > 2) out.push(`${highs} Sets mit hoher Belastung – höchstens 2 pro Woche.`);
   const sets = DAYS.filter(([k]) => W[k].set).length;
   const busy = DAYS.filter(([k]) => W[k].set || W[k].ice || isGame(W[k])).length;
   if (sets > 3) out.push(`${sets} APC-Sets pro Woche – neben dem Eistraining sind 2 bis 3 genug.`);
@@ -2934,6 +3171,7 @@ function missionCard(m, opt){
     <div class="mc-art"><div class="demo" id="${opt.prefix}-${m.id}"></div></div>
     <div class="mc-body">
       <p class="eyebrow ${opt.today ? 'red' : ''}">${opt.eyebrow} · ${m.label}</p>
+      ${m.isNew ? '<span class="new-badge">Neues Training</span>' : ''}
       <h2>${m.title}</h2>
       <p>${m.tagline || m.description}</p>
       <ul class="meta">
@@ -2962,6 +3200,7 @@ function openMissions(){
       <span class="lt-fig" id="lib-${m.id}"></span>
       <span class="lt-txt">
         <span class="lt-eyebrow">${lk.locked ? lk.text : isToday ? (t.done ? 'Heute erledigt' : 'Heute') : m.playable ? (done ? done + '× geschafft' + (eliteReady(m) ? ' · Elite frei' : '') : 'Übungsset') : 'Folgt'}</span>
+        ${m.isNew ? '<span class="new-badge">Neues Training</span>' : ''}
         <b>${m.title}</b>
         <small>${m.desc}</small>
         <span class="lt-meta">${mins} · <span class="load-${m.load}">${m.playable ? 'Belastung ' + m.load : 'Finale'}</span> · ${m.pillars.slice(0, 1).join('')}</span>
@@ -4457,7 +4696,8 @@ function openBriefing(id){
     </div>
     <div class="coach"><span class="tag">Coach</span><p>${m.greeting}</p></div>
     <div>
-      <p class="eyebrow red">${m.label} · Phase 1 Athletic Foundation</p>
+      <p class="eyebrow red">${m.label} · ${m.isNew ? 'Neue Geräte' : 'Phase 1 Athletic Foundation'}</p>
+      ${m.isNew ? '<span class="new-badge">Neues Training</span>' : ''}
       <h1>${m.title}</h1>
       ${m.tagline ? `<p class="lead muted">${m.tagline}</p>` : ''}
     </div>
