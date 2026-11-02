@@ -744,6 +744,7 @@ body.voice-off .stage .coach p{font-size:clamp(1.4rem,3.6vw,2rem)}
 /* Demomodus */
 #demo{position:fixed;inset:0;z-index:700;background:transparent}
 #demo .d-cap{position:absolute;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(720px,calc(100% - 32px));background:var(--scrim);border:1.5px solid var(--ice);border-radius:16px;padding:14px 18px;display:flex;flex-direction:column;gap:10px;color:var(--text)}
+#demo.high .d-cap{bottom:calc(170px + env(safe-area-inset-bottom,0px))}
 #demo .d-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
 #demo .d-tag{font-family:var(--f-display);font-weight:800;letter-spacing:.18em;color:var(--ice);font-size:.9rem;text-transform:uppercase}
 #demo .d-txt{font-size:1.15rem;font-weight:600;line-height:1.35}
@@ -3957,7 +3958,7 @@ function renderParents(){
     </div></div>
     <div class="parents"><div class="pbox">
       <p class="eyebrow">Demomodus</p>
-      <p>Rund 36 Sekunden Rundgang durch alle Funktionen der App, mit Beispieldaten. Eure echten Daten bleiben unverändert.</p>
+      <p>Rund ${Demo.seconds()} Sekunden Rundgang durch alle Funktionen der App, mit Beispieldaten. Eure echten Daten bleiben unverändert.</p>
       <div><button class="btn btn-primary btn-small" data-demo>Demo starten</button></div>
     </div></div>
     <div class="parents"><div class="pbox">
@@ -6130,21 +6131,41 @@ function confetti(){
 }
 
 /* ---- Demomodus: Rundgang (3 Sekunden je Station) mit Beispieldaten. Während der Demo wird nichts gespeichert,
-   danach sind die echten Daten wieder da (auch wenn die App mittendrin geschlossen wird). ---- */
+   danach sind die echten Daten wieder da (auch wenn die App mittendrin geschlossen wird).
+   Neue Funktion in der App? Hier in STEPS eine Station ergänzen; die Dauer im Eltern-Bereich rechnet sich selbst. ---- */
 const Demo = (() => {
   const PER = 3000;   // 3 Sekunden je Station
-  let timers = [], saved = null, origSet = null, layer = null;
+  let timers = [], saved = null, savedMission = null, savedReport = null, origSet = null, layer = null;
   const iso = d => new Date(Date.now() - d * 864e5).toISOString();
   const later = (fn, ms) => timers.push(setTimeout(fn, ms));
   const tap = (sel, ms) => later(() => { const b = document.querySelector(sel); if (b) b.dispatchEvent(new MouseEvent('click', { bubbles:true })); }, ms);
   const hl = sel => later(() => { document.querySelectorAll('.demo-hl').forEach(x => x.classList.remove('demo-hl')); const el = document.querySelector(sel); if (el){ el.classList.add('demo-hl'); el.scrollIntoView({ block:'center', behavior:'smooth' }); } }, 300);
   const closeFb = () => document.querySelectorAll('.fbk').forEach(x => x.remove());
+  const setId = n => SETS.find(m => m.n === n).id;
+  const endPlayer = () => { if (!Engine.active) return; Engine.stop(); releaseWake(); closePause(); Sound.setMode('calm'); };
+  function demoPlayer(){   // echter Übungsbildschirm: direkt zur ersten Übung im Hauptteil
+    beginMission();
+    const i = Engine.T.findIndex(p => p.type === 'EXERCISE_RUNNING' && p.si > 0);
+    if (i > 0) Engine.enter(i);
+  }
+  function demoClub(){   // Beispiel-Protokoll zum aktuellen Plan; der letzte Tag bleibt offen, damit die Bestätigung sichtbar ist
+    const club = {}; let n = 0;
+    for (let i = 1; i <= 30; i++){
+      const day = ymd(addDays(new Date(), -i)), items = clubItems(planFor(ymdDate(day)));
+      if (!items.length || ++n === 1) continue;
+      club[day] = Object.fromEntries(items.map(([k]) => [k, { s:'done' }]));
+      if (n === 3 && club[day].off) club[day].off = { s:'missed', r:'zeit' };
+      if (n === 7) items.forEach(([k]) => { club[day][k] = { s:'cancelled' }; });
+    }
+    return club;
+  }
   function demoData(){
     const ids = MISSIONS.filter(m => !isLocked(m)).map(m => m.id), days = [33,31,28,26,24,21,19,17,14,12,10,7,5,3,1];
     const ST = [2,3,4,3,5,2,3,4,3,4,2,3,5,3,4], FN = [3,2,3,3,2,3,1,3,3,2,3,3,2,3,3];
     const log = days.map((d, k) => ({ at:iso(d), mission:ids[k % ids.length], skips:0, mainDone:true, dur:25,
       fb:Object.assign({ strain:ST[k], fun:FN[k] }, d === 10 ? { pain:[{ area:'knie-l', level:'leicht' }] } : {}) }));
-    return { xp:1340, completed:log.length, last:log[log.length - 1].at, log, prCount:3, titles:0, quests:{}, weekBonus:{}, season:null,
+    return { xp:1340, completed:log.length, last:log[log.length - 1].at, log, prCount:3, titles:0, quests:{}, weekBonus:{ [weekStart(iso(7))]:1 }, season:null,
+      clubSince:ymd(addDays(new Date(), -30)), club:demoClub(),
       badges:Object.fromEntries(BADGES.slice(0, 6).map(b => [b.id, iso(20)])), cards:[0, 1, 2, 3, 4, 5, 6],
       records:{ sprint10:[{ v:2.31, at:iso(30), src:'test' }, { v:2.18, at:iso(2), src:'test' }], standweit:[{ v:168, at:iso(30), src:'test' }, { v:181, at:iso(2), src:'test' }], plank:[{ v:65, at:iso(30), src:'test' }, { v:90, at:iso(2), src:'test' }] },
       tests:[{ at:iso(30), values:{ sprint10:2.31, standweit:168, plank:65 } }, { at:iso(2), values:{ sprint10:2.18, standweit:181, plank:90 } }],
@@ -6154,20 +6175,29 @@ const Demo = (() => {
     ['Mission Center: Matteo sagt, wie er sich fühlt – der Coach schlägt das passende Training vor.', () => { renderCenter(); show('center'); hl('.mc2-feels'); }],
     ['Das empfohlene Training mit Dauer, Belastung und XP – plus Wochenziel und Tages-Quest.', () => hl('.mc2-rec')],
     ['Alle Trainings im Überblick, sortiert nach Schwerpunkt.', () => openMissions()],
-    ['Vor dem Start: jede Übung wird mit einer Animation erklärt.', () => openBriefing(renderCenter.rec ? renderCenter.rec.id : MISSIONS[0].id)],
-    ['Nach dem Training: Wie streng war\'s? Wie viel Spass hat\'s gemacht?', () => { show('center'); feedbackFlow({ steps:['strain', 'fun', 'pain'], training:true, title:'Wie war\'s?', onDone:() => {} }); tap('.fbk [data-v="4"]', 1300); }],
-    ['Tut etwas weh? Matteo tippt die Stelle direkt am Körper an.', () => { feedbackFlow({ steps:['area', 'level'], title:'Wie war\'s?', preset:{ sel:['knie-l'] }, onDone:() => {} }); tap('.fbk path[data-area="schulter-r"]', 1200); }],
+    ['Off-Ice im Club ausgelassen? Set 29 ersetzt es zu Hause, inklusive Ausdauerblock.', () => openBriefing(setId(29))],
+    ['Vor dem Start: Kraft, Rumpf, Koordination und Ausdauer laufen als Zirkel in Runden.', () => { openBriefing(setId(28)); hl('#screen-briefing .plan.sec-main'); }],
+    ['Nach «Mission starten» kommt zuerst der Aufbau: Material und Abstände je Übung, dann «Aufbau fertig?».', () => openSetup()],
+    ['Im Training: Animation und Zeit. Es gibt Zurück und Pause, aber kein Weiter.', () => { layer.classList.add('high'); demoPlayer(); }],
+    ['Nach dem Training: Wie streng war\'s? Wie viel Spass hat\'s gemacht?', () => { layer.classList.remove('high'); endPlayer(); show('center'); feedbackFlow({ steps:['strain', 'fun', 'pain'], training:true, title:'Wie war\'s?', onDone:() => {} }); tap('.fbk [data-v="4"]', 1300); }],
+    ['Tut etwas weh? Matteo tippt die Stelle direkt am Körper an.', () => { closeFb(); feedbackFlow({ steps:['area', 'level'], title:'Wie war\'s?', preset:{ sel:['knie-l'] }, onDone:() => {} }); tap('.fbk path[data-area="schulter-r"]', 1200); }],
     ['Fortschritt: Rang, Level und Saison auf einen Blick.', () => { closeFb(); openProgress(); }],
     ['Die eigene Spielerkarte mit Attributen und Avatar.', () => openCard()],
+    ['Der 3D-Avatar lässt sich drehen. Ausrüstung und Siegerposen werden mit Erfolgen freigeschaltet.', () => openAvatar()],
     ['Belohnungen: NHL-Profikarten und Abzeichen.', () => openTrophies()],
     ['Analytics: Belastung, Spass und Schmerzen ausgewertet.', () => { openAnalytics(); later(() => { const sc = $('screen-analytics'); if (sc) sc.scrollTo({ top:520, behavior:'smooth' }); }, 1200); }],
     ['Rekorde und Testtag zeigen, wie Matteo besser wird.', () => openRecords()],
-    ['Eltern-Bereich: Wochenplan mit Eistraining und Matches, Sicherung und Freigaben.', () => openParents()]
+    ['Eltern-Bereich: Club-Trainings bestätigen. Das Mission Center bleibt rein für APC.', () => { openParents(); hl('.clc'); }],
+    ['Wochenplan mit echten Daten, Eistraining und Matches, auch für die Folgewoche.', () => hl('#screen-parents .planner')],
+    ['Bericht: APC- und Club-Trainings, Feedback und Schmerzen, als PDF zum Herunterladen.', () => openReport()]
   ];
   function start(){
     if (layer || Engine.active) return;
-    saved = JSON.parse(JSON.stringify(progress)); origSet = store.set; store.set = () => {};
+    saved = JSON.parse(JSON.stringify(progress)); savedMission = MISSION; savedReport = { range:reportState.range, note:reportState.note };
+    origSet = store.set; store.set = () => {};
     Object.keys(progress).forEach(k => delete progress[k]); Object.assign(progress, demoData());
+    progress.unlocks = Object.fromEntries(UNLOCKS.filter(u => u.ok(unlockStats())).map(u => [u.k + ':' + u.v, iso(14)]));
+    Object.assign(reportState, { range:'all', note:'' });
     layer = document.createElement('div'); layer.id = 'demo';
     layer.innerHTML = `<div class="d-cap" role="status" aria-live="polite"><div class="d-top"><span class="d-tag" id="d-tag">Demo</span>
       <button class="btn btn-ghost btn-small" id="d-stop">Demo beenden</button></div><p class="d-txt" id="d-txt"></p><div class="d-bar"><span id="d-bar"></span></div></div>`;
@@ -6184,13 +6214,14 @@ const Demo = (() => {
   function stop(){
     if (!layer) return;
     timers.forEach(clearTimeout); timers = [];
-    closeFb(); document.querySelectorAll('.demo-hl').forEach(x => x.classList.remove('demo-hl'));
+    endPlayer(); closeFb(); document.querySelectorAll('.demo-hl').forEach(x => x.classList.remove('demo-hl'));
     Object.keys(progress).forEach(k => delete progress[k]); Object.assign(progress, saved);
     store.set = origSet; saved = null;
+    MISSION = savedMission; Object.assign(reportState, savedReport);
     layer.remove(); layer = null;
     openParents();
   }
-  return { start, stop, active:() => !!layer };
+  return { start, stop, active:() => !!layer, seconds:() => Math.round(PER * STEPS.length / 1000) };
 })();
 document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('[data-demo]'); if (b) Demo.start(); });
 
