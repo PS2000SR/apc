@@ -805,16 +805,23 @@ body.voice-off .stage .coach p{font-size:clamp(1.4rem,3.6vw,2rem)}
 .px-list li{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding:2px 0}
 .px-del{border:0;background:none;color:var(--muted);font-size:1.4rem;cursor:pointer;min-width:44px;min-height:44px}
 .pc.xday{border-left-color:var(--gold)}
-/* Grosser Pause-Knopf rechts neben dem Übungstext */
-.pb-wrap{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:20px;width:100%;min-width:0}
-.pause-big{flex:none;width:120px;height:120px;margin-right:10px;border-radius:50%;border:2.5px solid var(--ice);background:rgba(16,26,44,.88);color:var(--ice);
+/* Tastenleiste unter der Übung: Zurück (klein) und Pause (gross). Bleibt an Ort und Stelle, damit ein zweiter Tipp sicher trifft */
+.pctrl{flex:none;display:flex;align-items:center;justify-content:center;gap:28px;padding-block:10px 16px}
+.pctrl[hidden]{display:none}
+.back-big{flex:none;width:84px;height:84px;border-radius:50%;border:2px solid var(--line);background:rgba(16,26,44,.88);color:var(--ice);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font:800 .74rem var(--f-display);letter-spacing:.1em;text-transform:uppercase;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.back-big svg{width:26px;height:26px}
+.back-big:active{transform:scale(.96)}
+.back-big:disabled{opacity:.35;cursor:default}
+.pause-big{flex:none;width:120px;height:120px;border-radius:50%;border:2.5px solid var(--ice);background:rgba(16,26,44,.88);color:var(--ice);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font:800 1.05rem var(--f-display);letter-spacing:.14em;text-transform:uppercase;
   box-shadow:0 0 0 6px rgba(127,212,255,.12), 0 14px 28px -8px rgba(0,0,0,.6);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .pause-big svg{width:40px;height:40px}
 .pause-big:active{transform:scale(.96)}
 .pause-big.on{background:var(--ice);color:var(--on-ice);animation:pbGlow 1.6s ease-in-out infinite}
 @keyframes pbGlow{0%,100%{box-shadow:0 0 0 6px rgba(127,212,255,.25), 0 0 24px rgba(127,212,255,.35)}50%{box-shadow:0 0 0 12px rgba(127,212,255,.12), 0 0 40px rgba(127,212,255,.6)}}
-@media (max-width:560px){.pause-big{width:88px;height:88px;font-size:.82rem;gap:5px;margin-right:4px}.pause-big svg{width:30px;height:30px}.pb-wrap{gap:12px}}
+@media (max-width:560px),(max-height:700px){.pause-big{width:88px;height:88px;font-size:.82rem;gap:5px}.pause-big svg{width:30px;height:30px}.back-big{width:68px;height:68px;font-size:.62rem}.back-big svg{width:22px;height:22px}}
 @media (prefers-reduced-motion:reduce){.pause-big.on{animation:none}}
 .pl-tabs{display:flex;flex-wrap:wrap;gap:8px}
 .pl-nav{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -1138,7 +1145,7 @@ html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:
 })();</script>
 <div id="app" lang="de">
   <header class="topbar">
-    <div class="brand"><div class="mark" aria-hidden="true"><i></i><i></i><i></i></div><b>APC 1.1</b><span>Family Edition</span></div>
+    <div class="brand"><div class="mark" aria-hidden="true"><i></i><i></i><i></i></div><b>APC 1.2</b><span>Family Edition</span></div>
     <div class="toggles" role="group" aria-label="Navigation und Ton">
       <button class="tog" id="btn-home" hidden aria-label="Zum Mission Center"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 L12 3 L21 11 M6 9 V21 H18 V9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lbl">Mission Center</span></button>
       <button class="tog" id="tog-music" aria-pressed="false" hidden>Musik</button>
@@ -1173,6 +1180,7 @@ html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:
       <button class="audio-hint" id="audio-hint" hidden>Ton ist pausiert · Tippen zum Einschalten</button>
       <p class="voice-hint" id="voice-hint" hidden>Die Coach-Stimme startet auf diesem Gerät nicht. Die Anweisungen stehen gross im Coach-Feld.</p>
       <div class="stage" id="stage" aria-live="polite"></div>
+      <div class="pctrl" id="pctrl" hidden></div>
     </section>
   </main>
   <nav class="tabbar" id="tabbar" aria-label="Hauptnavigation">
@@ -2547,6 +2555,20 @@ const Engine = {
     else if (t === 'EXERCISE_COUNTDOWN') j = this.i + 2;
     this.paused = false;
     this.enter(Math.min(j, this.T.length - 1));
+  },
+  /* Zurück: in der Übung startet sie neu (mit 3-2-1), im 3-2-1 geht es zum vorherigen Satz bzw. zur vorherigen Übung.
+     Zweimal tippen ergibt so: zurück zur vorherigen Übung. Nichts wird übersprungen, Pausen dazwischen laufen erneut. */
+  backTarget(){
+    const T = this.T, i = this.i;
+    if (T[i].type === 'EXERCISE_RUNNING') return i - 1;
+    if (T[i].type === 'EXERCISE_COUNTDOWN') for (let k = i - 1; k >= 0; k--) if (T[k].type === 'EXERCISE_RUNNING') return k - 1;
+    return -1;
+  },
+  back(){
+    if (!this.active) return;
+    const j = this.backTarget(); if (j < 0) return;
+    this.paused = false;
+    this.enter(j);
   },
   stop(){ this.active = false; this.paused = false; this.i = -1; },
   once(key, fn){ if (!this.fired.has(key)){ this.fired.add(key); fn(); } },
@@ -4868,7 +4890,7 @@ function onPhaseEnter(p, i, prev){
       const hasCap = !!(ANIMS[p.exId] && ANIMS[p.exId].caption);
       html = `<div class="inner split">
         ${ringHTML('', '<div class="figwrap" id="fig"></div>')}
-        <div class="pb-wrap"><div class="side">
+        <div class="side">
           <p class="eyebrow red">Live · ${p.ex.goal}</p>
           <h2>${p.ex.name}</h2>
           <p class="secs"><span id="secs"></span><small>Sek</small></p>
@@ -4876,7 +4898,7 @@ function onPhaseEnter(p, i, prev){
           ${p.ex.calls ? '<p class="callbox" id="callbox" hidden></p>' : ''}
           ${coachHTML(p.ex.coach)}
           ${nx ? `<p class="next">Danach: <b>${nx}</b></p>` : ''}
-        </div>${pauseBigHTML()}</div></div>`;
+        </div></div>`;
       after = () => Anim.mount($('fig'), p.exId, { caption: hasCap ? $('cap') : null });
       { const tips = coachTips(p);
         const first = (p.ex.instruction || '').split(/[.!?]/)[0];
@@ -4961,6 +4983,9 @@ function onPhaseEnter(p, i, prev){
   }
   stage.innerHTML = html;
   stage.scrollTop = 0;
+  { const ctl = p.type === 'EXERCISE_RUNNING' || p.type === 'EXERCISE_COUNTDOWN', bar = $('pctrl');
+    bar.hidden = !ctl;
+    bar.innerHTML = ctl ? backBigHTML() + pauseBigHTML() : ''; }
   if (after) after();
   onPhaseTick(p, Engine.remaining());
 }
@@ -5825,11 +5850,17 @@ const PB_ICO = { pause:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden
   play:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.6v14.8a1 1 0 0 0 1.53.85l11.8-7.4a1 1 0 0 0 0-1.7L8.53 3.75A1 1 0 0 0 7 4.6z"/></svg>' };
 function pauseBigHTML(){ const on = Engine.paused; return `<button class="pause-big${on ? ' on' : ''}" id="pause-big" aria-pressed="${on}">${on ? PB_ICO.play + 'Weiter' : PB_ICO.pause + 'Pause'}</button>`; }
 function syncPauseBig(){ const b = $('pause-big'); if (b) b.outerHTML = pauseBigHTML(); }
+function backBigHTML(){ return `<button class="back-big" id="back-big"${Engine.backTarget() < 0 ? ' disabled' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15M10 6l-6 6 6 6"/></svg>Zurück</button>`; }
 ['pause', 'resume', 'skip', 'stop'].forEach(k => { const f = Engine[k]; Engine[k] = function(){ const r = f.apply(this, arguments); syncPauseBig(); return r; }; });
 document.addEventListener('click', e => {
   if (!e.target.closest || !e.target.closest('#pause-big') || !Engine.active) return;
   if (Engine.paused){ if (!$('pause').hidden) closePause(); Sound.duck(false); Engine.resume(); }
   else { Engine.pause(); Voice.stop(); Sound.duck(true); }
+});
+
+document.addEventListener('click', e => {
+  if (!e.target.closest || !e.target.closest('#back-big') || !Engine.active) return;
+  Sound.duck(false); Engine.back();
 });
 
 /* ---- Pause ---- */
