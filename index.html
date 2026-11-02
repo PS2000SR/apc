@@ -1161,7 +1161,7 @@ html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:
 })();</script>
 <div id="app" lang="de">
   <header class="topbar">
-    <div class="brand"><div class="mark" aria-hidden="true"><i></i><i></i><i></i></div><b>APC 1.4</b><span>Family Edition</span></div>
+    <div class="brand"><div class="mark" aria-hidden="true"><i></i><i></i><i></i></div><b>APC 1.5</b><span>Family Edition</span></div>
     <div class="toggles" role="group" aria-label="Navigation und Ton">
       <button class="tog" id="btn-home" hidden aria-label="Zum Mission Center"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 L12 3 L21 11 M6 9 V21 H18 V9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lbl">Mission Center</span></button>
       <button class="tog" id="tog-music" aria-pressed="false" hidden>Musik</button>
@@ -1213,7 +1213,6 @@ html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:
     <h2 id="pause-h">Pause</h2>
     <p class="muted">Die Zeit ist angehalten.</p>
     <button class="btn btn-primary" id="btn-resume">Weiter</button>
-    <button class="btn btn-ghost" id="btn-skip">Übung überspringen</button>
     <button class="btn btn-danger" id="btn-abort">Mission abbrechen</button>
   </div>
 </div>
@@ -6048,7 +6047,6 @@ $('btn-pause').onclick = openPause;
 $('audio-hint').onclick = () => fixAudio();
 $('btn-home').onclick = goHome;
 $('btn-resume').onclick = () => { closePause(); Engine.resume(); };
-$('btn-skip').onclick = () => { closePause(); Engine.skip(); };
 $('btn-abort').onclick = () => {
   const ab = $('btn-abort');
   if (ab.dataset.armed) abortMission();
