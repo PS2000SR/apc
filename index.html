@@ -807,6 +807,7 @@ body.voice-off .stage .coach p{font-size:clamp(1.4rem,3.6vw,2rem)}
 .px-del{border:0;background:none;color:var(--muted);font-size:1.4rem;cursor:pointer;min-width:44px;min-height:44px}
 .pc.xday{border-left-color:var(--gold)}
 .pc.camp{border-left-color:var(--ice);color:var(--ice)} .pc.camp.special{border-left-color:var(--gold);color:var(--gold)}
+.pc.camp.nb{border:1px dashed currentColor;border-left-width:3px;background:transparent}
 /* Camps und Spezialtrainings */
 .cp-form{display:flex;flex-direction:column;gap:12px}
 .cp-f{display:flex;flex-direction:column;gap:4px;min-width:0}
@@ -815,6 +816,14 @@ body.voice-off .stage .coach p{font-size:clamp(1.4rem,3.6vw,2rem)}
 .cp-h{font-family:var(--f-display);font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:1rem;color:var(--ice);margin:22px 0 8px}
 .cp-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:12px 14px;margin-bottom:10px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--ice);border-radius:12px}
 .cp-card.special{border-left-color:var(--gold)}
+.cp-card.nb{border-style:dashed}
+.cp-badges{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.cp-st{font-size:.72rem;font-weight:800;padding:2px 8px;border-radius:999px;background:var(--line);color:var(--text)}
+.cp-st.ok{background:color-mix(in srgb,var(--ok) 22%,transparent);color:var(--ok)} .cp-st.no{background:color-mix(in srgb,var(--gold) 20%,transparent);color:var(--gold)}
+.cp-note{grid-column:1/-1;border-top:1px solid var(--line);margin-top:6px;padding-top:6px;white-space:pre-wrap;overflow-wrap:anywhere}
+.cp-form textarea.pselect{min-height:84px;resize:vertical}
+.cp-form .pselect:disabled{opacity:.4}
+.cp-cost .cp-gr td{color:var(--ice);font-weight:800;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;padding-top:10px}
 .cp-tag{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ice)}
 .cp-card.special .cp-tag{color:var(--gold)}
 .cp-card b{font-size:1.05rem;overflow-wrap:anywhere}
@@ -3044,24 +3053,29 @@ document.addEventListener('click', e => {
   clubRedraw();
 });
 const painSrcTxt = s => s === 'training' ? 'nach Training' : s === 'club' ? 'Club-Training' : 'Check-in';
-/* Camps und Spezialtrainings: apc.camps.v1 [{ id, kind:'camp'|'special', name, place, org, from, to, price, stay }] (stay = Übernachtungskosten, nur Camps) (Daten als JJJJ-MM-TT).
+/* Camps und Spezialtrainings: apc.camps.v1 [{ id, kind:'camp'|'special', name, place, org, from, to, price, stay, booked, when, year, estimate, note }]
+   stay = Übernachtungskosten (nur Camps). from/to leer = Datum offen (dann when = ungefähr wann, year = Jahr für die Kosten). price null = Preis offen. (Daten als JJJJ-MM-TT).
    Nur Elterninfo: im Wochenplan, im Mission Center (ohne Status) und im Bericht. Liegt in der Sicherung (alle apc.*-Schlüssel). */
 const camps = store.get('apc.camps.v1', []);
 const saveCamps = () => store.set('apc.camps.v1', camps);
 const CAMP_KIND = { camp:'Camp', special:'Spezialtraining' };
-const campsOn = d => { const k = ymd(d); return camps.filter(c => c.from <= k && k <= c.to); };
+const campsOn = d => { const k = ymd(d); return camps.filter(c => c.from && c.from <= k && k <= c.to); };
 const campDays = c => Math.round((ymdDate(c.to) - ymdDate(c.from)) / 864e5) + 1;
 const campLen = c => { const n = campDays(c); return n === 1 ? '1 Tag' : `${n} Tage`; };
 const campDate = c => {
+  if (!c.from) return c.when || c.year ? `Ungefähr: ${rpEsc(c.when || c.year)}` : 'Datum offen';
   const a = ymdDate(c.from), b = ymdDate(c.to), f = d => `${d.getDate()}.${d.getMonth() + 1}.`;
   if (c.from === c.to) return f(a) + a.getFullYear();
   if (a.getFullYear() !== b.getFullYear()) return `${f(a)}${a.getFullYear()} – ${f(b)}${b.getFullYear()}`;
   return (a.getMonth() === b.getMonth() ? `${a.getDate()}.` : f(a)) + `–${f(b)}${b.getFullYear()}`;
 };
 const fmtCHF = n => 'CHF ' + (+n).toFixed(n % 1 ? 2 : 0).replace(/\B(?=(\d{3})+(?!\d))/g, "'");
-const campPrice = c => c.price === null || c.price === undefined ? '–' : fmtCHF(c.price);
+const noPrice = c => c.price === null || c.price === undefined;
+const campPrice = c => noPrice(c) ? '–' : (c.estimate ? 'ca. ' : '') + fmtCHF(c.price);
 const campStay = c => c.kind === 'camp' ? c.stay || 0 : 0;
 const campSum = L => L.reduce((s, c) => s + (c.price || 0) + campStay(c), 0);
+const campYear = c => c.from ? c.from.slice(0, 4) : c.year || '';
+const campTotal = c => noPrice(c) && !campStay(c) ? 'Preis offen' : (c.estimate ? 'ca. ' : '') + fmtCHF(campSum([c]));
 /* Chips für einen Tag; mit Protokoll e werden ✓ (gemacht), ✗ (ausgelassen) und – (ausgefallen) angehängt */
 function planChipsHTML(d, e, dt){
   const mk = k => !e || !e[k] ? '' : e[k].s === 'done' ? ' ✓' : e[k].s === 'missed' ? ' ✗' : ' –';
@@ -3073,7 +3087,7 @@ function planChipsHTML(d, e, dt){
     d.tour ? `<span class="pc game">Turnier${d.gameTime && !d.match ? ' ' + d.gameTime : ''}${d.match ? '' : mk('game')}</span>` : '',
     m ? `<span class="pc apc load-b-${m.load}">Set ${m.n} · ${m.title}</span>` : '',
     d.extra ? '<span class="pc xday">Zusatztraining</span>' : '',
-    ...(dt ? campsOn(dt).map(c => `<span class="pc camp ${c.kind}">${CAMP_KIND[c.kind]}: ${rpEsc(c.name)}</span>`) : []),
+    ...(dt ? campsOn(dt).map(c => `<span class="pc camp ${c.kind}${c.booked ? '' : ' nb'}">${CAMP_KIND[c.kind]}: ${rpEsc(c.name)}${c.booked ? '' : ' (nicht gebucht)'}</span>`) : []),
     d.note ? `<span class="pc xday">${rpEsc(d.note)}</span>` : d.custom && !d.extra ? '<span class="pc xday">angepasst</span>' : ''
   ].join('') || '<span class="pc rest">Ruhetag</span>';
 }
@@ -3645,7 +3659,7 @@ function dayContextHTML(){
   if (d.custom && d.note) out.push(`<span>${rpEsc(d.note)}</span>`);
   if (isGame(d)) out.push(`<span class="game">Heute ${d.match ? 'Match' : 'Turnier'}${d.gameTime ? ' ' + d.gameTime : ''}</span>`);
   if (isGame(t)) out.push(`<span class="game">Morgen ${t.match ? 'Match' : 'Turnier'}</span>`);
-  campsOn(new Date()).forEach(c => out.push(`<span>Heute ${CAMP_KIND[c.kind]}: ${rpEsc(c.name)}</span>`));
+  campsOn(new Date()).filter(c => c.booked).forEach(c => out.push(`<span>Heute ${CAMP_KIND[c.kind]}: ${rpEsc(c.name)}</span>`));
   return out.length ? `<div class="mc2-ctx">${out.join('')}</div>` : '';
 }
 const ICO = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
@@ -4061,78 +4075,104 @@ function renderParents(){
 let campFilter = 'all', campForm = null;
 const campToday = () => ymd(new Date());
 function campTeaser(){
-  const up = camps.filter(c => c.to >= campToday()).sort((a, b) => a.from < b.from ? -1 : 1);
-  const y = String(new Date().getFullYear()), cost = camps.some(c => c.from.startsWith(y)) ? ` · Kosten ${y}: ${fmtCHF(campSum(camps.filter(c => c.from.startsWith(y))))}` : '';
-  if (up.length) return `${up.length} geplant · Nächstes: ${rpEsc(up[0].name)}, ${campDate(up[0])}${cost}`;
+  const t = campToday(), up = camps.filter(c => c.from && c.to >= t).sort((a, b) => a.from < b.from ? -1 : 1), planned = camps.filter(c => !campPast(c)).length;
+  const y = String(new Date().getFullYear()), B = camps.filter(c => c.booked && campYear(c) === y), cost = B.length ? ` · Gebucht ${y}: ${fmtCHF(campSum(B))}` : '';
+  if (planned) return `${planned} geplant${up.length ? ` · Nächstes: ${rpEsc(up[0].name)}, ${campDate(up[0])}` : ''}${cost}`;
   return camps.length ? `Nichts geplant${cost}` : 'Noch nichts erfasst.';
 }
-/* Kosten pro Jahr (massgebend ist das Startdatum); unabhängig vom Filter, damit die Totale immer vollständig sind */
+/* Kosten pro Jahr, getrennt nach gebucht und noch nicht gebucht; unabhängig vom Filter. Vorbei und nie gebucht zählt nicht. */
 const campSplit = L => ({ camp:L.filter(c => c.kind === 'camp').reduce((s, c) => s + (c.price || 0), 0), stay:L.reduce((s, c) => s + campStay(c), 0), special:campSum(L.filter(c => c.kind === 'special')), total:campSum(L) });
+const campPast = c => !!c.from && c.to < campToday();
 function campCostHTML(){
-  if (!camps.length) return '';
-  const years = [...new Set(camps.map(c => c.from.slice(0, 4)))].sort().reverse();
-  const row = (l, x, b) => `<tr><td>${b ? `<b>${l}</b>` : l}</td><td class="r">${fmtCHF(x.camp)}</td><td class="r">${fmtCHF(x.stay)}</td><td class="r">${fmtCHF(x.special)}</td><td class="r"><b>${fmtCHF(x.total)}</b></td></tr>`;
+  const live = camps.filter(c => c.booked || !campPast(c));
+  if (!live.length) return '';
+  const cell = (L, v) => `<td class="r">${L.some(c => c.estimate) && v ? 'ca. ' : ''}${fmtCHF(v)}</td>`;
+  const row = (l, L, b) => { const x = campSplit(L), C = L.filter(c => c.kind === 'camp'), S = L.filter(c => c.kind === 'special'); return `<tr><td>${b ? `<b>${l}</b>` : l}</td>${cell(C, x.camp)}${cell(C.filter(campStay), x.stay)}${cell(S, x.special)}<td class="r"><b>${L.some(c => c.estimate) ? 'ca. ' : ''}${fmtCHF(x.total)}</b></td></tr>`; };
+  const group = (title, L) => { if (!L.length) return ''; const ys = [...new Set(L.map(campYear))].sort().reverse();
+    return `<tr class="cp-gr"><td colspan="5">${title}</td></tr>${ys.map(y => row(y || 'Ohne Jahr', L.filter(c => campYear(c) === y))).join('')}${ys.length > 1 ? row('Gesamt', L, true) : ''}`; };
+  const open = live.filter(noPrice).length;
   return `<section class="cp-cost"><p class="eyebrow">Kosten</p><table><thead><tr><th>Jahr</th><th class="r">Camps</th><th class="r">Über&shy;nachtung</th><th class="r">Spezial&shy;trainings</th><th class="r">Total</th></tr></thead><tbody>
-    ${years.map(y => row(y, campSplit(camps.filter(c => c.from.startsWith(y))))).join('')}${years.length > 1 ? row('Gesamt', campSplit(camps), true) : ''}</tbody></table></section>`;
+    ${group('Gebucht', live.filter(c => c.booked))}${group('Noch nicht gebucht', live.filter(c => !c.booked))}</tbody></table>
+    ${open ? `<p class="muted" style="margin:8px 0 0">${open === 1 ? '1 Eintrag' : open + ' Einträge'} ohne Preis nicht eingerechnet.</p>` : ''}</section>`;
 }
 function campCardHTML(c){
-  return `<article class="cp-card ${c.kind}"><span class="cp-tag">${CAMP_KIND[c.kind]}</span><span class="cp-price">${c.price === null || c.price === undefined ? (campStay(c) ? fmtCHF(campStay(c)) : '–') : fmtCHF(campSum([c]))}</span>
+  const badges = [c.booked ? '<span class="cp-st ok">Gebucht</span>' : '<span class="cp-st no">Nicht gebucht</span>', c.from ? '' : '<span class="cp-st">Datum offen</span>',
+    noPrice(c) ? '<span class="cp-st">Preis offen</span>' : c.estimate ? '<span class="cp-st">Preis geschätzt</span>' : ''].join('');
+  return `<article class="cp-card ${c.kind}${c.booked ? '' : ' nb'}"><span class="cp-tag">${CAMP_KIND[c.kind]}</span><span class="cp-price">${campTotal(c)}</span>
     <b style="grid-column:1/-1">${rpEsc(c.name)}</b>
-    <span class="cp-meta">${[c.place, c.org].filter(Boolean).map(rpEsc).join(' · ') || 'Ort und Veranstalter offen'}<br>${campDate(c)} · ${campLen(c)}${campStay(c) ? `<br>Camp ${campPrice(c)} + Übernachtung ${fmtCHF(campStay(c))}` : ''}</span>
+    <span class="cp-meta">${[c.place, c.org].filter(Boolean).map(rpEsc).join(' · ') || 'Ort und Veranstalter offen'}<br>${campDate(c)}${c.from ? ' · ' + campLen(c) : ''}${campStay(c) ? `<br>Camp ${noPrice(c) ? 'offen' : campPrice(c)} + Übernachtung ${fmtCHF(campStay(c))}` : ''}</span>
+    <span class="cp-badges">${badges}</span>
+    ${c.note ? `<p class="cp-note">${rpEsc(c.note)}</p>` : ''}
     <span class="cp-acts"><button class="cl-link" data-cp-edit="${c.id}">Ändern</button><button class="cl-link" data-cp-del="${c.id}">Löschen</button></span></article>`;
 }
 function campFormHTML(){
   const f = campForm;
   return `<form class="pbox cp-form" id="cp-form" novalidate><p class="eyebrow">${f.id ? 'Eintrag ändern' : 'Neu erfassen'}</p>
     <div class="pl-tabs" role="group" aria-label="Art">${Object.entries(CAMP_KIND).map(([k, l]) => `<button type="button" class="av-chip" data-cp-kind="${k}" aria-pressed="${f.kind === k}">${l}</button>`).join('')}</div>
+    <div class="pl-tabs" role="group" aria-label="Buchung">${[[1, 'Gebucht'], [0, 'Noch nicht gebucht']].map(([v, l]) => `<button type="button" class="av-chip" data-cp-book="${v}" aria-pressed="${!!f.booked === !!v}">${l}</button>`).join('')}</div>
     <div class="cp-f"><label for="cp-name" class="pe-lbl">Name</label><input id="cp-name" class="pselect" maxlength="60" value="${rpEsc(f.name)}"></div>
     <div class="cp-f"><label for="cp-place" class="pe-lbl">Ort</label><input id="cp-place" class="pselect" maxlength="60" value="${rpEsc(f.place)}"></div>
     <div class="cp-f"><label for="cp-org" class="pe-lbl">Veranstalter</label><input id="cp-org" class="pselect" maxlength="60" value="${rpEsc(f.org)}"></div>
-    <div class="cp-two"><div class="cp-f"><label for="cp-from" class="pe-lbl">Von</label><input type="date" id="cp-from" class="pselect" value="${f.from}"></div>
-      <div class="cp-f"><label for="cp-to" class="pe-lbl">Bis</label><input type="date" id="cp-to" class="pselect" value="${f.to}"></div></div>
+    <div class="cp-two"><div class="cp-f"><label for="cp-from" class="pe-lbl">Von</label><input type="date" id="cp-from" class="pselect" value="${f.from}" ${f.dateOpen ? 'disabled' : ''}></div>
+      <div class="cp-f"><label for="cp-to" class="pe-lbl">Bis</label><input type="date" id="cp-to" class="pselect" value="${f.to}" ${f.dateOpen ? 'disabled' : ''}></div></div>
+    <label class="pe-tog"><input type="checkbox" id="cp-open" ${f.dateOpen ? 'checked' : ''}> Datum noch offen</label>
+    ${f.dateOpen ? `<div class="cp-two"><div class="cp-f"><label for="cp-when" class="pe-lbl">Ungefähr wann</label><input id="cp-when" class="pselect" maxlength="40" placeholder="z. B. Juli 2027" value="${rpEsc(f.when || '')}"></div>
+      <div class="cp-f"><label for="cp-year" class="pe-lbl">Jahr für die Kosten</label><select id="cp-year" class="pselect"><option value="">Noch offen</option>${[0, 1, 2, 3].map(i => String(new Date().getFullYear() + i)).concat(f.year ? [f.year] : []).filter((y, i, A) => A.indexOf(y) === i).map(y => `<option value="${y}" ${f.year === y ? 'selected' : ''}>${y}</option>`).join('')}</select></div></div>` : ''}
     <p class="muted" id="cp-len" aria-live="polite" style="margin:0"></p>
     <div class="cp-f"><label for="cp-price" class="pe-lbl">Preis (CHF)</label><input type="number" inputmode="decimal" min="0" step="0.05" id="cp-price" class="pselect" value="${f.price === null || f.price === undefined ? '' : f.price}"></div>
     ${f.kind === 'camp' ? `<div class="cp-f"><label for="cp-stay" class="pe-lbl">Übernachtung (CHF)</label><input type="number" inputmode="decimal" min="0" step="0.05" id="cp-stay" class="pselect" value="${f.stay === null || f.stay === undefined ? '' : f.stay}"></div>` : ''}
+    <label class="pe-tog"><input type="checkbox" id="cp-est" ${f.estimate ? 'checked' : ''}> Betrag ist eine Schätzung</label>
+    <p class="muted" style="margin:0">Preis noch nicht bekannt? Feld einfach leer lassen.</p>
+    <div class="cp-f"><label for="cp-note" class="pe-lbl">Details</label><textarea id="cp-note" class="pselect" maxlength="500" placeholder="z. B. Coaches, Anmeldefrist, Treffpunkt">${rpEsc(f.note || '')}</textarea></div>
     <p class="pnote" id="cp-msg" aria-live="polite" style="margin:0"></p>
     <div class="bk-row"><button type="submit" class="btn btn-primary btn-small">Speichern</button><button type="button" class="btn btn-ghost btn-small" id="cp-cancel">Abbrechen</button></div></form>`;
 }
 function renderCamps(){
-  const L = camps.filter(c => campFilter === 'all' || c.kind === campFilter), t = campToday();
-  const up = L.filter(c => c.to >= t).sort((a, b) => a.from < b.from ? -1 : 1), past = L.filter(c => c.to < t).sort((a, b) => a.from < b.from ? 1 : -1);
+  const isOpen = c => !c.booked || !c.from || noPrice(c);
+  const L = camps.filter(c => campFilter === 'all' || c.kind === campFilter || (campFilter === 'booked' && c.booked) || (campFilter === 'open' && isOpen(c)));
+  const byDate = (a, b) => !a.from ? (b.from ? 1 : 0) : !b.from ? -1 : a.from < b.from ? -1 : 1;
+  const live = L.filter(c => !campPast(c)).sort(byDate), past = L.filter(campPast).sort((a, b) => a.from < b.from ? 1 : -1);
+  const up = live.filter(c => c.booked), maybe = live.filter(c => !c.booked);
   $('screen-camps').innerHTML = `
   <div class="inner trophies hub">
     <div class="tr-head"><div><p class="eyebrow">Eltern-Bereich</p><h1 class="cp-title">Camps und Spezial&shy;trainings</h1></div>
       <button class="btn btn-ghost btn-small" id="btn-cp-back"><span class="arrow back" aria-hidden="true"></span> Eltern-Bereich</button></div>
-    ${campForm ? campFormHTML() : `<div class="cp-top"><div class="pl-tabs" role="group" aria-label="Filter">${[['all', 'Alle'], ['camp', 'Camps'], ['special', 'Spezialtrainings']].map(([k, l]) => `<button class="av-chip" data-cp-filter="${k}" aria-pressed="${campFilter === k}">${l}</button>`).join('')}</div>
+    ${campForm ? campFormHTML() : `<div class="cp-top"><div class="pl-tabs" role="group" aria-label="Filter">${[['all', 'Alle'], ['camp', 'Camps'], ['special', 'Spezialtrainings'], ['booked', 'Gebucht'], ['open', 'Offen']].map(([k, l]) => `<button class="av-chip" data-cp-filter="${k}" aria-pressed="${campFilter === k}">${l}</button>`).join('')}</div>
       <button class="btn btn-primary btn-small" id="btn-cp-new">Neu erfassen</button></div>
       ${campCostHTML()}
       ${!L.length ? '<p class="muted">Noch keine Einträge.</p>' : ''}
-      ${up.length ? `<h2 class="cp-h">Geplant</h2>${up.map(campCardHTML).join('')}` : ''}
+      ${up.length ? `<h2 class="cp-h">Gebucht</h2>${up.map(campCardHTML).join('')}` : ''}
+      ${maybe.length ? `<h2 class="cp-h">Noch nicht gebucht</h2>${maybe.map(campCardHTML).join('')}` : ''}
       ${past.length ? `<h2 class="cp-h">Vergangen</h2>${past.map(campCardHTML).join('')}` : ''}`}
   </div>`;
   $('btn-cp-back').onclick = openParents;
   const redraw = () => { const sc = $('screen-camps'), y = sc.scrollTop; renderCamps(); $('screen-camps').scrollTop = y; };
   if (!campForm){
-    $('btn-cp-new').onclick = () => { campForm = { id:'', kind:campFilter === 'special' ? 'special' : 'camp', name:'', place:'', org:'', from:'', to:'', price:null, stay:null }; renderCamps(); $('screen-camps').scrollTop = 0; };
+    $('btn-cp-new').onclick = () => { campForm = { id:'', kind:campFilter === 'special' ? 'special' : 'camp', booked:false, name:'', place:'', org:'', from:'', to:'', dateOpen:false, when:'', year:'', price:null, stay:null, estimate:false, note:'' }; renderCamps(); $('screen-camps').scrollTop = 0; };
     document.querySelectorAll('[data-cp-filter]').forEach(b => b.onclick = () => { campFilter = b.dataset.cpFilter; redraw(); });
-    document.querySelectorAll('[data-cp-edit]').forEach(b => b.onclick = () => { campForm = Object.assign({}, camps.find(c => c.id === b.dataset.cpEdit)); renderCamps(); $('screen-camps').scrollTop = 0; });
+    document.querySelectorAll('[data-cp-edit]').forEach(b => b.onclick = () => { const c = camps.find(x => x.id === b.dataset.cpEdit); campForm = Object.assign({}, c, { dateOpen:!c.from }); renderCamps(); $('screen-camps').scrollTop = 0; });
     document.querySelectorAll('[data-cp-del]').forEach(b => b.onclick = () => { const c = camps.find(x => x.id === b.dataset.cpDel); if (!c || !confirm(`«${c.name}» löschen?`)) return; camps.splice(camps.indexOf(c), 1); saveCamps(); redraw(); });
     return;
   }
-  const read = () => Object.assign(campForm, { name:$('cp-name').value.trim(), place:$('cp-place').value.trim(), org:$('cp-org').value.trim(), from:$('cp-from').value, to:$('cp-to').value, price:$('cp-price').value === '' ? null : +$('cp-price').value, stay:!$('cp-stay') || $('cp-stay').value === '' ? null : +$('cp-stay').value });
+  const read = () => Object.assign(campForm, { name:$('cp-name').value.trim(), place:$('cp-place').value.trim(), org:$('cp-org').value.trim(), from:campForm.dateOpen ? '' : $('cp-from').value, to:campForm.dateOpen ? '' : $('cp-to').value, when:$('cp-when') ? $('cp-when').value.trim() : campForm.when, year:$('cp-year') ? $('cp-year').value : campForm.year, estimate:$('cp-est').checked, note:$('cp-note').value.trim(), price:$('cp-price').value === '' ? null : +$('cp-price').value, stay:!$('cp-stay') || $('cp-stay').value === '' ? null : +$('cp-stay').value });
   const len = () => { read(); $('cp-len').textContent = campForm.from && campForm.to >= campForm.from ? `Dauer: ${campLen(campForm)}` : ''; };
   $('cp-from').onchange = () => { if (!$('cp-to').value || $('cp-to').value < $('cp-from').value) $('cp-to').value = $('cp-from').value; len(); };
   $('cp-to').onchange = len; len();
   document.querySelectorAll('[data-cp-kind]').forEach(b => b.onclick = () => { read(); campForm.kind = b.dataset.cpKind; redraw(); });
+  document.querySelectorAll('[data-cp-book]').forEach(b => b.onclick = () => { read(); campForm.booked = b.dataset.cpBook === '1'; redraw(); });
+  $('cp-open').onchange = e => { read(); campForm.dateOpen = e.target.checked; redraw(); };
   $('cp-cancel').onclick = () => { campForm = null; renderCamps(); };
   $('cp-form').onsubmit = e => {
     e.preventDefault(); read();
     const msg = t => { $('cp-msg').textContent = t; }, f = campForm;
     if (!f.name){ msg('Bitte einen Namen eingeben.'); return; }
-    if (!f.from){ msg('Bitte das Datum «Von» wählen.'); return; }
-    if (!f.to) f.to = f.from;
-    if (f.to < f.from){ msg('«Bis» darf nicht vor «Von» liegen.'); return; }
+    if (!f.dateOpen && !f.from){ msg('Bitte «Von» wählen oder «Datum noch offen» ankreuzen.'); return; }
+    if (f.from && !f.to) f.to = f.from;
+    if (f.from && f.to < f.from){ msg('«Bis» darf nicht vor «Von» liegen.'); return; }
     if ((f.price !== null && !(f.price >= 0)) || (f.stay !== null && !(f.stay >= 0))){ msg('Bitte einen gültigen Betrag eingeben.'); return; }
+    if (f.kind !== 'camp') f.stay = null;
+    if (f.from){ f.when = ''; f.year = ''; }
+    delete f.dateOpen;
     if (f.id) Object.assign(camps.find(c => c.id === f.id), f); else camps.push(Object.assign({}, f, { id:Date.now().toString(36) + Math.random().toString(36).slice(2, 6) }));
     saveCamps(); campForm = null; renderCamps();
   };
@@ -4160,7 +4200,7 @@ function reportRange(){
     case 'prev': from = new Date(y, m - 1, 1); to = new Date(new Date(y, m, 1).getTime() - 1); break;
     case '3m': from = new Date(y, m - 2, 1); break;
     case 'all': {
-      const ts = (progress.log || []).map(e => Date.parse(e.at)).concat(painList().map(r => Date.parse(r.at)), camps.map(c => ymdDate(c.from).getTime()).filter(x => x <= today.getTime())).filter(x => !isNaN(x));
+      const ts = (progress.log || []).map(e => Date.parse(e.at)).concat(painList().map(r => Date.parse(r.at)), camps.filter(c => c.booked && c.from).map(c => ymdDate(c.from).getTime()).filter(x => x <= today.getTime())).filter(x => !isNaN(x));
       from = ts.length ? rpDay0(Math.min(...ts)) : today; break; }
     case 'custom': {
       const f = rpParse(reportState.from), t = rpParse(reportState.to);
@@ -4221,7 +4261,7 @@ function reportData(from, to){
   return { from, to, F, T, len, log, prev, mins:sum(log), prevMins:sum(prev), days:Object.keys(dayMin).length, dayMin, streak, weeks, fullWeeks, target,
     pil, bySet, fbl, aS:avg(fbl.map(e => e.fb.strain)), aF:avg(fbl.filter(e => e.fb.fun).map(e => e.fb.fun)),
     pains, prevPains, byArea, recs, badges, tests, skips:log.filter(e => e.skips).length, club,
-    camps:camps.filter(c => ymdDate(c.to).getTime() >= F && ymdDate(c.from).getTime() <= T).sort((a, b) => a.from < b.from ? -1 : 1) };
+    camps:camps.filter(c => c.booked && c.from && ymdDate(c.to).getTime() >= F && ymdDate(c.from).getTime() <= T).sort((a, b) => a.from < b.from ? -1 : 1) };
 }
 
 const CLUB_WHY_TXT = Object.assign(Object.fromEntries(CLUB_WHY), { ohne:'ohne Grund' });
@@ -6318,9 +6358,9 @@ const Demo = (() => {
   }
   const inDays = n => ymd(addDays(new Date(), n));
   const demoCamps = () => [
-    { id:'d1', kind:'camp', name:'Herbstcamp', place:'Beispielort', org:'Beispiel Club', from:inDays(-28), to:inDays(-24), price:750, stay:320 },
-    { id:'d2', kind:'special', name:'Skating-Technik', place:'Beispielort', org:'Coach Muster', from:inDays(1), to:inDays(1), price:120 },
-    { id:'d3', kind:'camp', name:'Sommer-Hockeycamp', place:'Beispielort', org:'Beispiel Hockey AG', from:inDays(60), to:inDays(64), price:890 }];
+    { id:'d1', kind:'camp', name:'Herbstcamp', place:'Beispielort', org:'Beispiel Club', from:inDays(-28), to:inDays(-24), price:750, stay:320, booked:true },
+    { id:'d2', kind:'special', name:'Skating-Technik', place:'Beispielort', org:'Coach Muster', from:inDays(1), to:inDays(1), price:120, booked:true, note:'Schlittschuhe frisch schleifen.' },
+    { id:'d3', kind:'camp', name:'Sommer-Hockeycamp', place:'Beispielort', org:'Beispiel Hockey AG', from:'', to:'', when:'Sommer', year:String(new Date().getFullYear() + 1), price:900, estimate:true, booked:false, note:'Coach: A. Muster. Anmeldung bis Ende März.' }];
   function demoData(){
     const ids = MISSIONS.filter(m => !isLocked(m)).map(m => m.id), days = [33,31,28,26,24,21,19,17,14,12,10,7,5,3,1];
     const ST = [2,3,4,3,5,2,3,4,3,4,2,3,5,3,4], FN = [3,2,3,3,2,3,1,3,3,2,3,3,2,3,3];
@@ -6351,7 +6391,7 @@ const Demo = (() => {
     [`Rekorde und Testtag zeigen, wie ${PROFILE.name} besser wird.`, () => openRecords()],
     ['Eltern-Bereich: Club-Trainings bestätigen. Das Mission Center bleibt rein für APC.', () => { openParents(); hl('.clc'); }],
     ['Wochenplan mit echten Daten, Eistraining und Matches, auch für die Folgewoche.', () => hl('#screen-parents .planner')],
-    ['Camps und Spezialtrainings: erfassen, im Wochenplan sehen, Kostentotal pro Jahr im Blick.', () => openCamps()],
+    ['Camps und Spezialtrainings: gebucht oder noch offen, mit Details und Kostentotal pro Jahr.', () => openCamps()],
     ['Bericht: APC- und Club-Trainings, Camps, Feedback und Schmerzen, als PDF zum Herunterladen.', () => openReport()]
   ];
   function start(){
