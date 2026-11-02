@@ -806,6 +806,32 @@ body.voice-off .stage .coach p{font-size:clamp(1.4rem,3.6vw,2rem)}
 .px-list li{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding:2px 0}
 .px-del{border:0;background:none;color:var(--muted);font-size:1.4rem;cursor:pointer;min-width:44px;min-height:44px}
 .pc.xday{border-left-color:var(--gold)}
+.pc.camp{border-left-color:var(--ice);color:var(--ice)} .pc.camp.special{border-left-color:var(--gold);color:var(--gold)}
+/* Camps und Spezialtrainings */
+.cp-form{display:flex;flex-direction:column;gap:12px}
+.cp-f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.cp-f .pselect{width:100%;min-width:0}
+.cp-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.cp-h{font-family:var(--f-display);font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:1rem;color:var(--ice);margin:22px 0 8px}
+.cp-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:12px 14px;margin-bottom:10px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--ice);border-radius:12px}
+.cp-card.special{border-left-color:var(--gold)}
+.cp-tag{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ice)}
+.cp-card.special .cp-tag{color:var(--gold)}
+.cp-card b{font-size:1.05rem;overflow-wrap:anywhere}
+.cp-price{font-weight:800;text-align:right;white-space:nowrap}
+.cp-meta{grid-column:1/-1;color:var(--muted);overflow-wrap:anywhere}
+.cp-acts{grid-column:1/-1;display:flex;gap:16px;margin-top:4px}
+.cp-cost{padding:12px 14px;margin-bottom:6px;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.cp-cost .eyebrow{margin:0 0 6px}
+.cp-cost table{width:100%;border-collapse:collapse}
+.cp-cost th,.cp-cost td{padding:5px 4px;border-bottom:1px solid var(--line);text-align:left;font-variant-numeric:tabular-nums}
+.cp-cost th{color:var(--muted);font-size:.8rem;font-weight:700}
+.cp-cost tr:last-child td{border-bottom:0}
+.cp-cost .r{text-align:right;white-space:nowrap}
+.cp-top{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin:0 0 14px}
+.cp-cost{overflow-x:auto}
+.cp-title{overflow-wrap:anywhere}
+@media (max-width:480px){.cp-two{grid-template-columns:1fr}.cp-title{font-size:1.9rem}.cp-cost th,.cp-cost td{font-size:.74rem;padding:4px 2px}}
 /* Aufbau vor dem Start */
 .su-wrap{align-items:stretch;gap:14px;max-width:1100px;margin-inline:auto}
 .su-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
@@ -1188,6 +1214,7 @@ html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:
     <section id="screen-log" class="screen" hidden></section>
     <section id="screen-analytics" class="screen" hidden></section>
     <section id="screen-report" class="screen" hidden></section>
+    <section id="screen-camps" class="screen" hidden></section>
     <section id="screen-setup" class="screen" hidden></section>
     <section id="screen-player" class="screen" hidden>
       <div class="ptop">
@@ -2893,13 +2920,13 @@ function faceoffSVG(){
     <line class="fo-hash" x1="78" y1="182" x2="78" y2="196"/><line class="fo-hash" x1="122" y1="182" x2="122" y2="196"/>
     <circle class="fo-dot" cx="100" cy="100" r="6"/></svg>`;
 }
-const MUSIC_SCREENS = new Set(['center','missions','briefing','progress','parents','log','card','avatar','trophies','records','season','music','report']);
+const MUSIC_SCREENS = new Set(['center','missions','briefing','progress','parents','log','card','avatar','trophies','records','season','music','report','camps']);
 let curScreen = 'center';
 function show(name){
   if (name !== 'avatar') closeAvatar3D();
   if (name !== 'card') closeCard3D();
-  ['center','briefing','trophies','missions','music','records','test','card','avatar','season','setup','player','progress','parents','log','analytics','report'].forEach(n => { $('screen-' + n).hidden = (n !== name); });
-  { const tab = { center:'heute', music:'eltern', missions:'trainings', briefing:'trainings', setup:'trainings', progress:'fortschritt', card:'fortschritt', avatar:'fortschritt', trophies:'fortschritt', records:'fortschritt', test:'fortschritt', season:'fortschritt', log:'fortschritt', analytics:'fortschritt', parents:'eltern', report:'eltern' }[name];
+  ['center','briefing','trophies','missions','music','records','test','card','avatar','season','setup','player','progress','parents','log','analytics','report','camps'].forEach(n => { $('screen-' + n).hidden = (n !== name); });
+  { const tab = { center:'heute', music:'eltern', missions:'trainings', briefing:'trainings', setup:'trainings', progress:'fortschritt', card:'fortschritt', avatar:'fortschritt', trophies:'fortschritt', records:'fortschritt', test:'fortschritt', season:'fortschritt', log:'fortschritt', analytics:'fortschritt', parents:'eltern', report:'eltern', camps:'eltern' }[name];
     document.querySelectorAll('#tabbar [data-tab]').forEach(b => { if (b.dataset.tab === tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }); }
   $('btn-home').hidden = (name === 'center');
   $('tog-theme').hidden = (name !== 'center');
@@ -3017,8 +3044,26 @@ document.addEventListener('click', e => {
   clubRedraw();
 });
 const painSrcTxt = s => s === 'training' ? 'nach Training' : s === 'club' ? 'Club-Training' : 'Check-in';
+/* Camps und Spezialtrainings: apc.camps.v1 [{ id, kind:'camp'|'special', name, place, org, from, to, price, stay }] (stay = Übernachtungskosten, nur Camps) (Daten als JJJJ-MM-TT).
+   Nur Elterninfo: im Wochenplan, im Mission Center (ohne Status) und im Bericht. Liegt in der Sicherung (alle apc.*-Schlüssel). */
+const camps = store.get('apc.camps.v1', []);
+const saveCamps = () => store.set('apc.camps.v1', camps);
+const CAMP_KIND = { camp:'Camp', special:'Spezialtraining' };
+const campsOn = d => { const k = ymd(d); return camps.filter(c => c.from <= k && k <= c.to); };
+const campDays = c => Math.round((ymdDate(c.to) - ymdDate(c.from)) / 864e5) + 1;
+const campLen = c => { const n = campDays(c); return n === 1 ? '1 Tag' : `${n} Tage`; };
+const campDate = c => {
+  const a = ymdDate(c.from), b = ymdDate(c.to), f = d => `${d.getDate()}.${d.getMonth() + 1}.`;
+  if (c.from === c.to) return f(a) + a.getFullYear();
+  if (a.getFullYear() !== b.getFullYear()) return `${f(a)}${a.getFullYear()} – ${f(b)}${b.getFullYear()}`;
+  return (a.getMonth() === b.getMonth() ? `${a.getDate()}.` : f(a)) + `–${f(b)}${b.getFullYear()}`;
+};
+const fmtCHF = n => 'CHF ' + (+n).toFixed(n % 1 ? 2 : 0).replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+const campPrice = c => c.price === null || c.price === undefined ? '–' : fmtCHF(c.price);
+const campStay = c => c.kind === 'camp' ? c.stay || 0 : 0;
+const campSum = L => L.reduce((s, c) => s + (c.price || 0) + campStay(c), 0);
 /* Chips für einen Tag; mit Protokoll e werden ✓ (gemacht), ✗ (ausgelassen) und – (ausgefallen) angehängt */
-function planChipsHTML(d, e){
+function planChipsHTML(d, e, dt){
   const mk = k => !e || !e[k] ? '' : e[k].s === 'done' ? ' ✓' : e[k].s === 'missed' ? ' ✗' : ' –';
   const m = SETS.find(x => x.id === d.set);
   return [
@@ -3028,6 +3073,7 @@ function planChipsHTML(d, e){
     d.tour ? `<span class="pc game">Turnier${d.gameTime && !d.match ? ' ' + d.gameTime : ''}${d.match ? '' : mk('game')}</span>` : '',
     m ? `<span class="pc apc load-b-${m.load}">Set ${m.n} · ${m.title}</span>` : '',
     d.extra ? '<span class="pc xday">Zusatztraining</span>' : '',
+    ...(dt ? campsOn(dt).map(c => `<span class="pc camp ${c.kind}">${CAMP_KIND[c.kind]}: ${rpEsc(c.name)}</span>`) : []),
     d.note ? `<span class="pc xday">${rpEsc(d.note)}</span>` : d.custom && !d.extra ? '<span class="pc xday">angepasst</span>' : ''
   ].join('') || '<span class="pc rest">Ruhetag</span>';
 }
@@ -3119,7 +3165,7 @@ function plannerHTML(){
     const dt = tpl ? null : addDays(mon, i), isToday = !!dt && dt.getTime() === t0;
     const d = tpl ? week[k] : Object.assign({}, W[k], { custom:isCustom(W[k]) });
     return `<button class="pday${isToday ? ' today' : ''}${dt && dt.getTime() < t0 ? ' past' : ''}${plannerOpen === k ? ' open' : ''}" data-day="${k}" aria-pressed="${plannerOpen === k}">
-      <span class="pd-name"><b>${short}</b><small>${tpl ? name : isToday ? 'Heute' : fmtDM(dt, true)}</small></span><span class="pd-chips">${planChipsHTML(d)}</span></button>`;
+      <span class="pd-name"><b>${short}</b><small>${tpl ? name : isToday ? 'Heute' : fmtDM(dt, true)}</small></span><span class="pd-chips">${planChipsHTML(d, null, dt)}</span></button>`;
   }).join('');
   let editor = '';
   if (plannerOpen){
@@ -3161,7 +3207,7 @@ let mcWeekNext = false;
 function weekViewHTML(){
   const t0 = addDays(new Date(), 0).getTime(), mon = addDays(monOf(new Date()), mcWeekNext ? 7 : 0);
   const cells = DAYS.map(([k, name, short], i) => {
-    const dt = addDays(mon, i), isToday = dt.getTime() === t0, chips = planChipsHTML(planFor(dt));   // Club-Termine nur zur Info, bestätigt wird im Eltern-Bereich
+    const dt = addDays(mon, i), isToday = dt.getTime() === t0, chips = planChipsHTML(planFor(dt), null, dt);   // Club-Termine nur zur Info, bestätigt wird im Eltern-Bereich
     return `<div class="pday ro${isToday ? ' today' : ''}"><span class="pd-name"><b>${short}</b><small>${isToday ? 'Heute' : fmtDM(dt)}</small></span><span class="pd-chips">${chips}</span></div>`;
   }).join('');
   return `<section class="planner mc2-week" aria-labelledby="wk-h"><div class="cab-head"><h3 id="wk-h">${mcWeekNext ? 'Nächste Woche' : 'Wochenplan'}</h3>
@@ -3599,6 +3645,7 @@ function dayContextHTML(){
   if (d.custom && d.note) out.push(`<span>${rpEsc(d.note)}</span>`);
   if (isGame(d)) out.push(`<span class="game">Heute ${d.match ? 'Match' : 'Turnier'}${d.gameTime ? ' ' + d.gameTime : ''}</span>`);
   if (isGame(t)) out.push(`<span class="game">Morgen ${t.match ? 'Match' : 'Turnier'}</span>`);
+  campsOn(new Date()).forEach(c => out.push(`<span>Heute ${CAMP_KIND[c.kind]}: ${rpEsc(c.name)}</span>`));
   return out.length ? `<div class="mc2-ctx">${out.join('')}</div>` : '';
 }
 const ICO = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
@@ -3969,14 +4016,19 @@ function renderParents(){
       <p id="img-msg" aria-live="polite"></p>
     </div></div>
     ${painParentsHTML()}
+    <div class="parents"><div class="pbox backup" id="box-camps">
+      <p class="eyebrow">Camps und Spezialtrainings</p>
+      <p>${campTeaser()}</p>
+      <div class="bk-row"><button class="btn btn-primary btn-small" id="btn-camps">Öffnen</button></div>
+    </div></div>
     <div class="parents"><div class="pbox backup">
       <p class="eyebrow">Bericht</p>
-      <p>Übersicht für einen frei wählbaren Zeitraum: APC- und Club-Trainings, Feedback, Schmerzen, Rekorde und Abzeichen. Als PDF speichern, drucken oder teilen.</p>
+      <p>Übersicht für einen frei wählbaren Zeitraum: APC- und Club-Trainings, Camps, Feedback, Schmerzen, Rekorde und Abzeichen. Als PDF speichern, drucken oder teilen.</p>
       <div class="bk-row"><button class="btn btn-primary btn-small" id="btn-report">Bericht öffnen</button></div>
     </div></div>
     <div class="parents"><div class="pbox backup">
       <p class="eyebrow">Sicherung</p>
-      <p>Speichert Name, Fortschritt, Wochenplan, Einstellungen und Coach-Aufnahmen als Datei. Damit lässt sich der Stand nach einem Gerätewechsel oder Datenverlust wiederherstellen.</p>
+      <p>Speichert Name, Fortschritt, Wochenplan, Camps, Einstellungen und Coach-Aufnahmen als Datei. Damit lässt sich der Stand nach einem Gerätewechsel oder Datenverlust wiederherstellen.</p>
       <div class="bk-row">
         <button class="btn btn-primary btn-small" id="btn-backup">Sicherung erstellen</button>
         <button class="btn btn-ghost btn-small" id="btn-restore">Sicherung wiederherstellen</button>
@@ -3999,10 +4051,93 @@ function renderParents(){
   };
   bindBackup();
   $('btn-report').onclick = openReport;
+  $('btn-camps').onclick = openCamps;
   { const redraw = () => { const sc = $('screen-parents'), y = sc.scrollTop; renderParents(); sc.scrollTop = y; };
     bindCardImgInput($('btn-img-add'), redraw, $('img-msg'));
     document.querySelectorAll('[data-del-img]').forEach(b => b.onclick = () => { if (confirm('Dieses Bild entfernen?')){ CardImgs.remove(b.dataset.delImg); redraw(); } }); }
 }
+
+/* ---- Eltern: Camps und Spezialtrainings erfassen (eigene Seite) ---- */
+let campFilter = 'all', campForm = null;
+const campToday = () => ymd(new Date());
+function campTeaser(){
+  const up = camps.filter(c => c.to >= campToday()).sort((a, b) => a.from < b.from ? -1 : 1);
+  const y = String(new Date().getFullYear()), cost = camps.some(c => c.from.startsWith(y)) ? ` · Kosten ${y}: ${fmtCHF(campSum(camps.filter(c => c.from.startsWith(y))))}` : '';
+  if (up.length) return `${up.length} geplant · Nächstes: ${rpEsc(up[0].name)}, ${campDate(up[0])}${cost}`;
+  return camps.length ? `Nichts geplant${cost}` : 'Noch nichts erfasst.';
+}
+/* Kosten pro Jahr (massgebend ist das Startdatum); unabhängig vom Filter, damit die Totale immer vollständig sind */
+const campSplit = L => ({ camp:L.filter(c => c.kind === 'camp').reduce((s, c) => s + (c.price || 0), 0), stay:L.reduce((s, c) => s + campStay(c), 0), special:campSum(L.filter(c => c.kind === 'special')), total:campSum(L) });
+function campCostHTML(){
+  if (!camps.length) return '';
+  const years = [...new Set(camps.map(c => c.from.slice(0, 4)))].sort().reverse();
+  const row = (l, x, b) => `<tr><td>${b ? `<b>${l}</b>` : l}</td><td class="r">${fmtCHF(x.camp)}</td><td class="r">${fmtCHF(x.stay)}</td><td class="r">${fmtCHF(x.special)}</td><td class="r"><b>${fmtCHF(x.total)}</b></td></tr>`;
+  return `<section class="cp-cost"><p class="eyebrow">Kosten</p><table><thead><tr><th>Jahr</th><th class="r">Camps</th><th class="r">Über&shy;nachtung</th><th class="r">Spezial&shy;trainings</th><th class="r">Total</th></tr></thead><tbody>
+    ${years.map(y => row(y, campSplit(camps.filter(c => c.from.startsWith(y))))).join('')}${years.length > 1 ? row('Gesamt', campSplit(camps), true) : ''}</tbody></table></section>`;
+}
+function campCardHTML(c){
+  return `<article class="cp-card ${c.kind}"><span class="cp-tag">${CAMP_KIND[c.kind]}</span><span class="cp-price">${c.price === null || c.price === undefined ? (campStay(c) ? fmtCHF(campStay(c)) : '–') : fmtCHF(campSum([c]))}</span>
+    <b style="grid-column:1/-1">${rpEsc(c.name)}</b>
+    <span class="cp-meta">${[c.place, c.org].filter(Boolean).map(rpEsc).join(' · ') || 'Ort und Veranstalter offen'}<br>${campDate(c)} · ${campLen(c)}${campStay(c) ? `<br>Camp ${campPrice(c)} + Übernachtung ${fmtCHF(campStay(c))}` : ''}</span>
+    <span class="cp-acts"><button class="cl-link" data-cp-edit="${c.id}">Ändern</button><button class="cl-link" data-cp-del="${c.id}">Löschen</button></span></article>`;
+}
+function campFormHTML(){
+  const f = campForm;
+  return `<form class="pbox cp-form" id="cp-form" novalidate><p class="eyebrow">${f.id ? 'Eintrag ändern' : 'Neu erfassen'}</p>
+    <div class="pl-tabs" role="group" aria-label="Art">${Object.entries(CAMP_KIND).map(([k, l]) => `<button type="button" class="av-chip" data-cp-kind="${k}" aria-pressed="${f.kind === k}">${l}</button>`).join('')}</div>
+    <div class="cp-f"><label for="cp-name" class="pe-lbl">Name</label><input id="cp-name" class="pselect" maxlength="60" value="${rpEsc(f.name)}"></div>
+    <div class="cp-f"><label for="cp-place" class="pe-lbl">Ort</label><input id="cp-place" class="pselect" maxlength="60" value="${rpEsc(f.place)}"></div>
+    <div class="cp-f"><label for="cp-org" class="pe-lbl">Veranstalter</label><input id="cp-org" class="pselect" maxlength="60" value="${rpEsc(f.org)}"></div>
+    <div class="cp-two"><div class="cp-f"><label for="cp-from" class="pe-lbl">Von</label><input type="date" id="cp-from" class="pselect" value="${f.from}"></div>
+      <div class="cp-f"><label for="cp-to" class="pe-lbl">Bis</label><input type="date" id="cp-to" class="pselect" value="${f.to}"></div></div>
+    <p class="muted" id="cp-len" aria-live="polite" style="margin:0"></p>
+    <div class="cp-f"><label for="cp-price" class="pe-lbl">Preis (CHF)</label><input type="number" inputmode="decimal" min="0" step="0.05" id="cp-price" class="pselect" value="${f.price === null || f.price === undefined ? '' : f.price}"></div>
+    ${f.kind === 'camp' ? `<div class="cp-f"><label for="cp-stay" class="pe-lbl">Übernachtung (CHF)</label><input type="number" inputmode="decimal" min="0" step="0.05" id="cp-stay" class="pselect" value="${f.stay === null || f.stay === undefined ? '' : f.stay}"></div>` : ''}
+    <p class="pnote" id="cp-msg" aria-live="polite" style="margin:0"></p>
+    <div class="bk-row"><button type="submit" class="btn btn-primary btn-small">Speichern</button><button type="button" class="btn btn-ghost btn-small" id="cp-cancel">Abbrechen</button></div></form>`;
+}
+function renderCamps(){
+  const L = camps.filter(c => campFilter === 'all' || c.kind === campFilter), t = campToday();
+  const up = L.filter(c => c.to >= t).sort((a, b) => a.from < b.from ? -1 : 1), past = L.filter(c => c.to < t).sort((a, b) => a.from < b.from ? 1 : -1);
+  $('screen-camps').innerHTML = `
+  <div class="inner trophies hub">
+    <div class="tr-head"><div><p class="eyebrow">Eltern-Bereich</p><h1 class="cp-title">Camps und Spezial&shy;trainings</h1></div>
+      <button class="btn btn-ghost btn-small" id="btn-cp-back"><span class="arrow back" aria-hidden="true"></span> Eltern-Bereich</button></div>
+    ${campForm ? campFormHTML() : `<div class="cp-top"><div class="pl-tabs" role="group" aria-label="Filter">${[['all', 'Alle'], ['camp', 'Camps'], ['special', 'Spezialtrainings']].map(([k, l]) => `<button class="av-chip" data-cp-filter="${k}" aria-pressed="${campFilter === k}">${l}</button>`).join('')}</div>
+      <button class="btn btn-primary btn-small" id="btn-cp-new">Neu erfassen</button></div>
+      ${campCostHTML()}
+      ${!L.length ? '<p class="muted">Noch keine Einträge.</p>' : ''}
+      ${up.length ? `<h2 class="cp-h">Geplant</h2>${up.map(campCardHTML).join('')}` : ''}
+      ${past.length ? `<h2 class="cp-h">Vergangen</h2>${past.map(campCardHTML).join('')}` : ''}`}
+  </div>`;
+  $('btn-cp-back').onclick = openParents;
+  const redraw = () => { const sc = $('screen-camps'), y = sc.scrollTop; renderCamps(); $('screen-camps').scrollTop = y; };
+  if (!campForm){
+    $('btn-cp-new').onclick = () => { campForm = { id:'', kind:campFilter === 'special' ? 'special' : 'camp', name:'', place:'', org:'', from:'', to:'', price:null, stay:null }; renderCamps(); $('screen-camps').scrollTop = 0; };
+    document.querySelectorAll('[data-cp-filter]').forEach(b => b.onclick = () => { campFilter = b.dataset.cpFilter; redraw(); });
+    document.querySelectorAll('[data-cp-edit]').forEach(b => b.onclick = () => { campForm = Object.assign({}, camps.find(c => c.id === b.dataset.cpEdit)); renderCamps(); $('screen-camps').scrollTop = 0; });
+    document.querySelectorAll('[data-cp-del]').forEach(b => b.onclick = () => { const c = camps.find(x => x.id === b.dataset.cpDel); if (!c || !confirm(`«${c.name}» löschen?`)) return; camps.splice(camps.indexOf(c), 1); saveCamps(); redraw(); });
+    return;
+  }
+  const read = () => Object.assign(campForm, { name:$('cp-name').value.trim(), place:$('cp-place').value.trim(), org:$('cp-org').value.trim(), from:$('cp-from').value, to:$('cp-to').value, price:$('cp-price').value === '' ? null : +$('cp-price').value, stay:!$('cp-stay') || $('cp-stay').value === '' ? null : +$('cp-stay').value });
+  const len = () => { read(); $('cp-len').textContent = campForm.from && campForm.to >= campForm.from ? `Dauer: ${campLen(campForm)}` : ''; };
+  $('cp-from').onchange = () => { if (!$('cp-to').value || $('cp-to').value < $('cp-from').value) $('cp-to').value = $('cp-from').value; len(); };
+  $('cp-to').onchange = len; len();
+  document.querySelectorAll('[data-cp-kind]').forEach(b => b.onclick = () => { read(); campForm.kind = b.dataset.cpKind; redraw(); });
+  $('cp-cancel').onclick = () => { campForm = null; renderCamps(); };
+  $('cp-form').onsubmit = e => {
+    e.preventDefault(); read();
+    const msg = t => { $('cp-msg').textContent = t; }, f = campForm;
+    if (!f.name){ msg('Bitte einen Namen eingeben.'); return; }
+    if (!f.from){ msg('Bitte das Datum «Von» wählen.'); return; }
+    if (!f.to) f.to = f.from;
+    if (f.to < f.from){ msg('«Bis» darf nicht vor «Von» liegen.'); return; }
+    if ((f.price !== null && !(f.price >= 0)) || (f.stay !== null && !(f.stay >= 0))){ msg('Bitte einen gültigen Betrag eingeben.'); return; }
+    if (f.id) Object.assign(camps.find(c => c.id === f.id), f); else camps.push(Object.assign({}, f, { id:Date.now().toString(36) + Math.random().toString(36).slice(2, 6) }));
+    saveCamps(); campForm = null; renderCamps();
+  };
+}
+function openCamps(){ Voice.stop(); campForm = null; renderCamps(); show('camps'); $('screen-camps').scrollTop = 0; }
 
 /* ---- Eltern: Bericht mit PDF-Export ----
    Wertet die lokalen Daten (Trainings, Feedback, Schmerzen, Rekorde, Abzeichen) für einen Zeitraum aus.
@@ -4025,7 +4160,7 @@ function reportRange(){
     case 'prev': from = new Date(y, m - 1, 1); to = new Date(new Date(y, m, 1).getTime() - 1); break;
     case '3m': from = new Date(y, m - 2, 1); break;
     case 'all': {
-      const ts = (progress.log || []).map(e => Date.parse(e.at)).concat(painList().map(r => Date.parse(r.at))).filter(x => !isNaN(x));
+      const ts = (progress.log || []).map(e => Date.parse(e.at)).concat(painList().map(r => Date.parse(r.at)), camps.map(c => ymdDate(c.from).getTime()).filter(x => x <= today.getTime())).filter(x => !isNaN(x));
       from = ts.length ? rpDay0(Math.min(...ts)) : today; break; }
     case 'custom': {
       const f = rpParse(reportState.from), t = rpParse(reportState.to);
@@ -4085,7 +4220,8 @@ function reportData(from, to){
     } }
   return { from, to, F, T, len, log, prev, mins:sum(log), prevMins:sum(prev), days:Object.keys(dayMin).length, dayMin, streak, weeks, fullWeeks, target,
     pil, bySet, fbl, aS:avg(fbl.map(e => e.fb.strain)), aF:avg(fbl.filter(e => e.fb.fun).map(e => e.fb.fun)),
-    pains, prevPains, byArea, recs, badges, tests, skips:log.filter(e => e.skips).length, club };
+    pains, prevPains, byArea, recs, badges, tests, skips:log.filter(e => e.skips).length, club,
+    camps:camps.filter(c => ymdDate(c.to).getTime() >= F && ymdDate(c.from).getTime() <= T).sort((a, b) => a.from < b.from ? -1 : 1) };
 }
 
 const CLUB_WHY_TXT = Object.assign(Object.fromEntries(CLUB_WHY), { ohne:'ohne Grund' });
@@ -4124,6 +4260,13 @@ function reportFazit(D){
 const RP_CLUB = { done:'#1E9E6A', missed:'#E08A00', cancelled:'#C3CAD4', open:'#7C8796' };
 const RP_CLUB_ROWS = [['on', 'On-Ice'], ['off', 'Off-Ice'], ['game', 'Matches / Turniere']];
 const rpQuote = x => { const n = x.done + x.missed; return n ? Math.round(x.done / n * 100) + ' %' : '–'; };
+const rpCampTotals = D => { const x = campSplit(D.camps); return [['Total Camps', x.camp, false], ['Total Übernachtungen', x.stay, false], ['Total Spezialtrainings', x.special, false], ['Gesamttotal', x.total, true]]; };
+function rpCampsHTML(D){
+  if (!D.camps.length) return '';
+  return `<section class="rp-sec"><h2>Camps und Spezialtrainings</h2><table class="rp-tab rp-grid"><thead><tr><th>Art</th><th>Name</th><th>Ort · Veranstalter</th><th>Datum</th><th class="r">Preis</th><th class="r">Übernachtung</th></tr></thead><tbody>
+    ${D.camps.map(c => `<tr><td>${CAMP_KIND[c.kind]}</td><td><b>${rpEsc(c.name)}</b></td><td>${[c.place, c.org].filter(Boolean).map(rpEsc).join(' · ')}</td><td>${campDate(c)} (${campLen(c)})</td><td class="r">${campPrice(c)}</td><td class="r">${campStay(c) ? fmtCHF(campStay(c)) : '–'}</td></tr>`).join('')}
+    ${rpCampTotals(D).map(([l, v, b]) => `<tr><td colspan="5">${b ? `<b>${l}</b>` : l}</td><td class="r">${b ? `<b>${fmtCHF(v)}</b>` : fmtCHF(v)}</td></tr>`).join('')}</tbody></table></section>`;
+}
 function rpClubHTML(D){
   const c = D.club, rows = RP_CLUB_ROWS.filter(([k]) => c[k].plan);
   const why = rows.filter(([k]) => c.why[k]).map(([k, l]) => `${l}: ${clubWhyTxt(c.why[k])}`);
@@ -4212,6 +4355,7 @@ function reportPaperHTML(D){
     ${D.len <= 63 * 864e5 ? `<section class="rp-sec"><h2>Trainingskalender</h2>${rpCalendar(D)}</section>` : ''}
     ${D.weeks.length >= 2 ? `<section class="rp-sec"><h2>Regelmässigkeit</h2>${rpWeeks(D)}</section>` : ''}
     ${rpClubHTML(D)}
+    ${rpCampsHTML(D)}
     <div class="rp-two">
       <section class="rp-sec"><h2>Training nach Bereich</h2>${pilRows.length ? `<div class="rp-bars">${pilRows.map(([p, v]) => `<div class="rp-bar"><span>${rpEsc(p)}</span><div><i style="width:${(v / pilMax * 100).toFixed(0)}%"></i></div><b>${Math.round(v)} min</b></div>`).join('')}</div>` : '<p class="rp-empty">Keine Trainings im Zeitraum.</p>'}</section>
       <section class="rp-sec"><h2>Häufigste Sets</h2>${setRows.length ? `<table class="rp-tab"><tbody>${setRows.map(([id, n]) => `<tr><td>${rpEsc(setName(id))}</td><td class="r">${n}×</td></tr>`).join('')}</tbody></table>` : '<p class="rp-empty">–</p>'}</section>
@@ -4413,6 +4557,19 @@ async function buildReportPDF(D){
       y += caption('Quote = gemacht von gemacht + ausgelassen. «Ausgefallen» = vom Club abgesagt, zählt nicht. «Offen» = noch nicht bestätigt.');
     }
     y += 16; }
+  // Camps und Spezialtrainings
+  if (D.camps.length){
+    const cx = [M + 6, M + .16 * CW, M + .36 * CW, M + .58 * CW], maxW = [.15, .19, .21, .20].map(f => f * CW), xP = M + .87 * CW;
+    const fit = (s, w) => { let t = clean(s); while (t && fR.widthOfTextAtSize(t, 8.2) > w) t = t.slice(0, -1); return t; };
+    const head = () => { rect(M, y, CW, 17, C.navy); ['Art', 'Name', 'Ort · Veranstalter', 'Datum'].forEach((h, i) => txt(h, cx[i], y + 4.5, 8.3, { bold:true, color:C.white })); txt('Preis', xP, y + 4.5, 8.3, { bold:true, color:C.white, align:'right' }); txt('Übernachtung', M + CW - 6, y + 4.5, 8.3, { bold:true, color:C.white, align:'right' }); y += 17; };
+    ensure(22 + 17 + 17 + 62); heading('Camps und Spezialtrainings'); y += 24; head();
+    D.camps.forEach((c, i) => { if (y + 17 > BOTTOM){ newPage(); head(); } if (i % 2) rect(M, y, CW, 17, col('#F6F8FA'));
+      [CAMP_KIND[c.kind], c.name, [c.place, c.org].filter(Boolean).join(' · '), `${campDate(c)} (${campLen(c)})`].forEach((v, j) => txt(fit(v, maxW[j]), cx[j], y + 4.5, 8.2));
+      txt(campPrice(c), xP, y + 4.5, 8.2, { align:'right' }); txt(campStay(c) ? fmtCHF(campStay(c)) : '–', M + CW - 6, y + 4.5, 8.2, { align:'right' }); line(M, y + 17, M + CW, y + 17, C.line); y += 17; });
+    ensure(4 * 15 + 16); y += 2;
+    rpCampTotals(D).forEach(([l, v, b]) => { txt(l, M + 6, y + 3.5, 8.5, { bold:b, color:b ? C.navy : C.text }); txt(fmtCHF(v), M + CW - 6, y + 3.5, 8.5, { bold:b, color:b ? C.navy : C.text, align:'right' }); y += 15; });
+    y += 14;
+  }
   // Zwei Spalten: Bereiche und Sets
   const cW = (CW - 22) / 2, x2 = M + cW + 22;
   { const P = Object.entries(D.pil).sort((a, b) => b[1] - a[1]), S = Object.entries(D.bySet).sort((a, b) => b[1] - a[1]).slice(0, 6), pm = Math.max(1, ...P.map(p => p[1]));
@@ -4782,7 +4939,7 @@ let wake = null;
 async function keepAwake(){ try { if ('wakeLock' in navigator && !wake){ wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', () => { wake = null; }); } } catch(e){ wake = null; } }
 function releaseWake(){ try { if (wake) wake.release(); } catch(e){} wake = null; }
 
-/* ---- Aufbau vor dem Start: Skizze, Material und Abstände je Übung. Die Anordnung wählt Matteo selbst. Keine Zeit läuft ---- */
+/* ---- Aufbau vor dem Start: Skizze, Material und Abstände je Übung. Die Anordnung wählt der Spieler selbst. Keine Zeit läuft ---- */
 const SU_FMT = n => String(n).replace('.', ',');
 const suL = (n, d, it, o) => ({ k:'line', n, d, items:[[it || 'Hütchen', n]], ...(o || {}) });
 const suRun = (d, o) => suL(2, d, 'Hütchen', { lab:['Start', 'Ziel'], ...(o || {}) });
@@ -6135,7 +6292,7 @@ function confetti(){
    Neue Funktion in der App? Hier in STEPS eine Station ergänzen; die Dauer im Eltern-Bereich rechnet sich selbst. ---- */
 const Demo = (() => {
   const PER = 3000;   // 3 Sekunden je Station
-  let timers = [], saved = null, savedMission = null, savedReport = null, origSet = null, layer = null;
+  let timers = [], saved = null, savedCamps = null, savedMission = null, savedReport = null, origSet = null, layer = null;
   const iso = d => new Date(Date.now() - d * 864e5).toISOString();
   const later = (fn, ms) => timers.push(setTimeout(fn, ms));
   const tap = (sel, ms) => later(() => { const b = document.querySelector(sel); if (b) b.dispatchEvent(new MouseEvent('click', { bubbles:true })); }, ms);
@@ -6159,6 +6316,11 @@ const Demo = (() => {
     }
     return club;
   }
+  const inDays = n => ymd(addDays(new Date(), n));
+  const demoCamps = () => [
+    { id:'d1', kind:'camp', name:'Herbstcamp', place:'Beispielort', org:'Beispiel Club', from:inDays(-28), to:inDays(-24), price:750, stay:320 },
+    { id:'d2', kind:'special', name:'Skating-Technik', place:'Beispielort', org:'Coach Muster', from:inDays(1), to:inDays(1), price:120 },
+    { id:'d3', kind:'camp', name:'Sommer-Hockeycamp', place:'Beispielort', org:'Beispiel Hockey AG', from:inDays(60), to:inDays(64), price:890 }];
   function demoData(){
     const ids = MISSIONS.filter(m => !isLocked(m)).map(m => m.id), days = [33,31,28,26,24,21,19,17,14,12,10,7,5,3,1];
     const ST = [2,3,4,3,5,2,3,4,3,4,2,3,5,3,4], FN = [3,2,3,3,2,3,1,3,3,2,3,3,2,3,3];
@@ -6172,7 +6334,7 @@ const Demo = (() => {
       pain:[{ at:iso(10), area:'knie-l', level:'leicht', src:'training' }] };
   }
   const STEPS = [
-    ['Mission Center: Matteo sagt, wie er sich fühlt – der Coach schlägt das passende Training vor.', () => { renderCenter(); show('center'); hl('.mc2-feels'); }],
+    [`Mission Center: ${PROFILE.name} sagt, wie es geht – der Coach schlägt das passende Training vor.`, () => { renderCenter(); show('center'); hl('.mc2-feels'); }],
     ['Das empfohlene Training mit Dauer, Belastung und XP – plus Wochenziel und Tages-Quest.', () => hl('.mc2-rec')],
     ['Alle Trainings im Überblick, sortiert nach Schwerpunkt.', () => openMissions()],
     ['Off-Ice im Club ausgelassen? Set 29 ersetzt es zu Hause, inklusive Ausdauerblock.', () => openBriefing(setId(29))],
@@ -6180,16 +6342,17 @@ const Demo = (() => {
     ['Nach «Mission starten» kommt zuerst der Aufbau: Material und Abstände je Übung, dann «Aufbau fertig?».', () => openSetup()],
     ['Im Training: Animation und Zeit. Es gibt Zurück und Pause, aber kein Weiter.', () => { layer.classList.add('high'); demoPlayer(); }],
     ['Nach dem Training: Wie streng war\'s? Wie viel Spass hat\'s gemacht?', () => { layer.classList.remove('high'); endPlayer(); show('center'); feedbackFlow({ steps:['strain', 'fun', 'pain'], training:true, title:'Wie war\'s?', onDone:() => {} }); tap('.fbk [data-v="4"]', 1300); }],
-    ['Tut etwas weh? Matteo tippt die Stelle direkt am Körper an.', () => { closeFb(); feedbackFlow({ steps:['area', 'level'], title:'Wie war\'s?', preset:{ sel:['knie-l'] }, onDone:() => {} }); tap('.fbk path[data-area="schulter-r"]', 1200); }],
+    [`Tut etwas weh? ${PROFILE.name} tippt die Stelle direkt am Körper an.`, () => { closeFb(); feedbackFlow({ steps:['area', 'level'], title:'Wie war\'s?', preset:{ sel:['knie-l'] }, onDone:() => {} }); tap('.fbk path[data-area="schulter-r"]', 1200); }],
     ['Fortschritt: Rang, Level und Saison auf einen Blick.', () => { closeFb(); openProgress(); }],
     ['Die eigene Spielerkarte mit Attributen und Avatar.', () => openCard()],
     ['Der 3D-Avatar lässt sich drehen. Ausrüstung und Siegerposen werden mit Erfolgen freigeschaltet.', () => openAvatar()],
     ['Belohnungen: NHL-Profikarten und Abzeichen.', () => openTrophies()],
     ['Analytics: Belastung, Spass und Schmerzen ausgewertet.', () => { openAnalytics(); later(() => { const sc = $('screen-analytics'); if (sc) sc.scrollTo({ top:520, behavior:'smooth' }); }, 1200); }],
-    ['Rekorde und Testtag zeigen, wie Matteo besser wird.', () => openRecords()],
+    [`Rekorde und Testtag zeigen, wie ${PROFILE.name} besser wird.`, () => openRecords()],
     ['Eltern-Bereich: Club-Trainings bestätigen. Das Mission Center bleibt rein für APC.', () => { openParents(); hl('.clc'); }],
     ['Wochenplan mit echten Daten, Eistraining und Matches, auch für die Folgewoche.', () => hl('#screen-parents .planner')],
-    ['Bericht: APC- und Club-Trainings, Feedback und Schmerzen, als PDF zum Herunterladen.', () => openReport()]
+    ['Camps und Spezialtrainings: erfassen, im Wochenplan sehen, Kostentotal pro Jahr im Blick.', () => openCamps()],
+    ['Bericht: APC- und Club-Trainings, Camps, Feedback und Schmerzen, als PDF zum Herunterladen.', () => openReport()]
   ];
   function start(){
     if (layer || Engine.active) return;
@@ -6198,6 +6361,7 @@ const Demo = (() => {
     Object.keys(progress).forEach(k => delete progress[k]); Object.assign(progress, demoData());
     progress.unlocks = Object.fromEntries(UNLOCKS.filter(u => u.ok(unlockStats())).map(u => [u.k + ':' + u.v, iso(14)]));
     Object.assign(reportState, { range:'all', note:'' });
+    savedCamps = camps.slice(); camps.splice(0, camps.length, ...demoCamps());
     layer = document.createElement('div'); layer.id = 'demo';
     layer.innerHTML = `<div class="d-cap" role="status" aria-live="polite"><div class="d-top"><span class="d-tag" id="d-tag">Demo</span>
       <button class="btn btn-ghost btn-small" id="d-stop">Demo beenden</button></div><p class="d-txt" id="d-txt"></p><div class="d-bar"><span id="d-bar"></span></div></div>`;
@@ -6218,6 +6382,7 @@ const Demo = (() => {
     Object.keys(progress).forEach(k => delete progress[k]); Object.assign(progress, saved);
     store.set = origSet; saved = null;
     MISSION = savedMission; Object.assign(reportState, savedReport);
+    camps.splice(0, camps.length, ...savedCamps); savedCamps = null;
     layer.remove(); layer = null;
     openParents();
   }
