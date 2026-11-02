@@ -805,6 +805,22 @@ body.voice-off .stage .coach p{font-size:clamp(1.4rem,3.6vw,2rem)}
 .px-list li{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding:2px 0}
 .px-del{border:0;background:none;color:var(--muted);font-size:1.4rem;cursor:pointer;min-width:44px;min-height:44px}
 .pc.xday{border-left-color:var(--gold)}
+/* Aufbau vor dem Start */
+.su-wrap{align-items:stretch;gap:14px;max-width:1100px;margin-inline:auto}
+.su-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.su-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px}
+.su-card{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.su-card h3{font:800 1.05rem var(--f-display);letter-spacing:.02em}
+.su-mat{font-size:.9rem;color:var(--muted)}.su-mat b{color:var(--text)}
+.su-svg{display:block;width:100%;max-height:150px}
+.su-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-bottom:8px}
+.su-sum{font-weight:700}
+.su-mini{width:min(100%,300px);padding:6px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.su-t{fill:var(--text);font:600 12px var(--f-body)}.su-n{fill:#fff;font:700 10px var(--f-body)}
+.su-dim{stroke:var(--muted);stroke-width:1.2;fill:none}.su-path{stroke:var(--muted);stroke-width:1;stroke-dasharray:4 4;fill:none;opacity:.8}
+.su-cone,.su-r{fill:var(--red)}.su-b{fill:#3B82F6}.su-g{fill:#22B573}.su-y{fill:var(--gold)}.su-disc{fill:var(--gold)}.su-pod{fill:var(--ice)}
+.su-start{fill:var(--text)}.su-lad{fill:none;stroke:var(--text);stroke-width:1.4}.su-hurd{stroke:var(--text);stroke-width:4;stroke-linecap:round}
+.su-wall{fill:var(--muted)}.su-box{fill:var(--ice)}.su-free{fill:none;stroke:var(--muted);stroke-dasharray:4 4}
 /* Tastenleiste unter der Übung: Zurück (klein) und Pause (gross). Bleibt an Ort und Stelle, damit ein zweiter Tipp sicher trifft */
 .pctrl{flex:none;display:flex;align-items:center;justify-content:center;gap:28px;padding-block:10px 16px}
 .pctrl[hidden]{display:none}
@@ -1145,7 +1161,7 @@ html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:
 })();</script>
 <div id="app" lang="de">
   <header class="topbar">
-    <div class="brand"><div class="mark" aria-hidden="true"><i></i><i></i><i></i></div><b>APC 1.3</b><span>Family Edition</span></div>
+    <div class="brand"><div class="mark" aria-hidden="true"><i></i><i></i><i></i></div><b>APC 1.4</b><span>Family Edition</span></div>
     <div class="toggles" role="group" aria-label="Navigation und Ton">
       <button class="tog" id="btn-home" hidden aria-label="Zum Mission Center"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 L12 3 L21 11 M6 9 V21 H18 V9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lbl">Mission Center</span></button>
       <button class="tog" id="tog-music" aria-pressed="false" hidden>Musik</button>
@@ -1171,6 +1187,7 @@ html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:
     <section id="screen-log" class="screen" hidden></section>
     <section id="screen-analytics" class="screen" hidden></section>
     <section id="screen-report" class="screen" hidden></section>
+    <section id="screen-setup" class="screen" hidden></section>
     <section id="screen-player" class="screen" hidden>
       <div class="ptop">
         <div class="chip" id="p-chip">Start</div>
@@ -1453,6 +1470,14 @@ Object.assign(EXERCISES, {
    ===================================================================== */
 const W = (id, d, o) => ({ kind:'exercise', ex:id, duration:d, o:o || null });
 const B = (id, work, rounds, pause, o) => ({ repeat:rounds, between: pause ? brk('rest', pause) : null, steps:[ W(id, work, o) ], proAfter:true });
+/* Zirkel: statt A-A-A, B-B-B läuft A-B, A-B, A-B. Gleiche Gesamtmenge: Übungen mit weniger Durchgängen fallen in den letzten Runden weg */
+const Z = (...blocks) => {
+  const list = blocks.slice().sort((a, b) => b.repeat - a.repeat), rounds = list[0].repeat, steps = [];
+  list.forEach((b, i) => { const max = b.repeat < rounds ? { maxRound:b.repeat } : {};
+    if (i) steps.push({ ...brk('rest', 0), ...max });
+    b.steps.forEach(st => steps.push({ ...st, ...max })); });
+  return { repeat:rounds, between:null, circuit:true, proAfter:true, steps };
+};
 const S2 = { sides:true };
 const COOL_STD = () => [ W('wadeWand', 40, S2), W('quad', 40, S2), W('hueftbeuger', 40, S2), W('ruecken', 20), W('breathSeat', 60) ];
 const WARM6 = last => [ W('jog', 30), W('hampelmann', 30), W('kniehebelauf', 30, { name:'High Knees' }), W('shuffle', 30, { name:'Seitliche Shuffle' }), W('armRot', 30), last ];
@@ -1494,12 +1519,12 @@ const SETS = [
     cTip:'Stolz auf dich! Dranbleiben. Jeden Tag besser.' }),
 
   makeSet({ n:2, load:'niedrig', title:'Balance & Stability', tagline:'Starker Körper. Stabiler Körper. Sicherer Spieler.', desc:'Gleichgewicht, Stabilität und Rumpfkontrolle mit dem Revbalance Board.',
-    pillars:['Stabilität'], equipment:['Revbalance Board','Tennisball','Puck','Stock'], dauer:'20–25',
+    pillars:['Stabilität'], equipment:['Revbalance Board','Tennisball','Puck','Stock'], dauer:'25–30',
     wSub:'Bereite deinen Körper vor!',
     warmup:[ W('jog', 30), W('hampelmann', 30), W('kniehebelauf', 30, { name:'High Knees' }), W('shuffle', 30, { name:'Seitliche Shuffle' }), W('armRot', 30) ],
     wTip:'Atme tief ein und aus. Bleib aktiv und fokussiert!',
     mSub:'Stabilität für Körper, Core und Knöchel. Alle Übungen auf dem Revbalance Board.',
-    main:[ B('boardBalance', 30, 3, 20), B('boardOneLeg', 60, 3, 20, S2), B('boardSquat', 40, 3, 20), B('boardStick', 30, 3, 20), B('tennisWall', 30, 3, 20) ],
+    main:[ B('boardBalance', 30, 4, 20), B('boardOneLeg', 60, 4, 20, S2), B('boardSquat', 40, 4, 20), B('boardStick', 30, 4, 20), B('tennisWall', 30, 4, 20) ],
     tip:'Qualität vor Quantität: lieber stabil und kontrolliert als schnell und wackelig!',
     cSub:'Zur Ruhe kommen und regenerieren.', cTip:'Atme tief ein und aus. Dein Körper regeneriert – du wirst stärker!',
     challenge:{ name:'Balance Champ', text:'Schaffe alle 5 Übungen mit maximaler Kontrolle!', levels:['1 Übung perfekt','2–3 Übungen perfekt','4–5 Übungen perfekt'] } }),
@@ -1519,7 +1544,7 @@ const SETS = [
     warmup:[ W('jog', 30, { name:'Locker laufen' }), W('armkreisen', 30, { cues:[ { at:15, text:'Jetzt rückwärts!' } ] }), W('hueftkreisen', 30, { cues:[ { at:15, text:'Richtung wechseln!' } ] }), W('catcow', 30), W('plankDog', 30) ],
     wTip:'Atme tief durch die Nase ein und durch den Mund aus. Bleib fokussiert!',
     mSub:'Stärke deinen Rumpf. Kontrolliere dein Spiel!',
-    main:[ B('plankHold', 90, 2, 15), B('russianTwist', 30, 3, 40), B('legRaise', 30, 3, 40), B('plankTap', 30, 3, 30) ],
+    main:[ Z(B('plankHold', 90, 2, 15), B('russianTwist', 30, 3, 40), B('legRaise', 30, 3, 40), B('plankTap', 30, 3, 30)) ],
     tip:'Qualität vor Geschwindigkeit! Saubere Ausführung ist das Ziel!',
     cooldown:[ W('kindhaltung', 20), W('hueftbeuger', 40, S2), W('ruecken', 20), W('seitRumpf', 40, S2), W('breathSeat', 60) ],
     cTip:'Stolz auf dich! Dein Core macht dich auf dem Eis stärker!',
@@ -1531,7 +1556,7 @@ const SETS = [
              W('armkreisen', 30, { name:'Armkreisen & Hüftkreisen', cues:[ { at:15, text:'Jetzt Hüftkreisen!', anim:'hueftkreisen' } ] }) ],
     wTip:'Halte deinen Körper aktiv, deine Mitte gespannt und deinen Blick nach vorn!',
     mSub:'Werde körperlich stärker. Halte Kontakt. Bleib stabil.',
-    main:[ B('wallPush', 15, 3, 45), B('squatHold', 30, 3, 45), B('medSlam', 20, 3, 60), B('rumpfRot', 30, 3, 30) ],
+    main:[ Z(B('wallPush', 15, 3, 45), B('squatHold', 30, 3, 45), B('medSlam', 20, 3, 60), B('rumpfRot', 30, 3, 30)) ],
     tip:'Niedriger Schwerpunkt plus Körperspannung gleich mehr Power im Zweikampf!',
     cooldown:[ W('wadeWand', 40, S2), W('quad', 40, S2), W('hueftDehnen', 40, S2), W('rueckenMob', 45), W('breathSeat', 60) ],
     cTip:'Atme tief ein und aus. Dein Körper regeneriert – du wirst stärker!',
@@ -1564,7 +1589,7 @@ const SETS = [
     wSub:'Aktiviere deinen Körper und bring dein Herz in Schwung!',
     warmup:WARM6(W('ropeEasy', 30)), wTip:'Starte locker und steigere langsam dein Tempo!',
     mSub:'Durchhaltevermögen und Ausdauer-Intervalle mit dem Springseil und funktionellen Bewegungen.',
-    main:[ B('ropeRun', 90, 3, 45), B('shuttleCones', 40, 3, 40), B('climbPlank', 40, 3, 40), B('ropeKnees', 45, 3, 45), B('puckSkate', 40, 3, 40) ],
+    main:[ Z(B('ropeRun', 90, 3, 45), B('shuttleCones', 40, 3, 40), B('climbPlank', 40, 3, 40), B('ropeKnees', 45, 3, 45), B('puckSkate', 40, 3, 40)) ],
     tip:'Arbeite konstant – nicht sprinten! Es geht um Ausdauer, nicht nur um Geschwindigkeit!',
     cSub:'Beruhige deinen Körper und atme tief durch.',
     cooldown:[ W('auslaufen', 60), W('wadeWand', 40, { name:'Dehnung Wade', sides:true }), W('quad', 40, { name:'Dehnung Oberschenkel', sides:true }), W('ruecken', 20, { name:'Dehnung Rücken' }), W('breathSeat', 60) ],
@@ -1576,9 +1601,9 @@ const SETS = [
     wSub:'Mach deinen Körper bereit für smarte Bewegungen!',
     warmup:WARM6(W('ropeEasy', 30)), wTip:'Bleib locker, atme ruhig und konzentriere dich auf die Technik!',
     mSub:'Koordination für bessere Kontrolle und Verbindung zwischen Kopf und Körper.',
-    main:[ B('boardBalance', 40, 3, 20, { name:'Revbalance – Basic Balance' }), B('ropeFootwork', 120, 3, 30),
+    main:[ Z(B('boardBalance', 40, 3, 20, { name:'Revbalance – Basic Balance' }), B('ropeFootwork', 120, 3, 30),
            B('reactWall', 45, 3, 30, { name:'Reaktionsball – Hand-Eye Coordination', instruction:'Wirf den Reaktionsball gegen die Wand und fange ihn. Links und rechts abwechseln, leicht in den Knien bleiben.' }),
-           B('boardFig8', 40, 3, 20), B('tennisCatch', 45, 3, 30) ],
+           B('boardFig8', 40, 3, 20), B('tennisCatch', 45, 3, 30)) ],
     tip:'Qualität vor Geschwindigkeit! Saubere Bewegungen bringen dich weiter als Tempo.',
     cTip:'Atme tief ein und aus. Entspanne und sei stolz auf dich!',
     challenge:{ name:'Coordination Master', text:'Schaffe alle 5 Übungen mit perfekter Technik!', levels:['1 Runde sauber','2–3 Runden stark','4–5 Runden: episch!'] } }),
@@ -1598,9 +1623,9 @@ const SETS = [
     wSub:'Aktiviere deinen Körper und schalte den Kopf ein!',
     warmup:WARM6(W('dynDehnung', 30)), wTip:'Starte fokussiert und in deinem Rhythmus – Qualität vor Geschwindigkeit!',
     mSub:'Koordination auf höchstem Niveau: Balance, Rhythmus, Reaktion und Kontrolle.',
-    main:[ B('boardStick', 45, 3, 30, { name:'Revbalance – Stickhandling & Control' }), B('ropeRhythm', 120, 3, 30), B('padControl', 45, 3, 30),
+    main:[ Z(B('boardStick', 45, 3, 30, { name:'Revbalance – Stickhandling & Control' }), B('ropeRhythm', 120, 3, 30), B('padControl', 45, 3, 30),
            B('reactWall', 45, 3, 30, { name:'Reaktionsball – Wall Reaction', instruction:'Wirf den Reaktionsball gegen die Wand und fange ihn. Versuche, die Zeit zwischen Wurf und Fang zu verkürzen.' }),
-           B('tennisToss', 45, 3, 30) ],
+           B('tennisToss', 45, 3, 30)) ],
     tip:'Kontrolle ist schneller als Chaos! Bleib ruhig, fokussiert und technisch sauber!',
     cTip:'Atme tief ein und aus. Regeneration macht dich stärker!',
     challenge:{ name:'Coordination Master+', text:'Schaffe alle 5 Übungen mit perfekter Kontrolle!', levels:['1 Runde stark','2–3 Runden sehr stark','4–5 Runden: Elite'] } }),
@@ -1658,7 +1683,7 @@ const SETS = [
     wSub:'Aktiviere deinen Körper und bring dein Nervensystem auf Top-Level!',
     warmup:WARM6(W('dynAusfall', 30, S2)), wTip:'Führe jede Bewegung mit maximaler Kontrolle und Konzentration aus!',
     mSub:'Mehrere Aufgaben. Eine Mission. Koordination unter Druck.',
-    main:[ B('ladderToss', 30, 3, 30), B('boardReach', 40, 3, 25), B('pods3', 30, 4, 30), B('ropeDouble', 30, 4, 30), B('puckFig8', 45, 3, 30) ],
+    main:[ Z(B('ladderToss', 30, 3, 30), B('boardReach', 40, 3, 25), B('pods3', 30, 4, 30), B('ropeDouble', 30, 4, 30), B('puckFig8', 45, 3, 30)) ],
     tip:'Qualität schlägt Geschwindigkeit – mache jede Wiederholung perfekt!',
     cSub:'Beruhige deinen Körper und deinen Geist.', cTip:'Reflektiere kurz: Was war heute herausfordernd? Was hat gut geklappt?',
     challenge:{ name:'Elite Challenge', text:'Schaffe alle 5 Übungen ohne Fehler in einer Runde – mit voller Konzentration!', levels:['2 Fehler','1 Fehler','fehlerfrei: Elite'] } }),
@@ -1738,7 +1763,7 @@ const SETS = [
     warmup:[ W('jog', 30), W('hampelmann', 30), W('kniebeugen', 30, { name:'Kniebeugen ohne Gewicht' }), W('hueftkreisen', 30, { cues:[ { at:15, text:'Richtung wechseln!' } ] }), W('armRot', 30), W('ausfallRot', 30, S2), W('ropeBasic', 30, { name:'Springseil locker' }) ],
     wTip:'Zuerst ohne Gewicht sauber bewegen – dann kommt die Kettlebell.',
     mSub:'Saubere Technik vor Gewicht. Jede Wiederholung kontrolliert. Am Schluss ein kurzer Ausdauer-Finisher.',
-    main:[ B('kbGoblet', 40, 3, 15), B('kbDead', 40, 3, 15), B('kbFarmer', 40, 3, 15), B('kbSuitcase', 60, 2, 15, S2), B('kbHalo', 40, 2, 15, { cues:[ { at:20, text:'Richtung wechseln!' } ] }),
+    main:[ Z(B('kbGoblet', 40, 3, 15), B('kbDead', 40, 3, 15), B('kbFarmer', 40, 3, 15), B('kbSuitcase', 60, 2, 15, S2), B('kbHalo', 40, 2, 15, { cues:[ { at:20, text:'Richtung wechseln!' } ] })),
            { repeat:2, between:RF(30), proAfter:false, steps:[ W('kbSwing', 15, { name:'Finisher: Kettlebell Swing' }), RF(15), W('ropeBasic', 30, { name:'Finisher: Springseil' }) ] } ],
     tip:'Gewichte: Goblet Squat 6 kg, Kreuzheben 8 kg, Goblet Carry 8 kg, Suitcase Carry 6 kg, Halo 4 kg, Swing 6 kg. Die 10 kg erst beim Kreuzheben, wenn die Technik über alle Durchgänge sauber bleibt. Wenn die Technik nachlässt: leichter nehmen.',
     cTip:'Starke Arbeit! Kraft wächst in der Erholung – trink genug und iss etwas.',
@@ -2510,15 +2535,17 @@ function buildTimeline(m){
     sec.blocks.forEach((b, bi) => {
       for (let r = 1; r <= b.repeat; r++){
         b.steps.forEach(st => {
+          if (st.maxRound && r > st.maxRound) return;
           if (st.kind === 'exercise'){
             const ex = Object.assign({}, EXERCISES[st.ex], st.o || {});
-            const base = { sec, si, exId:ex.anim || st.ex, ex, round:r, rounds:b.repeat, pause: b.between ? (b.between.fixed ? b.between.duration : hi && sec.type === 'main' ? PAUSE_HIGH : b.between.duration) : 0 };
+            const base = { sec, si, exId:ex.anim || st.ex, key:st.ex, circuit:!!b.circuit, ex, round:r, rounds:b.repeat, pause: b.between ? (b.between.fixed ? b.between.duration : hi && sec.type === 'main' ? PAUSE_HIGH : b.between.duration) : 0 };
             if (r === 1 || !b.between) T.push({ ...base, type:'EXERCISE_PREVIEW', dur: r === 1 ? m.previewSeconds : m.previewRepeatSeconds });   // ab Durchgang 2 zeigt die Pause schon die nächste Übung
             T.push({ ...base, type:'EXERCISE_COUNTDOWN', dur: m.countdownSeconds });
             T.push({ ...base, type:'EXERCISE_RUNNING',   dur: st.duration });
           } else T.push(brkPhase(st, sec, si, r, b.repeat, false));
         });
-        if (r < b.repeat && b.between) T.push(brkPhase(b.between, sec, si, r, b.repeat, false));
+        if (r < b.repeat && b.circuit) T.push(brkPhase({ type:'water', duration:10 }, sec, si, r, b.repeat, true));   // zwischen den Zirkel-Runden: Trinkpause mit Profikarte
+        else if (r < b.repeat && b.between) T.push(brkPhase(b.between, sec, si, r, b.repeat, false));
       }
       // nach jedem Übungsblock im Hauptteil: Trinkpause mit NHL-Profikarte
       if (b.proAfter && bi < sec.blocks.length - 1) T.push(brkPhase({ type:'water', duration:10 }, sec, si, b.repeat, b.repeat, true));
@@ -2871,8 +2898,8 @@ let curScreen = 'center';
 function show(name){
   if (name !== 'avatar') closeAvatar3D();
   if (name !== 'card') closeCard3D();
-  ['center','briefing','trophies','missions','music','records','test','card','avatar','season','player','progress','parents','log','analytics','report'].forEach(n => { $('screen-' + n).hidden = (n !== name); });
-  { const tab = { center:'heute', music:'eltern', missions:'trainings', briefing:'trainings', progress:'fortschritt', card:'fortschritt', avatar:'fortschritt', trophies:'fortschritt', records:'fortschritt', test:'fortschritt', season:'fortschritt', log:'fortschritt', analytics:'fortschritt', parents:'eltern', report:'eltern' }[name];
+  ['center','briefing','trophies','missions','music','records','test','card','avatar','season','setup','player','progress','parents','log','analytics','report'].forEach(n => { $('screen-' + n).hidden = (n !== name); });
+  { const tab = { center:'heute', music:'eltern', missions:'trainings', briefing:'trainings', setup:'trainings', progress:'fortschritt', card:'fortschritt', avatar:'fortschritt', trophies:'fortschritt', records:'fortschritt', test:'fortschritt', season:'fortschritt', log:'fortschritt', analytics:'fortschritt', parents:'eltern', report:'eltern' }[name];
     document.querySelectorAll('#tabbar [data-tab]').forEach(b => { if (b.dataset.tab === tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }); }
   $('btn-home').hidden = (name === 'center');
   $('tog-theme').hidden = (name !== 'center');
@@ -3186,7 +3213,7 @@ function todayMission(){
   const idx = AV.findIndex(m => m.id === last.mission);
   return { m: AV[(idx + 1) % AV.length], done:false };
 }
-const mainCount = m => { const sec = m.sections.find(x => x.type === 'main'); return sec ? sec.blocks.reduce((n, b) => n + b.steps.length, 0) : 0; };
+const mainCount = m => { const sec = m.sections.find(x => x.type === 'main'); return sec ? sec.blocks.reduce((n, b) => n + b.steps.filter(st => st.kind === 'exercise').length, 0) : 0; };
 function missionCard(m, opt){
   const log = progress.log || [];
   const T = buildTimeline(m), done = log.filter(e => e.mission === m.id).length;
@@ -4706,10 +4733,10 @@ function openBriefing(id){
   if (settings.music) Sound.unlock();   // kein Effekt-Ton beim Öffnen einer Mission – Musik läuft weiter bis «Mission starten»
   const m = MISSION, T = buildTimeline(m);
   const nameOf = st => Object.assign({}, EXERCISES[st.ex], st.o || {}).name;
-  const plan = sec => sec.blocks.map(b => b.steps.map(st => {
-    const info = sec.type === 'main' && b.steps.length === 1
+  const plan = sec => sec.blocks.map(b => (b.circuit ? `<li><span>Zirkel</span><small>${b.repeat} Runden</small></li>` : '') + b.steps.filter(st => st.kind === 'exercise').map(st => {
+    const info = b.circuit ? `${st.maxRound || b.repeat}× ${fmtWork(st.duration)}` : sec.type === 'main' && b.steps.length === 1
       ? `${b.repeat}× ${fmtWork(st.duration)}${b.between ? ' · Pause ' + b.between.duration + ' Sek' : ''}`
-      : fmtWork(st.duration) + (b.repeat > 1 && st === b.steps[0] ? ` · ${b.repeat} Runden` : '');
+      : fmtWork(st.duration) + (b.repeat > 1 && st === b.steps.find(x => x.kind === 'exercise') ? ` · ${b.repeat} Runden` : '');
     return `<li><span>${nameOf(st)}</span><small>${info}</small></li>`; }).join('')).join('');
   $('screen-briefing').innerHTML = `
   <div class="inner brief">
@@ -4755,8 +4782,152 @@ let wake = null;
 async function keepAwake(){ try { if ('wakeLock' in navigator && !wake){ wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', () => { wake = null; }); } } catch(e){ wake = null; } }
 function releaseWake(){ try { if (wake) wake.release(); } catch(e){} wake = null; }
 
+/* ---- Aufbau vor dem Start: Skizze, Material und Abstände je Übung. Die Anordnung wählt Matteo selbst. Keine Zeit läuft ---- */
+const SU_FMT = n => String(n).replace('.', ',');
+const suL = (n, d, it, o) => ({ k:'line', n, d, items:[[it || 'Hütchen', n]], ...(o || {}) });
+const suRun = (d, o) => suL(2, d, 'Hütchen', { lab:['Start', 'Ziel'], ...(o || {}) });
+const suSlalom = suL(5, 1.5), suLadder = { k:'ladder', len:4, items:[['Koordinationsleiter', 1]] };
+const suPods = { k:'square', d:2.5, it:'pod', items:[['BlazePods', 4]] };
+const suWall = (d, o) => ({ k:'wall', d, items:[], need:'Freie Wand', ...(o || {}) });
+const suBox = { k:'box', free:1.5, items:[['Box', 1]], need:'Freier Platz rundum' };
+const suHurd = (d, then) => ({ k:'hurdles', n:6, d, then, items:[['Mini-Hürden', 6]].concat(then ? [['Markierungsteller', 1]] : []) });
+const SETUP = {
+  sprintStart:suRun(10), sprintStarts:suRun(10), start3:suRun(10), reactStart:suRun(10), shuttleAccel:suRun(10), stopGo:suRun(5), sprint20:suRun(20), puckSkate:suRun(5),
+  bandStart:suRun(10, { note:'Band: jemand hält es von hinten' }),
+  kbFarmer:suL(2, 8, 'Markierungsteller'), kbSuitcase:suL(2, 8, 'Markierungsteller'), mkShuttle:suL(2, 5, 'Markierungsteller'),
+  latCones:suL(2, 3), shuttle5105:suL(3, 5, 'Hütchen', { lab:['', 'Start', ''] }), shuttleCones:suL(4, 2), boardFig8:suL(2, 1, 'Hütchen', { note:'Board direkt hinter den Hütchen' }),
+  puckReact:suSlalom, puckZigzag:suSlalom, stickTasks:suSlalom, puckFig8:suSlalom,
+  zigzag:{ k:'zig', n:6, step:3, off:2, items:[['Hütchen', 6]] },
+  ladderFast:suLadder, ladderInOut:suLadder, ladderShuttle:suLadder, dualThink:suLadder, ladderToss:{ ...suLadder, note:'Leiter 2 m neben der Wand, parallel dazu' },
+  reactiveCones:{ k:'cross', n:4, d:3, color:true, items:[['Hütchen', 4]], note:'Je eine Farbe' },
+  colorCall:{ k:'cross', n:3, d:2, color:true, items:[['Hütchen', 3]], note:'Je eine Farbe' },
+  stickDecision:{ k:'cross', n:4, d:3, color:true, items:[['Hütchen', 4]], note:'Je eine Farbe' },
+  pods3:{ k:'cross', n:3, d:2, it:'pod', items:[['BlazePods', 3]] },
+  podTouch:suPods, podCOD:suPods, podColor:suPods, podSpeed:suPods, podCommand:suPods,
+  angleStart:{ k:'vee', d:5, items:[['Hütchen', 2]] },
+  mkColor:{ k:'arc', n:8, d:3.5, items:[['Markierungsteller', 8]], note:'Je 2 in Rot, Blau, Grün, Gelb' },
+  mkNumber:{ k:'ring', n:6, d:2, items:[['Hütchen', 6], ['Zahlenkarten', 6]] }, numberSeq:{ k:'ring', n:6, d:1.5, items:[['Zahlenkarten', 6]] },
+  mbChest:suWall(1), mbRot:suWall(1.5), mbOverhead:suWall(2), rbWall:suWall(2), reactWall:suWall(2), tennisWall:suWall(2), tennisCatch:suWall(2), tennisToss:suWall(2), tennisNumber:suWall(2), tennisCall:suWall(2), boardMemory:suWall(2), throwJump:suWall(2),
+  hhHop:suHurd(1), hurdleWalk:suHurd(1), hhRun:suHurd(.8), hhSprint:suHurd(.8, 5),
+  lateralBounds:{ k:'spot', it:'cone', items:[['Hütchen', 1]] }, hhLat:{ k:'spot', it:'hurdle', items:[['Mini-Hürden', 1]] },
+  boxJump:suBox, stepUp:suBox, boxOver:suBox, dropStick:suBox, bulgarian:suBox, boxStepUp:suBox, boxStepFast:suBox,
+  boxSprint:{ ...suBox, then:5, items:[['Box', 1], ['Markierungsteller', 1]] }
+};
+function setupSVG(s){
+  const W = 300, H = 120, cy = 58, x0 = 34, x1 = 266;
+  const dim = (a, b, y, t) => `<line class="su-dim" x1="${a}" y1="${y}" x2="${b}" y2="${y}"/><path class="su-dim" d="M${a + 6} ${y - 4} L${a} ${y} L${a + 6} ${y + 4} M${b - 6} ${y - 4} L${b} ${y} L${b - 6} ${y + 4}"/><text class="su-t" x="${(a + b) / 2}" y="${y + 16}" text-anchor="middle">${t}</text>`;
+  const cols = ['su-r', 'su-b', 'su-g', 'su-y'];
+  const dot = (x, y, cls) => `<circle class="${cls}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${cls === 'su-pod' ? 9 : 7}"/>`;
+  const marker = i => s.it === 'pod' ? 'su-pod' : s.color ? cols[i % 4] : (s.items[0] && s.items[0][0] === 'Markierungsteller') ? 'su-disc' : 'su-cone';
+  const start = (x, y) => `<circle class="su-start" cx="${x}" cy="${y}" r="4"/><text class="su-t" x="${x}" y="${y + 18}" text-anchor="middle">Start</text>`;
+  let g = '';
+  switch (s.k){
+    case 'line': {
+      const n = s.n, dx = n > 1 ? (x1 - x0) / (n - 1) : 0, xs = Array.from({ length:n }, (_, i) => x0 + i * dx);
+      g += `<line class="su-path" x1="${x0}" y1="${cy - 12}" x2="${x1}" y2="${cy - 12}"/>`;
+      xs.forEach((x, i) => { g += dot(x, cy - 12, marker(i)); if (s.lab && s.lab[i]) g += `<text class="su-t" x="${x}" y="${cy - 28}" text-anchor="middle">${s.lab[i]}</text>`; });
+      if (n <= 3) for (let i = 0; i < n - 1; i++) g += dim(xs[i] + (i ? 2 : 0), xs[i + 1] - (i < n - 2 ? 2 : 0), cy + 16, SU_FMT(s.d) + ' m');
+      else g += dim(xs[0], xs[1], cy + 16, 'je ' + SU_FMT(s.d) + ' m');
+      break; }
+    case 'zig': {
+      const dx = (x1 - x0) / (s.n - 1), pts = Array.from({ length:s.n }, (_, i) => [x0 + i * dx, i % 2 ? 26 : 62]);
+      g += `<polyline class="su-path" points="${pts.map(p => p.join(',')).join(' ')}"/>` + pts.map(p => dot(p[0], p[1], 'su-cone')).join('');
+      g += dim(pts[0][0], pts[2][0], 84, SU_FMT(s.step) + ' m') + `<text class="su-t" x="${x1 + 6}" y="104" text-anchor="end">Versatz ${SU_FMT(s.off)} m</text>`;
+      break; }
+    case 'ladder': {
+      g += `<rect class="su-lad" x="${x0}" y="24" width="${x1 - x0}" height="40"/>`;
+      for (let i = 1; i < 10; i++){ const x = x0 + i * (x1 - x0) / 10; g += `<line class="su-lad" x1="${x}" y1="24" x2="${x}" y2="64"/>`; }
+      g += dim(x0, x1, 80, 'ca. ' + s.len + ' m');
+      break; }
+    case 'cross': case 'square': case 'ring': case 'arc': {
+      const cx = W / 2, c2 = 54, Rx = 82, Ry = 40;
+      const ang = s.k === 'arc' ? Array.from({ length:s.n }, (_, i) => Math.PI + i * Math.PI / (s.n - 1))
+        : s.k === 'ring' ? Array.from({ length:s.n }, (_, i) => i * 2 * Math.PI / s.n - Math.PI / 2)
+        : s.n === 3 ? [-Math.PI / 2, Math.PI * .17, Math.PI * .83] : [-.75, -2.39, .75, 2.39].map(a => a);
+      const cyA = s.k === 'arc' ? 86 : c2, ry = s.k === 'arc' ? 66 : Ry;
+      ang.forEach((a, i) => { const x = cx + Rx * Math.cos(a), y = cyA + ry * Math.sin(a);
+        if (s.k !== 'square') g += `<line class="su-path" x1="${cx}" y1="${cyA}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+        g += dot(x, y, s.k === 'ring' ? 'su-cone' : marker(i));
+        if (s.k === 'ring') g += `<text class="su-n" x="${x.toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="middle">${i + 1}</text>`; });
+      if (s.k === 'square'){ const c = ang.map(a => (cx + Rx * Math.cos(a)).toFixed(1) + ',' + (cyA + ry * Math.sin(a)).toFixed(1)); g = `<polygon class="su-path" points="${c[0]} ${c[2]} ${c[3]} ${c[1]}"/>` + g; }
+      g += `<circle class="su-start" cx="${cx}" cy="${cyA}" r="4"/>`;
+      g += `<text class="su-t" x="${W - 8}" y="${H - 8}" text-anchor="end">${s.k === 'square' ? 'Seite ' + SU_FMT(s.d) + ' m' : 'je ' + SU_FMT(s.d) + ' m ab Mitte'}</text>`;
+      break; }
+    case 'wall': {
+      const bx = 62;
+      g += `<rect class="su-wall" x="34" y="10" width="14" height="96"/><text class="su-t" x="41" y="118" text-anchor="middle">Wand</text>`;
+      const px = 170;
+      g += `<circle class="su-start" cx="${px}" cy="52" r="6"/><text class="su-t" x="${px + 14}" y="56">Standort</text>`;
+      g += dim(48, px, 80, SU_FMT(s.d) + ' m');
+      break; }
+    case 'hurdles': {
+      const end = s.then ? 176 : x1, dx = (end - x0) / (s.n - 1);
+      for (let i = 0; i < s.n; i++){ const x = x0 + i * dx; g += `<line class="su-hurd" x1="${x}" y1="22" x2="${x}" y2="56"/>`; }
+      g += dim(x0, x0 + dx, 72, SU_FMT(s.d) + ' m');
+      if (s.then){ g += dot(x1, 39, 'su-disc'); g += `<line class="su-path" x1="${end}" y1="39" x2="${x1 - 8}" y2="39"/>` + dim(end, x1, 72, s.then + ' m Sprint'); }
+      break; }
+    case 'box': {
+      const bx = s.then ? 70 : 150;
+      g += `<rect class="su-free" x="${bx - 56}" y="8" width="112" height="84" rx="6"/><rect class="su-box" x="${bx - 22}" y="32" width="44" height="36" rx="3"/>`;
+      g += `<text class="su-t" x="${bx}" y="${H - 8}" text-anchor="middle">${SU_FMT(s.free)} m frei rundum</text>`;
+      if (s.then){ g += dot(x1, 50, 'su-disc') + `<line class="su-path" x1="${bx + 22}" y1="50" x2="${x1 - 8}" y2="50"/><text class="su-t" x="${(bx + x1) / 2 + 10}" y="42" text-anchor="middle">${s.then} m</text>`; }
+      break; }
+    case 'vee': {
+      const sx = 40, sy = 58;
+      [[250, 16], [250, 100]].forEach(p => { g += `<line class="su-path" x1="${sx}" y1="${sy}" x2="${p[0]}" y2="${p[1]}"/>` + dot(p[0], p[1], 'su-cone'); });
+      g += `<circle class="su-start" cx="${sx}" cy="${sy}" r="4"/><text class="su-t" x="${sx}" y="${sy + 18}" text-anchor="middle">Start</text><text class="su-t" x="150" y="62" text-anchor="middle">je ${s.d} m, 45°</text>`;
+      break; }
+    case 'spot': {
+      g += s.it === 'hurdle' ? `<line class="su-hurd" x1="150" y1="30" x2="150" y2="74"/>` : dot(150, 52, 'su-cone');
+      g += `<path class="su-path" d="M112 52 H188"/><text class="su-t" x="150" y="${H - 14}" text-anchor="middle">Seitlich darüber, hin und zurück</text>`;
+      break; }
+  }
+  return `<svg class="su-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Aufbau-Skizze">${g}</svg>`;
+}
+function setupPlan(m){
+  const groups = [], seen = {};
+  m.sections.forEach(sec => sec.blocks.forEach(b => b.steps.forEach(st => {
+    if (st.kind !== 'exercise' || !SETUP[st.ex]) return;
+    const k = JSON.stringify(SETUP[st.ex]), name = Object.assign({}, EXERCISES[st.ex], st.o || {}).name;
+    if (!seen[k]){ seen[k] = { s:SETUP[st.ex], names:[] }; groups.push(seen[k]); }
+    if (seen[k].names.indexOf(name) < 0) seen[k].names.push(name);
+  })));
+  const total = {};
+  groups.forEach(g => g.s.items.forEach(([n, c]) => { total[n] = n === 'Hütchen' || n === 'Markierungsteller' ? (total[n] || 0) + c : Math.max(total[n] || 0, c); }));
+  const KEY = { 'Hütchen':/hütchen|kegel/i, 'Markierungsteller':/markierungsteller/i, 'Mini-Hürden':/hürden/i, 'Koordinationsleiter':/leiter/i, 'BlazePods':/blazepod/i, 'Zahlenkarten':/zahlenkarten/i, 'Box':/box|block/i };
+  const ready = m.equipment.filter(e => !Object.keys(total).some(n => KEY[n].test(e)));
+  return { groups, total, ready };
+}
+function openSetup(){
+  const m = MISSION, { groups, total, ready } = setupPlan(m);
+  const suItem = (n, c) => c + ' ' + (c === 1 && n === 'Mini-Hürden' ? 'Mini-Hürde' : n);
+  const sum = Object.keys(total).map(n => { const c = total[n], parts = groups.filter(g => g.s.items.some(it => it[0] === n)).length; return (n === 'Hütchen' || n === 'Markierungsteller') && parts > 1 ? 'bis ' + suItem(n, c) : suItem(n, c); });
+  $('screen-setup').innerHTML = `
+  <div class="inner su-wrap">
+    <div class="su-head">
+      <div><p class="eyebrow">${m.label} · Aufbau vor dem Start</p><h2>${m.title}</h2></div>
+      <p class="muted">Die Zeit läuft noch nicht.</p>
+    </div>
+    ${groups.length ? `<div class="su-grid">${groups.map(g => `<article class="su-card">
+      <h3>${g.names.join(' · ')}</h3>${setupSVG(g.s)}
+      <p class="su-mat"><b>Material:</b> ${g.s.items.map(([n, c]) => suItem(n, c)).concat(g.s.need ? [g.s.need] : []).join(', ')}${g.s.note ? `. ${g.s.note}` : ''}</p>
+    </article>`).join('')}</div>` : '<p class="muted">Für dieses Training braucht es keine Abstände.</p>'}
+    ${ready.length ? `<div class="equip"><small>Griffbereit legen</small><div class="chips">${ready.map(e => `<span>${e}</span>`).join('')}</div></div>` : ''}
+    <div class="su-foot">
+      <div><p class="su-sum">${sum.length ? 'Gesamt: ' + sum.join(', ') : ''}</p><p class="muted">Anordnung frei wählbar.</p></div>
+      <div class="actions"><button class="btn btn-ghost" id="btn-su-back"><span class="arrow back" aria-hidden="true"></span> Zurück</button>
+      <button class="btn btn-primary" id="btn-su-done">Aufbau fertig?</button></div>
+    </div>
+  </div>`;
+  show('setup');
+  $('btn-su-back').onclick = () => openBriefing();
+  $('btn-su-done').onclick = beginMission;
+}
 function startMission(){
   if (progress.painPause){ renderCenter(); show('center'); return; }   // Pausenmodus: erst nach Freigabe der Eltern
+  openSetup();
+}
+function beginMission(){
   Sound.unlock(); Voice.stop();
   preloadClips(); coachSay('Ready…', 'en');   // im Tipp: Aufnahme abspielen bzw. Stimme auf dem iPad freischalten
   show('player');
@@ -4867,7 +5038,8 @@ function onPhaseEnter(p, i, prev){
           <p class="eyebrow">Als Nächstes${p.rounds > 1 ? ` · Durchgang ${p.round}/${p.rounds}` : ''}</p>
           <h1>${p.ex.name}</h1>
           <p class="lead">${p.ex.instruction}</p>
-          <div class="chips"><span>${fmtWork(runDur)}${p.ex.sides ? ' · Seitenwechsel' : ''}</span>${p.rounds > 1 ? `<span>${p.rounds} Durchgänge${p.pause ? ' · Pause ' + p.pause + ' Sek' : ''}</span>` : ''}</div>
+          <div class="chips"><span>${fmtWork(runDur)}${p.ex.sides ? ' · Seitenwechsel' : ''}</span>${p.rounds > 1 ? `<span>${p.circuit ? 'Zirkel · ' + p.rounds + ' Runden' : p.rounds + ' Durchgänge'}${p.pause ? ' · Pause ' + p.pause + ' Sek' : ''}</span>` : ''}</div>
+          ${SETUP[p.key] ? `<div class="su-mini">${setupSVG(SETUP[p.key])}</div>` : ''}
           <p class="trains"><b>Trainiert</b> ${p.ex.goal}</p>
           <div class="prevbar" aria-hidden="true"><span id="prev-bar"></span></div>
         </div></div>`;
@@ -5814,7 +5986,7 @@ const timesDone = m => (progress.log || []).filter(e => e.mission === m.id).leng
 const eliteReady = m => timesDone(m) >= 3;
 function eliteVersion(m){
   const c = Object.assign({}, m, { elite:true, title:m.title + ' Elite' });
-  c.sections = m.sections.map(sec => sec.type !== 'main' ? sec : Object.assign({}, sec, { blocks:sec.blocks.map(b => Object.assign({}, b, { repeat:b.repeat + 1 })) }));
+  c.sections = m.sections.map(sec => sec.type !== 'main' ? sec : Object.assign({}, sec, { blocks:sec.blocks.map(b => Object.assign({}, b, { repeat:b.repeat + 1, steps:b.steps.map(st => st.maxRound ? { ...st, maxRound:st.maxRound + 1 } : st) })) }));
   return c;
 }
 
