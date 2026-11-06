@@ -2687,9 +2687,13 @@ const Engine = {
   skip(){
     if (!this.active) return;
     const cur = this.T[this.i], t = cur.type;
-    if (t.indexOf('EXERCISE_') === 0){ this.skips++; this.skipSecs.add(cur.sec.id); }
     let j = this.i + 1;
-    if (t === 'EXERCISE_PREVIEW') j = this.i + 3;
+    // Pause oder Vorschau: nur die Wartezeit abkürzen, direkt zum 3-2-1 der nächsten Übung (zählt nicht als übersprungen)
+    if (t === 'BREAK' || t === 'EXERCISE_PREVIEW'){
+      if (t === 'BREAK' && this.T[j] && this.T[j].type === 'EXERCISE_PREVIEW') j++;
+      this.paused = false; this.enter(Math.min(j, this.T.length - 1)); return;
+    }
+    if (t.indexOf('EXERCISE_') === 0){ this.skips++; this.skipSecs.add(cur.sec.id); }
     else if (t === 'EXERCISE_COUNTDOWN') j = this.i + 2;
     this.paused = false;
     this.enter(Math.min(j, this.T.length - 1));
@@ -2699,6 +2703,8 @@ const Engine = {
   backTarget(){
     const T = this.T, i = this.i;
     if (T[i].type === 'EXERCISE_RUNNING') return i - 1;
+    // In der Pause oder Vorschau: die vorherige Übung nochmals (mit 3-2-1)
+    if (T[i].type === 'BREAK' || T[i].type === 'EXERCISE_PREVIEW') for (let k = i - 1; k >= 0; k--){ if (T[k].type === 'EXERCISE_RUNNING') return k - 1; if (T[k].type === 'SECTION_INTRO') break; }
     if (T[i].type === 'EXERCISE_COUNTDOWN') for (let k = i - 1; k >= 0; k--) if (T[k].type === 'EXERCISE_RUNNING') return k - 1;
     return -1;
   },
@@ -5505,7 +5511,7 @@ function onPhaseEnter(p, i, prev){
   }
   stage.innerHTML = html;
   stage.scrollTop = 0;
-  { const ctl = p.type === 'EXERCISE_RUNNING' || p.type === 'EXERCISE_COUNTDOWN', bar = $('pctrl');
+  { const ctl = ['EXERCISE_RUNNING', 'EXERCISE_COUNTDOWN', 'EXERCISE_PREVIEW', 'BREAK'].includes(p.type), bar = $('pctrl');
     bar.hidden = !ctl;
     bar.innerHTML = ctl ? backBigHTML() + pauseBigHTML() + fwdBigHTML() : ''; }
   if (after) after();
