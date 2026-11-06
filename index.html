@@ -1496,6 +1496,19 @@ Object.assign(EXERCISES, {
   stairDouble: { anim:'stairDouble', name:'Treppe – jede zweite Stufe', goal:'Beinkraft für den Skating-Abstoss', instruction:'Kräftig jede zweite Stufe nehmen, ganzen Fuss aufsetzen und über das vordere Bein hochdrücken. Arme arbeiten mit. Hinunter immer gehen, Hand am Geländer.', coach:'Kräftig hochdrücken!' },
   stairCalf:   { anim:'stairCalf', name:'Wadenheben an der Stufe', goal:'Starke Waden und stabile Fussgelenke', instruction:'Mit den Fussballen auf die unterste Stufe stellen, die Fersen hängen über die Kante. Langsam hoch auf die Zehenspitzen und kontrolliert tief. Mit einer Hand am Geländer halten.', coach:'Langsam hoch, langsam runter!' }
 });
+/* ---- Power und Strength & Mobility (Set 31/32) ---- */
+Object.assign(EXERCISES, {
+  stanceHops:   { anim:'stanceHops', name:'Stance-Hops am Ort', goal:'Schnelle, reaktive Füsse in der Hockey-Grundstellung', instruction:'Tiefe Grundstellung wie auf dem Eis: Knie gebeugt, Brust nach vorn, Hände vor der Brust. Kleine, schnelle Sprünge am Ort, nur kurz am Boden. Die Position bleibt tief.', coach:'Tief bleiben, schnelle Füsse!' },
+  broadPogo:    { anim:'broadPogo', name:'Weitsprung + Pogo über die Hürden', goal:'Explosiver Absprung und reaktive Sprünge', instruction:'Mit Armschwung so weit wie möglich nach vorn springen und weich landen. Sofort danach mit kleinen, schnellen Pogo-Sprüngen über die Mini-Hürden – nur aus den Fussgelenken, Knie fast gestreckt. Ruhig zurückgehen.', coach:'Weit, dann klein und schnell!' },
+  hurdleBox:    { anim:'hurdleBox', name:'Hürde + Box (40 cm)', goal:'Sprungkraft und schnelles Umschalten nach der Landung', instruction:'Beidbeinig über die Mini-Hürde springen, kurz landen und sofort auf die Box springen. Oben leise landen und aufrichten. Immer heruntersteigen, nie herunterspringen. Bei sauberer Landung darf die Box 50 cm hoch sein.', coach:'Kurz landen – und hoch!' },
+  pushup14:     { anim:'pushup14', name:'1¼-Liegestütz', goal:'Kraft im Oberkörper für Zweikampf und Schuss', instruction:'Körper in einer Linie. Ganz nach unten, ein Viertel hoch, nochmals ganz nach unten, dann ganz hoch – das ist eine Wiederholung. 4–6 saubere Wiederholungen, bei Bedarf auf den Knien.', coach:'Ganz runter, Viertel hoch, runter, hoch!' },
+  pistolBox:    { anim:'pistolBox', name:'Pistol Squat an der Box', goal:'Einbeinige Beinkraft und Balance wie beim Skating', instruction:'Vor der Box (40 cm) auf einem Bein stehen, das andere Bein gestreckt nach vorn, Arme vorn. Langsam auf einem Bein nach unten, kurz auf der Box absitzen und kräftig hochdrücken. 4 pro Bein, die App sagt den Seitenwechsel an.', coach:'Langsam runter, kräftig hoch!' },
+  kbRow:        { anim:'kbRow', name:'Kettlebell-Rudern einarmig', goal:'Starker Rücken und stabile Schultern (statt Klimmzügen)', instruction:'Schrittstellung, Oberkörper nach vorn geneigt, freie Hand auf dem vorderen Knie. Kettlebell (6–8 kg) mit dem Ellbogen nah am Körper zur Hüfte ziehen, kurz halten, langsam ablassen. 8 pro Seite.', coach:'Ellbogen zur Hüfte!' },
+  cossack:      { anim:'cossack', name:'Cossack Squat', goal:'Beweglichkeit und Kraft in Hüfte und Leiste', instruction:'Sehr breiter Stand. Langsam über ein Bein tief in die Hocke, das andere Bein bleibt gestreckt, Zehen zeigen nach oben. Ferse am Boden lassen. Über die Mitte zur anderen Seite. 4 pro Seite.', coach:'Ferse bleibt unten!' },
+  sideHoldBox:  { anim:'sideHoldBox', name:'Seitlicher Halt an der Box', goal:'Leiste und Hüfte geschmeidig machen', instruction:'Einen Fuss auf die tiefe Box oder eine Stufe stellen und tief über dieses Bein in die Hocke gehen. Das andere Bein seitlich gestreckt. Ruhig halten und atmen, die App sagt den Seitenwechsel an.', coach:'Ruhig halten und atmen.' },
+  mbSpider:     { anim:'mbSpider', name:'Spiderman Deadlift mit Medizinball', goal:'Kraft in tiefer Position, Hüfte beweglich', instruction:'Tiefer Ausfallschritt, Medizinball (2 kg) am Boden neben dem vorderen Fuss. Rücken gerade, Ball aufheben und zur Brust bringen, ohne aus dem Ausfallschritt aufzustehen. Wieder ablegen. Nach der Hälfte die Seite wechseln.', coach:'Rücken gerade, tief bleiben!' },
+  bulgarianHold:{ anim:'bulgarianHold', name:'Bulgarian Split Squat Hold', goal:'Kraft und Stabilität im vorderen Bein', instruction:'Hinterer Fuss auf der Box, vorne tief in den Ausfallschritt. Unten halten und die vordere Ferse ganz leicht anheben, so dass das Gewicht auf dem Fussballen liegt. Ruhig atmen, die App sagt den Seitenwechsel an.', coach:'Tief halten, Ferse leicht hoch!' }
+});
 /* ---- Neue Übungen mit den neuen Geräten (Nov. 2026) ---- */
 Object.assign(EXERCISES, {
   kbGoblet:     { anim:'kbGoblet', name:'Kettlebell Goblet Squat', goal:'Beinkraft und tiefe Skating-Position', instruction:'Kettlebell (6 kg) an den Griffen vor der Brust halten. Füsse schulterbreit, langsam tief in die Hocke, Brust bleibt oben, Knie zeigen über die Zehen. Kräftig hochdrücken.', coach:'Brust hoch, tief runter, kräftig hoch!' },
@@ -1948,7 +1961,32 @@ const SETS = [
     cSub:'Locker auslaufen und dehnen.',
     cooldown:[ W('jog', 60, { name:'Locker auslaufen' }), ...COOL_STD() ],
     cTip:'Stark bergauf! Trink genug und gönn den Waden Erholung.',
-    challenge:{ name:'Uphill Battle', text:'Jeder Bergsprint so schnell wie der erste – auch der letzte!', levels:['4 Bergsprints','5 Bergsprints','5 Bergsprints, alle gleich schnell'] } })
+    challenge:{ name:'Uphill Battle', text:'Jeder Bergsprint so schnell wie der erste – auch der letzte!', levels:['4 Bergsprints','5 Bergsprints','5 Bergsprints, alle gleich schnell'] } }),
+  makeSet({ n:31, isNew:true, load:'hoch', title:'Power Combos', tagline:'Weit, hoch, schnell – in einem Zug.', desc:'Sprung-Kombis: Stance-Hops, Weitsprung mit Pogo über die Hürden und Hürde + Box.',
+    pillars:['Schnelligkeit','Kraft'], equipment:['Mini-Hürden (6 Stück)','Soft-Plyo-Box 40/50 cm','Trainings-Matte'], dauer:'30',
+    why:'Ein schneller Antritt auf dem Eis braucht kurze, kräftige Bodenkontakte. Die Kombis trainieren genau das: abspringen, landen und sofort weiter.',
+    wSub:'Fussgelenke, Knie und Hüfte gut aufwärmen – gleich wird gesprungen!',
+    warmup:WARM8(), wTip:'Hürden und Box vor dem Start bereitstellen. Weicher, rutschfester Boden.',
+    mSub:'Jeder Sprung mit voller Kraft und leiser Landung. Zwischen den Durchgängen ruhig zurückgehen.',
+    main:[ { repeat:3, between:RF(30), proAfter:true, steps:[ W('stanceHops', 15) ] }, { repeat:4, between:RF(40), proAfter:true, steps:[ W('broadPogo', 20) ] }, { repeat:4, between:RF(40), proAfter:true, steps:[ W('hurdleBox', 20) ] } ],
+    tip:'Qualität vor Menge: Wird die Landung laut oder wackelig, beende die Übung. Box herunter immer steigen.',
+    cooldown:COOL_STD(),
+    cTip:'Starke Sprünge! Trink genug.',
+    challenge:{ name:'Stick the Landing', text:'Lande jeden Sprung leise und stabil – ohne Nachhüpfen!', levels:['Stance-Hops und Weitsprung','dazu Hürde + Box 40 cm','alles, Box auf 50 cm'] } }),
+  makeSet({ n:32, isNew:true, load:'mittel', title:'Strength & Mobility', tagline:'Stark und beweglich – auch tief im Zweikampf.', desc:'Kraft im Zirkel (Goblet Squat, 1¼-Liegestütz, Pistol an der Box, Rudern), dann Haltepositionen und Mobility für Hüfte und Leiste.',
+    pillars:['Kraft','Beweglichkeit','Stabilität'], equipment:['Kettlebell 6 kg','Kettlebell 8 kg','Soft-Plyo-Box 40/50 cm','Rebound-Medizinball 2 kg','Trainings-Matte'], dauer:'30',
+    why:'Kraft in tiefen Positionen und bewegliche Hüften machen dich stabil im Zweikampf und schützen die Leiste – die typische Schwachstelle im Eishockey.',
+    wSub:'Locker aufwärmen, Hüfte und Schultern bereit machen.',
+    warmup:WARM8(), wTip:'Kettlebell, Box, Medizinball und ein dickes Buch für die Fersen bereitlegen.',
+    mSub:'Zwei Kraft-Zirkel mit je 3 Runden, danach Halten und Mobility.',
+    main:[ Z(B('kbGoblet', 40, 3, 0, { name:'A1 Goblet Squat (Fersen leicht erhöht) · 10 Wdh.' }), B('pushup14', 35, 3, 0, { name:'A2 1¼-Liegestütz · 4–6 Wdh.' })),
+           Z(B('pistolBox', 50, 3, 0, { sides:true, name:'B1 Pistol Squat an der Box · 4 pro Bein' }), B('kbRow', 50, 3, 0, { sides:true, name:'B2 Kettlebell-Rudern einarmig · 8 pro Seite' })),
+           B('cossack', 45, 2, 15, { name:'Cossack Squat · 4 pro Seite' }), B('sideHoldBox', 60, 1, 0, { sides:true }),
+           B('mbSpider', 50, 2, 15, { sides:true, name:'Spiderman Deadlift · 4 pro Seite' }), B('bulgarianHold', 50, 2, 20, { sides:true, name:'Bulgarian Split Squat Hold · 20–25 s pro Bein' }) ],
+    tip:'Langsam und sauber – jede Wiederholung zählt. Lieber weniger Wiederholungen mit guter Technik.',
+    cooldown:[ W('hueftbeuger', 40, S2), W('matAdductor', 60), W('breathSeat', 60) ],
+    cTip:'Stark und beweglich! Gut gemacht.',
+    challenge:{ name:'Deep & Strong', text:'Schaffe 4 saubere Pistol Squats pro Bein bis ganz auf die Box!', levels:['Zirkel A','Zirkel A und B','alles inkl. Holds'] } })
 ];
 const MISSIONS = SETS.filter(m => m.playable);
 const LOAD_TXT = { hoch:'Hoch', mittel:'Mittel', niedrig:'Niedrig' };
@@ -2573,6 +2611,62 @@ Object.assign(ANIMS, {
                     `<path class="p-rail" d="M${CX + 22} ${GROUND - 13} V${GROUND - 90} M${CX + 14} ${GROUND - 88} L${CX + 130} ${GROUND - 130}"/>` }
   });
 })();
+/* ---- Set 31/32 (Power, Strength & Mobility): Sprung-Kombis, 1¼-Liegestütz, Pistol an der Box, Cossack, Spiderman Deadlift ---- */
+(() => {
+  const mid = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+  const nrm = v => { const L = Math.hypot(v[0], v[1]) || 1; return [v[0] / L, v[1] / L]; };
+  const kb = (h, dir) => { const d = nrm(dir || [0, 1]), s = 1.3, c = [h[0] + d[0] * 9 * s, h[1] + d[1] * 9 * s];
+    return `<line class="p-kbh" x1="${f1(h[0])}" y1="${f1(h[1])}" x2="${f1(c[0])}" y2="${f1(c[1])}"/><circle class="p-kb" cx="${f1(c[0])}" cy="${f1(c[1])}" r="${f1(7.5 * s)}"/>`; };
+  const BOX = 40;   // Soft-Plyo-Box 40 cm
+  // Hocke / Flug für Sprünge (Seitenansicht)
+  const load = { t:30, ll1:66, ll2:-28, rl1:64, rl2:-30, la1:-42, la2:-26, ra1:-40, ra2:-24, lift:0 };
+  const air  = { t:14, ll1:84, ll2:-40, rl1:82, rl2:-42, la1:115, la2:125, ra1:112, ra2:122, lift:30 };
+  const land = { t:28, ll1:62, ll2:-26, rl1:60, rl2:-28, la1:40, la2:60, ra1:38, ra2:58, lift:0 };
+  const pogoUp = { t:6, ll1:12, ll2:-10, rl1:10, rl2:-12, la1:-20, la2:20, ra1:20, ra2:60, lift:20 };
+  const pogoDn = { t:12, ll1:26, ll2:-18, rl1:24, rl2:-20, la1:10, la2:40, ra1:-10, ra2:30, lift:0 };
+  const stand = { t:3, ll1:2, ll2:0, rl1:-2, rl2:0, la1:8, la2:12, ra1:4, ra2:8, lift:0 };
+  // Weitsprung + 2 Pogo-Sprünge: Hürden ziehen nach links weg (Abstand 50, Weitsprung = 2 Abstände)
+  const BP = [[load, .15, 0], [air, .2, 100], [land, .1, 0], [pogoUp, .12, 50], [pogoDn, .1, 0], [pogoUp, .12, 50], [pogoDn, .21, 0]];
+  const bpOff = ph => { let t = 0, o = 0; for (const [, w, d] of BP){ if (ph <= t + w){ return o + d * Math.max(0, Math.min(1, (ph - t) / w)); } t += w; o += d; } return o; };
+  // Pistol an der Box: rechtes Bein arbeitet, linkes Bein gestreckt nach vorn, kurz auf die Box absitzen
+  const piUp = { t:6, rl1:4, rl2:0, ll1:62, ll2:62, la1:80, la2:85, ra1:78, ra2:83, w:.7 };
+  const piDn = { t:34, rl1:92, rl2:-22, ll1:84, ll2:80, la1:92, la2:95, ra1:90, ra2:93, w:1 };
+  // Spiderman Deadlift: tiefer Ausfallschritt, Ball vom Boden neben dem vorderen Fuss zur Brust
+  const spDn = { t:58, rl1:84, rl2:-6, ll1:-30, ll2:-100, la1:-8, la2:-4, ra1:-6, ra2:-2, w:.9 };
+  const spUp = { t:6, rl1:80, rl2:-4, ll1:-26, ll2:-98, la1:25, la2:165, ra1:22, ra2:162, w:.9 };
+  // Kettlebell-Rudern: Schrittstellung, Oberkörper vorgeneigt, linke Hand auf dem Knie
+  const rwDn = { t:58, rl1:32, rl2:-6, ll1:-14, ll2:-22, la1:44, la2:10, ra1:2, ra2:0, w:.8 };
+  const rwUp = { ...rwDn, ra1:-62, ra2:12, w:.8 };
+  // Frontansicht: Cossack und seitlicher Halt
+  const wide = { ll1:-38, ll2:-38, rl1:38, rl2:38, la1:-30, la2:45, ra1:30, ra2:-45 };
+  const cosL = { dx:-14, ll1:-78, ll2:-6, rl1:66, rl2:66, la1:-30, la2:45, ra1:30, ra2:-45 };
+  const mirF = k => ({ ...k, dx:-(k.dx || 0), ll1:-k.rl1, ll2:-k.rl2, rl1:-k.ll1, rl2:-k.ll2 });
+  const puUp = { t:72, ll1:-72, ll2:-72, rl1:-73, rl2:-73, la1:0, la2:0, ra1:2, ra2:2 };
+  const puDn = { t:82, ll1:-82, ll2:-82, rl1:-83, rl2:-83, la1:-55, la2:26, ra1:-53, ra2:28 };
+  const puQ  = { t:79.5, ll1:-79.5, ll2:-79.5, rl1:-80.5, rl2:-80.5, la1:-40, la2:20, ra1:-38, ra2:22 };
+  Object.assign(ANIMS, {
+    stanceHops: { view:'side', period:.55, keys:[ { t:34, ll1:58, ll2:-26, rl1:56, rl2:-28, la1:30, la2:95, ra1:28, ra2:93, lift:0 },
+                  { t:30, ll1:44, ll2:-20, rl1:42, rl2:-22, la1:30, la2:95, ra1:28, ra2:93, lift:9 } ] },
+    broadPogo:  { view:'side', period:3.2, clip:true, keys:BP.map(([k, w]) => ({ ...k, w })),
+                  props:(J, ph) => { const o = bpOff(ph) % 200; let s = ''; for (let k = -3; k < 8; k++) s += X.hurdle(CX + 25 + k * 50 - o); return s; } },
+    hurdleBox:  { view:'side', period:4.6, keys:[
+                  { ...stand, dx:-78, w:.4 }, { ...load, dx:-78, w:.35 }, { ...air, dx:-42, w:.25 }, { ...land, dx:-8, w:.22 },
+                  { ...air, dx:20, lift:56, w:.25 }, { ...land, dx:42, lift:BOX, w:.3 }, { ...stand, dx:42, lift:BOX, w:.5 },
+                  { t:6, dx:16, fx:-1, rl1:30, rl2:-40, ll1:-6, ll2:-4, la1:10, la2:20, ra1:-6, ra2:16, lift:8, w:.45 },
+                  { ...stand, dx:-6, fx:-1, w:.3 }, { t:4, dx:-44, fx:-1, ll1:60, ll2:-20, rl1:-10, rl2:-14, la1:-20, la2:20, ra1:20, ra2:40, lift:4, w:.4 },
+                  { ...stand, dx:-78, fx:-1, w:.3 } ],
+                  props:() => X.hurdle(CX - 42) + X.box(CX + 14, 58, BOX) },
+    pushup14:   { view:'side', period:3.4, plant:'feet', plantX:-48, keys:[ { ...puUp, w:.7 }, { ...puDn, w:.8 }, { ...puQ, w:.35 }, { ...puDn, w:.35 }, { ...puDn, w:.2 }, { ...puUp, w:.8 } ], props:() => X.mat(20, 220) },
+    pistolBox:  { view:'side', period:3.4, plant:'rfoot', plantX:6, keys:[ piUp, piDn, { ...piDn, w:.35 } ], props:() => X.box(CX - 66, 40, BOX) },
+    kbRow:      { view:'side', period:2.2, plant:'feet', keys:[ rwDn, rwUp, { ...rwUp, w:.25 } ], props:J => kb(J.rh, [0, 1]) },
+    cossack:    { view:'front', period:5, plant:'feet', keys:[ { ...wide, w:.6 }, { ...cosL, w:1 }, { ...cosL, w:.4 }, { ...wide, w:.6 }, { ...mirF(cosL), w:1 }, { ...mirF(cosL), w:.4 } ] },
+    sideHoldBox:{ view:'front', period:4, keys:[ { ...cosL, dx:-16, ll1:-80, ll2:-35, rl1:50, rl2:50, w:1 }, { ...cosL, dx:-16, ll1:-80, ll2:-35, rl1:50, rl2:50, tl:1.03, w:1 } ],
+                  props:J => `<rect class="p-box" x="${f1(J.lf[0] - 22)}" y="${f1(J.lsole)}" width="44" height="${f1(GROUND + 2 - J.lsole)}" rx="3"/>` },
+    mbSpider:   { view:'side', period:3.6, plant:'feet', keys:[ spDn, { ...spDn, w:.3 }, spUp, { ...spUp, w:.35 } ], props:J => X.ball(...mid(J.lh, J.rh), 'med', 10) },
+    bulgarianHold:{ ...ANIMS.bulgarian, _cum:null, keys:[ { ...ANIMS.bulgarian.keys[1], w:1 }, { ...ANIMS.bulgarian.keys[1], tl:1.02, w:1 } ] }
+  });
+})();
+
 
 /* =====================================================================
    3. EINSTELLUNGEN & FORTSCHRITT – nur lokal im Browser
@@ -2689,7 +2783,7 @@ const Engine = {
     const cur = this.T[this.i], t = cur.type;
     let j = this.i + 1;
     // Pause oder Vorschau: nur die Wartezeit abkürzen, direkt zum 3-2-1 der nächsten Übung (zählt nicht als übersprungen)
-    if (t === 'BREAK' || t === 'EXERCISE_PREVIEW'){
+    if (['BREAK', 'EXERCISE_PREVIEW', 'SECTION_INTRO', 'SECTION_COMPLETE', 'MISSION_COUNTDOWN'].includes(t)){
       if (t === 'BREAK' && this.T[j] && this.T[j].type === 'EXERCISE_PREVIEW') j++;
       this.paused = false; this.enter(Math.min(j, this.T.length - 1)); return;
     }
@@ -2703,8 +2797,8 @@ const Engine = {
   backTarget(){
     const T = this.T, i = this.i;
     if (T[i].type === 'EXERCISE_RUNNING') return i - 1;
-    // In der Pause oder Vorschau: die vorherige Übung nochmals (mit 3-2-1)
-    if (T[i].type === 'BREAK' || T[i].type === 'EXERCISE_PREVIEW') for (let k = i - 1; k >= 0; k--){ if (T[k].type === 'EXERCISE_RUNNING') return k - 1; if (T[k].type === 'SECTION_INTRO') break; }
+    // In Pause, Vorschau oder Zwischenbildschirm: die vorherige Übung nochmals (mit 3-2-1), auch über Etappen hinweg
+    if (['BREAK', 'EXERCISE_PREVIEW', 'SECTION_INTRO', 'SECTION_COMPLETE', 'MISSION_COUNTDOWN'].includes(T[i].type)) for (let k = i - 1; k >= 0; k--){ if (T[k].type === 'EXERCISE_RUNNING') return k - 1; }
     if (T[i].type === 'EXERCISE_COUNTDOWN') for (let k = i - 1; k >= 0; k--) if (T[k].type === 'EXERCISE_RUNNING') return k - 1;
     return -1;
   },
@@ -5100,7 +5194,7 @@ function openBriefing(id){
     </div>
     <div class="coach"><span class="tag">Coach</span><p>${m.greeting}</p></div>
     <div>
-      <p class="eyebrow red">${m.label} · ${m.n === 30 ? 'Draussen' : m.isNew ? 'Neue Geräte' : 'Phase 1 Athletic Foundation'}</p>
+      <p class="eyebrow red">${m.label} · ${m.n === 30 ? 'Draussen' : m.n >= 31 ? 'Off-Ice Pro' : m.isNew ? 'Neue Geräte' : 'Phase 1 Athletic Foundation'}</p>
       ${m.isNew ? '<span class="new-badge">Neues Training</span>' : ''}
       <h1>${m.title}</h1>
       ${m.tagline ? `<p class="lead muted">${m.tagline}</p>` : ''}
@@ -5165,6 +5259,9 @@ const SETUP = {
   hhHop:suHurd(1), hurdleWalk:suHurd(1), hhRun:suHurd(.8), hhSprint:suHurd(.8, 5),
   lateralBounds:{ k:'spot', it:'cone', items:[['Hütchen', 1]] }, hhLat:{ k:'spot', it:'hurdle', items:[['Mini-Hürden', 1]] },
   boxJump:suBox, stepUp:suBox, boxOver:suBox, dropStick:suBox, bulgarian:suBox, boxStepUp:suBox, boxStepFast:suBox,
+  broadPogo:{ k:'hurdles', n:4, d:.8, items:[['Mini-Hürden', 4]], note:'Absprung ca. 1,5 m vor der ersten Hürde' },
+  hurdleBox:{ ...suBox, items:[['Box', 1], ['Mini-Hürden', 1]], note:'Mini-Hürde ca. 1 m vor der Box, Box auf 40 cm' },
+  pistolBox:suBox, bulgarianHold:suBox,
   hillSprint:suL(2, 40, 'Markierungsteller', { lab:['Start', 'Ziel'], note:'Bergauf am Rand der Quartierstrasse' }),
   hillRun:suL(2, 175, 'Markierungsteller', { dLab:'ca. 150–200', lab:['Unten', 'Oben'], note:'Ganze Steigung, ca. 150–200 m' }),
   boxSprint:{ ...suBox, then:5, items:[['Box', 1], ['Markierungsteller', 1]] }
@@ -5511,7 +5608,7 @@ function onPhaseEnter(p, i, prev){
   }
   stage.innerHTML = html;
   stage.scrollTop = 0;
-  { const ctl = ['EXERCISE_RUNNING', 'EXERCISE_COUNTDOWN', 'EXERCISE_PREVIEW', 'BREAK'].includes(p.type), bar = $('pctrl');
+  { const ctl = !['MISSION_COMPLETE', 'REWARD'].includes(p.type), bar = $('pctrl');   // ab Trainingsstart überall Zurück / Pause / Vorwärts
     bar.hidden = !ctl;
     bar.innerHTML = ctl ? backBigHTML() + pauseBigHTML() + fwdBigHTML() : ''; }
   if (after) after();
