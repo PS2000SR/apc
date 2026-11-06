@@ -607,6 +607,25 @@ body.voice-off .stage .coach p{font-size:clamp(1.4rem,3.6vw,2rem)}
 .lib-tile:hover:not([disabled]){border-color:var(--ice)}
 .lib-tile.today{border-color:var(--red);box-shadow:inset 0 0 0 1px var(--red)}
 .lib-tile[disabled]{cursor:default;opacity:.55}
+/* Trainings-Equipment */
+.gear{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:6px 0 18px}
+.gear-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.gear-head .eyebrow{margin:0}
+.gear-sum{margin:2px 0 0;color:var(--muted)} .gear-sum b{color:var(--ok)}
+.gear-btns{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}
+.gear h3{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:14px 0 8px}
+.gear-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:8px}
+.gear-t{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 8px;border:1px solid var(--line);border-radius:12px;background:rgba(0,0,0,.18);cursor:pointer;text-align:center;font-weight:700;font-size:.85rem;line-height:1.2;-webkit-tap-highlight-color:transparent}
+.gear-t svg{width:52px;height:44px}
+.gear-t input{position:absolute;top:7px;right:7px;width:20px;height:20px;margin:0;accent-color:var(--ice);cursor:pointer}
+.gear-t:has(input:not(:checked)){opacity:.45} .gear-t:has(input:not(:checked)) svg{filter:grayscale(1)}
+.gear-t:has(input:focus-visible){outline:2px solid var(--ice);outline-offset:2px}
+.gear-warn{display:block;margin-top:6px;padding:4px 8px;border-radius:7px;background:color-mix(in srgb,var(--gold) 18%,transparent);color:var(--gold);font-size:.76rem;font-weight:800;line-height:1.3}
+.gear-warn:empty{display:none}
+.mc2-gear{margin-top:14px}
+.mc2-gear summary{cursor:pointer;color:var(--muted);font-weight:700}
+.mc2-gear-row{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;margin-top:8px;border:1px dashed var(--line);border-left:3px solid var(--gold);border-radius:10px;opacity:.85}
+.mc2-gear-row b{display:block}
 .lt-no{position:absolute;top:8px;left:10px;font-family:var(--f-display);font-weight:800;font-style:italic;font-size:1.4rem;color:var(--ice);line-height:1;z-index:1}
 .lt-fig{width:86px;aspect-ratio:1;background:var(--panel-2);border-radius:10px}
 .lt-txt{display:flex;flex-direction:column;gap:3px;min-width:0}
@@ -1497,7 +1516,7 @@ Object.assign(EXERCISES, {
   skaterBound:  { anim:'bounds', name:'Skater-Sprünge weit', goal:'Einbeiniger Abstoss wie beim Skating', instruction:'Weit seitlich von einem Bein aufs andere springen, auf einem Bein stabil landen und kurz halten. Höchstens 10 Sprünge pro Durchgang.', coach:'Weit abstossen, stabil landen!' },
   boxStepUp:    { anim:'stepUp', name:'Step-ups mit Knieeinsatz', goal:'Einbeinige Kraft', instruction:'Einen Fuss ganz auf die Box (40 cm), hochdrücken und das andere Knie kräftig hochziehen. Kontrolliert absteigen. Nach der Hälfte das Bein wechseln.', coach:'Ganzer Fuss auf die Box, Knie hoch!' },
   boxStepFast:  { anim:'boxStepFast', name:'Box-Step Intervall', goal:'Ausdauer', instruction:'Im zügigen Rhythmus auf die Box (40 cm) und wieder hinunter steigen: rauf, rauf, runter, runter. Nicht springen.', coach:'Rauf, rauf, runter, runter!' },
-  matAdductor:  { anim:'schmetterling', name:'Adduktoren dehnen (Schmetterling)', goal:'Leiste – beim Skating stark belastet', instruction:'Auf der Blackroll Mat sitzen, Fusssohlen zusammen, die Knie sanft nach unten sinken lassen. Rücken lang.', coach:'Locker lassen, ruhig atmen.' },
+  matAdductor:  { anim:'schmetterling', name:'Adduktoren dehnen (Schmetterling)', goal:'Leiste – beim Skating stark belastet', instruction:'Auf der Trainings-Matte sitzen, Fusssohlen zusammen, die Knie sanft nach unten sinken lassen. Rücken lang.', coach:'Locker lassen, ruhig atmen.' },
   matOpenBook:  { anim:'lyingTwist', name:'Open Book', goal:'Brustwirbelsäule für Schuss und Rotation', instruction:'Seitlich auf der Matte liegen, Knie angewinkelt, Arme gestreckt vor dem Körper. Den oberen Arm wie ein Buch nach hinten aufklappen, der Blick folgt der Hand. Nach der Hälfte die Seite wechseln.', coach:'Langsam aufklappen, ausatmen.' }
 });
 /* =====================================================================
@@ -1546,7 +1565,7 @@ function makeSet(o){
 
 const SETS = [
   makeSet({ n:1, load:'hoch', title:'Speed & Power', tagline:'Mehr Geschwindigkeit. Mehr Power. Mehr du!', desc:'Explosiver Antritt, Schnelligkeit und maximale Power.',
-    pillars:['Schnelligkeit','Kraft'], equipment:['Hütchen','Matte'], dauer:'25–30',
+    pillars:['Schnelligkeit','Kraft'], equipment:['Hütchen','Trainings-Matte'], dauer:'25–30',
     warmup:[ W('hampelmann', 30), W('kniehebelauf', 30), W('ausfallRot', 30), W('shuffle', 30, { name:'Seitlicher Shuffle', sides:true }), W('jog', 30, { name:'Locker laufen' }) ],
     wTip:'Atme durch die Nase ein, durch den Mund aus. Bleib locker!',
     mSub:'Gib alles und verbessere dich!',
@@ -1576,7 +1595,7 @@ const SETS = [
     challenge:{ name:'Agility Hero', text:'Schaffe den gesamten Hütchen-Zickzack-Drill (Übung 2) unter 12 Sekunden!', levels:['über 14 Sek.','12–14 Sek.','unter 12 Sek.'] } }),
 
   makeSet({ n:4, load:'mittel', title:'Core Strength', tagline:'Ein starker Core. Ein starker Schuss. Ein starker Spieler!', desc:'Starker Core für Stabilität, Kraftübertragung und Verletzungsprävention.',
-    pillars:['Kraft','Stabilität'], equipment:['Matte','Medizinball'], dauer:'25–30',
+    pillars:['Kraft','Stabilität'], equipment:['Trainings-Matte','Medizinball'], dauer:'25–30',
     warmup:[ W('jog', 30, { name:'Locker laufen' }), W('armkreisen', 30, { cues:[ { at:15, text:'Jetzt rückwärts!' } ] }), W('hueftkreisen', 30, { cues:[ { at:15, text:'Richtung wechseln!' } ] }), W('catcow', 30), W('plankDog', 30) ],
     wTip:'Atme tief durch die Nase ein und durch den Mund aus. Bleib fokussiert!',
     mSub:'Stärke deinen Rumpf. Kontrolliere dein Spiel!',
@@ -1587,7 +1606,7 @@ const SETS = [
     challenge:{ name:'Core Warrior', text:'Halte beide Plank Holds die vollen 90 Sekunden durch – ohne abzusetzen!', levels:['geschafft','mit perfekter Technik','neue Bestzeit'] } }),
 
   makeSet({ n:5, load:'hoch', title:'Battle Strength', tagline:'Gewinne Zweikämpfe. Sei stark. Bleib stabil.', desc:'Zweikampfstärke, Unterkörperkraft und mentale Widerstandsfähigkeit.',
-    pillars:['Kraft'], equipment:['Wand','Medizinball','Matte'], dauer:'25–30',
+    pillars:['Kraft'], equipment:['Wand','Medizinball','Trainings-Matte'], dauer:'25–30',
     warmup:[ W('jog', 30, { name:'Locker laufen' }), W('kniehebelauf', 30), W('shuffle', 30, { name:'Seitliche Shuffle', sides:true }), W('ausfallRot', 30, S2),
              W('armkreisen', 30, { name:'Armkreisen & Hüftkreisen', cues:[ { at:15, text:'Jetzt Hüftkreisen!', anim:'hueftkreisen' } ] }) ],
     wTip:'Halte deinen Körper aktiv, deine Mitte gespannt und deinen Blick nach vorn!',
@@ -1621,7 +1640,7 @@ const SETS = [
     challenge:{ name:'Explosive Winner', text:'Schaffe alle 4 Übungen mit maximalem Einsatz und sauberer Technik!', levels:['geschafft','mit starker Leistung','maximale Explosivität'] } }),
 
   makeSet({ n:8, load:'mittel', title:'Endurance Warrior', tagline:'Ausdauer. Rhythmus. Durchhaltevermögen.', desc:'Ausdauer, Kraftausdauer und mentale Härte mit Springseil und Intervallen.',
-    pillars:['Ausdauer'], equipment:['Springseil','Hütchen','Tennisball','Matte','Puck','Stock','Trinkflasche'], dauer:'25–30',
+    pillars:['Ausdauer'], equipment:['Springseil','Hütchen','Tennisball','Trainings-Matte','Puck','Stock','Trinkflasche'], dauer:'25–30',
     wSub:'Aktiviere deinen Körper und bring dein Herz in Schwung!',
     warmup:WARM6(W('ropeEasy', 30)), wTip:'Starte locker und steigere langsam dein Tempo!',
     mSub:'Durchhaltevermögen und Ausdauer-Intervalle mit dem Springseil und funktionellen Bewegungen.',
@@ -1655,7 +1674,7 @@ const SETS = [
     challenge:{ name:'Acceleration Champ', text:'Verbessere deine 10-m-Zeit! 3 Versuche – nimm die schnellste Zeit.', levels:['2,10–2,30 Sek.: stark','1,90–2,10 Sek.: top','unter 1,90 Sek.: legendär'] } }),
 
   makeSet({ n:11, load:'mittel', title:'Coordination Master+', tagline:'Höchste Koordination. Volle Kontrolle. Maximale Performance.', desc:'Elite-Koordination, Stabilität und Kontrolle auf höchstem Niveau.',
-    pillars:['Koordination','Stabilität'], equipment:['Revbalance Board','Springseil','Balance Pad','Reaktionsball','Tennisball','Matte','Puck','Stock'], dauer:'24–28',
+    pillars:['Koordination','Stabilität'], equipment:['Revbalance Board','Springseil','Balance Pad','Reaktionsball','Tennisball','Trainings-Matte','Puck','Stock'], dauer:'24–28',
     wSub:'Aktiviere deinen Körper und schalte den Kopf ein!',
     warmup:WARM6(W('dynDehnung', 30)), wTip:'Starte fokussiert und in deinem Rhythmus – Qualität vor Geschwindigkeit!',
     mSub:'Koordination auf höchstem Niveau: Balance, Rhythmus, Reaktion und Kontrolle.',
@@ -1667,7 +1686,7 @@ const SETS = [
     challenge:{ name:'Coordination Master+', text:'Schaffe alle 5 Übungen mit perfekter Kontrolle!', levels:['1 Runde stark','2–3 Runden sehr stark','4–5 Runden: Elite'] } }),
 
   makeSet({ n:12, load:'niedrig', title:'Mobility & Movement Quality', tagline:'Bewege dich besser. Spiele besser.', desc:'Beweglichkeit, Mobilität und saubere Bewegung für mehr Performance.',
-    pillars:['Beweglichkeit'], equipment:['Balance Pad','Widerstandsband','Mini-Hürden','Matte','Trinkflasche'], dauer:'24–28',
+    pillars:['Beweglichkeit'], equipment:['Balance Pad','Widerstandsband','Mini-Hürden','Trainings-Matte','Trinkflasche'], dauer:'24–28',
     why:'Eine gute Beweglichkeit hilft dir, tiefer zu skaten, explosiver zu starten und Zweikämpfe stabiler zu gewinnen. Sie verbessert deine Technik und schützt dich vor Verletzungen.',
     wSub:'Aktiviere deinen Körper und bereite dich vor!',
     warmup:[ W('jog', 30), W('hampelmann', 30), W('armRot', 30), W('shuffle', 30, { name:'Seitliche Shuffle' }), W('kniehebelauf', 30), W('dynAusfall', 30, S2) ],
@@ -1680,7 +1699,7 @@ const SETS = [
     challenge:{ name:'Mobility Master', text:'Kannst du 30 Sekunden in der tiefen Hockeyposition bleiben, ohne dass die Fersen abheben?', levels:['1 Versuch geschafft','2–3 Versuche geschafft','4–5 Versuche geschafft'] } }),
 
   makeSet({ n:13, load:'hoch', title:'Explosive Agility', tagline:'Explosiv starten. Schnell abbremsen. Richtung wechseln.', desc:'Stop & Go, Richtungswechsel und explosive Bewegungen.',
-    pillars:['Schnelligkeit','Reaktion'], equipment:['Koordinationsleiter','Hütchen','Blazepods','Reaktionsball','Matte','Puck','Stock'], dauer:'24–28',
+    pillars:['Schnelligkeit','Reaktion'], equipment:['Koordinationsleiter','Hütchen','Blazepods','Reaktionsball','Trainings-Matte','Puck','Stock'], dauer:'24–28',
     why:'Explosive Agility hilft dir, schnell zu starten, abrupt zu stoppen und blitzschnell die Richtung zu wechseln. Das macht dich im Spiel unberechenbar und schwer zu verteidigen!',
     wSub:'Aktiviere deinen Körper und steigere dein Tempo!',
     warmup:[ W('jog', 30), W('hampelmann', 30), W('kniehebelauf', 30), W('shuffle', 30, { name:'Seitliche Shuffle' }), W('armRot', 30), W('anfersen', 30) ],
@@ -1692,7 +1711,7 @@ const SETS = [
     challenge:{ name:'Agility Expert', text:'Schaffe den 5-10-5 Shuttle in unter 7,5 Sekunden – mit perfektem Stop und explosiver Beschleunigung!', levels:['8,5–9,5 Sek.: gut','7,5–8,5 Sek.: sehr gut','unter 7,5 Sek.: Expert'] } }),
 
   makeSet({ n:14, load:'niedrig', title:'Focus Under Pressure', tagline:'Denk klar. Bleib fokussiert. Entscheide richtig.', desc:'Konzentration, Fokus und Leistung unter körperlicher Belastung.',
-    pillars:['Konzentration','Mentale Stärke'], equipment:['BlazePods','Reaktionsball','Tennisball','Revbalance Board','Springseil','Matte','Hütchen','Puck','Stock'], dauer:'24–28',
+    pillars:['Konzentration','Mentale Stärke'], equipment:['BlazePods','Reaktionsball','Tennisball','Revbalance Board','Springseil','Trainings-Matte','Hütchen','Puck','Stock'], dauer:'24–28',
     why:'Im Spiel hast du nicht viel Zeit. Du musst schnell denken, richtig entscheiden und dabei deinen Körper unter Kontrolle halten. Unter Druck fokussiert bleiben – das macht dich zu einem echten Champion!',
     wSub:'Aktiviere Körper und Kopf – bring deine Konzentration hoch!',
     warmup:WARM6(W('dynAusfall', 30, S2)), wTip:'Werde wach im Kopf und im Körper!',
@@ -1703,7 +1722,7 @@ const SETS = [
     challenge:{ name:'Focus Challenge', text:'Schaffe alle 5 Übungen ohne Fehler und bleib dabei 100 % konzentriert!', levels:['3–4 Fehler','1–2 Fehler','fehlerfrei: Fokus-Champion'] } }),
 
   makeSet({ n:15, load:'hoch', title:'Speed Endurance', tagline:'Länger schnell. Länger stark. Immer wieder explosiv.', desc:'Schnelligkeitsausdauer und Wiederholungsfähigkeit steigern.',
-    pillars:['Ausdauer','Schnelligkeit'], equipment:['Springseil','Hütchen','Koordinationsleiter','BlazePods','Tennisball','Matte'], dauer:'25–28',
+    pillars:['Ausdauer','Schnelligkeit'], equipment:['Springseil','Hütchen','Koordinationsleiter','BlazePods','Tennisball','Trainings-Matte'], dauer:'25–28',
     why:'Im Spiel musst du viele Male schnell sein – nicht nur einmal. Speed Endurance hilft dir, auch im 3. Drittel noch explosiv zu starten, Zweikämpfe zu gewinnen und Tore zu machen!',
     wSub:'Aktiviere deinen Körper und steigere die Temperatur!',
     warmup:WARM6(W('dynAusfall', 30, S2)), wTip:'Starte locker und steigere die Intensität von Übung zu Übung!',
@@ -1714,7 +1733,7 @@ const SETS = [
     challenge:{ name:'Last Shift Challenge', text:'Erledige alle 5 Hauptübungen in der vorgegebenen Zeit und Intensität – wie im letzten Drittel!', levels:['2 Intervalle reduziert','1 Intervall reduziert','alle Intervalle mit Top-Intensität'] } }),
 
   makeSet({ n:16, load:'mittel', title:'Elite Coordination Challenge', tagline:'Körper, Kopf und Puck – alles im Einklang.', desc:'Die ultimative Koordinations-Challenge für Körper und Gehirn.',
-    pillars:['Koordination','Konzentration'], equipment:['Koordinationsleiter','Revbalance Board','BlazePods','Springseil','Tennisball','Matte','Hütchen','Puck','Stock'], dauer:'26–30',
+    pillars:['Koordination','Konzentration'], equipment:['Koordinationsleiter','Revbalance Board','BlazePods','Springseil','Tennisball','Trainings-Matte','Hütchen','Puck','Stock'], dauer:'26–30',
     why:'Im Spiel passieren viele Dinge auf einmal. Diese Mission trainiert deine Fähigkeit, mehrere Aufgaben gleichzeitig zu koordinieren und dabei ruhig, schnell und präzise zu bleiben – wie ein Elite-Spieler!',
     wSub:'Aktiviere deinen Körper und bring dein Nervensystem auf Top-Level!',
     warmup:WARM6(W('dynAusfall', 30, S2)), wTip:'Führe jede Bewegung mit maximaler Kontrolle und Konzentration aus!',
@@ -1725,7 +1744,7 @@ const SETS = [
     challenge:{ name:'Elite Challenge', text:'Schaffe alle 5 Übungen ohne Fehler in einer Runde – mit voller Konzentration!', levels:['2 Fehler','1 Fehler','fehlerfrei: Elite'] } }),
 
   makeSet({ n:17, load:'hoch', title:'Strength Endurance', tagline:'Bleib stark. Bleib intensiv. Bleib bis zum Schluss explosiv.', desc:'Kraftausdauer für den ganzen Körper und mehr Widerstandsfähigkeit.',
-    pillars:['Kraft','Ausdauer'], equipment:['Springseil','Matte','Hütchen','Trinkflasche','Handtuch'], dauer:'25–30',
+    pillars:['Kraft','Ausdauer'], equipment:['Springseil','Trainings-Matte','Hütchen','Trinkflasche','Handtuch'], dauer:'25–30',
     why:'Im Spiel gibt es viele intensive Situationen. Diese Einheit trainiert deinen Körper, auch unter Ermüdung stark zu bleiben. So kannst du bis zum Schluss Zweikämpfe gewinnen, schnell beschleunigen und dein Bestes geben!',
     wSub:'Aktiviere deinen Körper und bring ihn auf Betriebstemperatur!',
     warmup:WARM6(W('dynAusfall', 30, S2)), wTip:'Bleib locker und atme ruhig durch die Nase ein und aus!',
@@ -1740,7 +1759,7 @@ const SETS = [
     challenge:{ name:'Strength Endurance Test', text:'Schaffe alle 3 Runden mit sauberer Technik – auch in der letzten Runde!', levels:['2 Runden sauber','3 Runden sauber','3 Runden sauber und ohne Pause verkürzt'] } }),
 
   makeSet({ n:18, load:'niedrig', title:'Recovery & Mobility', tagline:'Regenerieren. Lockern. Neue Energie tanken.', desc:'Regeneration, Mobilität und neue Energie tanken.',
-    pillars:['Regeneration','Beweglichkeit'], equipment:['Matte','Blackroll (optional)','Faszienball (optional)','Thera-Band (optional)','Handtuch','Trinkflasche'], dauer:'24–26',
+    pillars:['Regeneration','Beweglichkeit'], equipment:['Trainings-Matte','Blackroll (optional)','Faszienball (optional)','Thera-Band (optional)','Handtuch','Trinkflasche'], dauer:'24–26',
     why:'Erholung und Mobilität verbessern deine Beweglichkeit, beugen Verletzungen vor und machen dich bereit für dein nächstes hartes Training oder Spiel. Profis erholen sich mit der gleichen Disziplin, mit der sie trainieren.',
     wSub:'Leichte Aktivierung für Körper und Geist.',
     warmup:[ W('jog', 30), W('armkreisen', 30, { name:'Armkreisen & Schulterrollen' }), W('hueftkreisen', 30), W('catcow', 30, { name:'Katze & Kuh' }), W('dynAusfall', 30, { name:'Dynamischer Ausfallschritt' }), W('atmenStand', 30, { name:'Tiefe Atmung' }) ],
@@ -1757,7 +1776,7 @@ const SETS = [
     challenge:{ name:'Recovery Challenge', text:'Schaffe die komplette Recovery-Routine mit voller Konzentration und Achtsamkeit!', levels:['alles gemacht','sauber ausgeführt','bewusst geatmet und entspannt'] } }),
 
   makeSet({ n:19, load:'niedrig', title:'Mental Focus & Game IQ', tagline:'Klar denken. Schnell entscheiden. Die beste Wahl treffen.', desc:'Mentale Stärke, Spielintelligenz und clevere Entscheidungen trainieren.',
-    pillars:['Mentale Stärke','Konzentration'], equipment:['BlazePods','Tennisball','Zahlenkarten / Marker','Kegel','Puck','Stock','Revbalance Board','Matte'], dauer:'26–30',
+    pillars:['Mentale Stärke','Konzentration'], equipment:['BlazePods','Tennisball','Zahlenkarten / Marker','Kegel','Puck','Stock','Revbalance Board','Trainings-Matte'], dauer:'26–30',
     why:'Im Spiel hast du nur Sekunden, um die richtige Entscheidung zu treffen. Diese Übungen trainieren deinen Kopf und helfen dir, unter Druck ruhig zu bleiben und clevere Plays zu machen – wie echte Profis!',
     wSub:'Aktiviere Körper und Gehirn und bring Fokus ins System!',
     warmup:[ W('jog', 30), W('hampelmann', 30),
@@ -1772,7 +1791,7 @@ const SETS = [
     challenge:{ name:'Focus IQ Challenge', text:'Schaffe alle 5 Übungen mit voller Konzentration und ohne Fehler!', levels:['2 Fehler','1 Fehler','fehlerfrei: Fokus-IQ-Champion'] } }),
 
   makeSet({ n:21, load:'hoch', title:'Jump Block', tagline:'Spring höher. Lande leiser. Werde explosiver.', desc:'Sprungkraft und saubere Landung mit dem Sprungblock.',
-    pillars:['Kraft','Schnelligkeit','Stabilität'], equipment:['Sprungblock (20–30 cm, rutschfest)','Matte'], dauer:'25–30',
+    pillars:['Kraft','Schnelligkeit','Stabilität'], equipment:['Sprungblock (20–30 cm, rutschfest)','Trainings-Matte'], dauer:'25–30',
     why:'Explosive Beine bringen dich schneller in den ersten Schritt und machen deine Skating-Abstösse kräftiger. Mindestens genauso wichtig ist die Landung: Wer sauber und leise landet, schützt Knie und Sprunggelenke.',
     wSub:'Mach Beine und Fussgelenke bereit!',
     warmup:[ W('jog', 30), W('hampelmann', 30), W('skipping', 30), W('dynAusfall', 30, S2), W('pogo', 30), W('ankleWall', 30, S2) ],
@@ -1784,7 +1803,7 @@ const SETS = [
     challenge:{ name:'Silent Landing', text:'Schaffe 5 Box Jumps hintereinander so leise, dass man die Landung kaum hört!', levels:['3 leise Landungen','4 leise Landungen','5 leise Landungen'] } }),
 
   makeSet({ n:20, load:'hoch', title:'Complete Champion', tagline:'Alles, was du gelernt hast – in einer Mission.', desc:'Die finale Challenge – alles, was du gelernt hast, in einer Mission.', dauer:'35–40',
-    pillars:['Schnelligkeit','Kraft','Stabilität','Koordination','Reaktion','Ausdauer'], equipment:['Hütchen','Matte','Springseil'],
+    pillars:['Schnelligkeit','Kraft','Stabilität','Koordination','Reaktion','Ausdauer'], equipment:['Hütchen','Trainings-Matte','Springseil'],
     why:'Hier zeigst du, was Block 1 aus dir gemacht hat: Schnelligkeit, Kraft, Stabilität, Reaktion und Ausdauer – alles in einer Einheit. Wer diese Mission schafft, hat die athletische Grundlage gelegt.',
     wSub:'Aktiviere alles – heute zählt jede Fähigkeit!',
     warmup:WARM6(W('dynAusfall', 30, S2)), wTip:'Nimm dir Zeit fürs Aufwärmen. Heute braucht der Körper alles.',
@@ -1794,7 +1813,7 @@ const SETS = [
     challenge:{ name:'Complete Champion', text:'Schaffe alle 6 Stationen ohne Überspringen – mit sauberer Technik bis zur letzten Wiederholung!', levels:['4 Stationen sauber','5 Stationen sauber','alle 6 Stationen sauber'] } }),
   /* ===== Neue Trainings (Nov. 2026) mit den neuen Geräten – Vermerk «Neues Training» ===== */
   makeSet({ n:22, isNew:true, load:'mittel', title:'Kettlebell Strength', tagline:'Stark im Zweikampf. Stabil an der Bande.', desc:'Kraft-Grundlagen mit der Kettlebell: Beine, Hüfte, Rumpf und Schultern.',
-    pillars:['Kraft','Stabilität'], equipment:['Kettlebell 4 kg','Kettlebell 6 kg','Kettlebell 8 kg','Markierungsteller','Springseil','Blackroll Mat'], dauer:'25–30',
+    pillars:['Kraft','Stabilität'], equipment:['Kettlebell 4 kg','Kettlebell 6 kg','Kettlebell 8 kg','Markierungsteller','Springseil','Trainings-Matte'], dauer:'25–30',
     why:'Wer im Zweikampf stabil steht und kräftig aus der Hüfte abstösst, gewinnt mehr Pucks. Die Kettlebell trainiert genau diese Grundmuster – mit leichtem Gewicht und sauberer Technik.',
     warmup:[ W('jog', 30), W('hampelmann', 30), W('kniebeugen', 30, { name:'Kniebeugen ohne Gewicht' }), W('hueftkreisen', 30, { cues:[ { at:15, text:'Richtung wechseln!' } ] }), W('armRot', 30), W('ausfallRot', 30, S2), W('ropeBasic', 30, { name:'Springseil locker' }) ],
     wTip:'Zuerst ohne Gewicht sauber bewegen – dann kommt die Kettlebell.',
@@ -1806,7 +1825,7 @@ const SETS = [
     challenge:{ name:'Iron Grip', text:'Schaffe alle Goblet-Carry-Durchgänge, ohne die Kettlebell abzusetzen!', levels:['1 Durchgang','2 Durchgänge','alle 3 Durchgänge'] } }),
 
   makeSet({ n:23, isNew:true, load:'hoch', title:'Medball & Slamball Power', tagline:'Mehr Power im Schuss. Mehr Wucht im Zweikampf.', desc:'Explosive Würfe mit Rebound-Medizinball und Slamball für Schuss, Pass und Check.',
-    pillars:['Kraft','Schnelligkeit'], equipment:['Rebound-Medizinball 1 kg','Rebound-Medizinball 2 kg','Slamball 2 kg','Wand','Blackroll Mat'], ort:'Home / Garage (feste Wand)', dauer:'30',
+    pillars:['Kraft','Schnelligkeit'], equipment:['Rebound-Medizinball 1 kg','Rebound-Medizinball 2 kg','Slamball 2 kg','Wand','Trainings-Matte'], ort:'Home / Garage (feste Wand)', dauer:'30',
     why:'Schuss, Pass und Check entstehen aus Beinen, Hüfte und Rumpf. Die Würfe trainieren genau diese Kraftübertragung – schnell und explosiv, wie auf dem Eis.',
     warmup:[ W('jog', 30), W('hampelmann', 30), W('armRot', 30), W('ausfallRot', 30, S2), W('hueftkreisen', 30, { cues:[ { at:15, text:'Richtung wechseln!' } ] }), W('mbChest', 20, { name:'Brustpass locker (1 kg)' }) ],
     wTip:'Schultern und Rumpf gut aufwärmen – gleich wird explosiv geworfen.',
@@ -1818,7 +1837,7 @@ const SETS = [
     challenge:{ name:'Power Thrower', text:'Schaffe alle Rotationswürfe auf beiden Seiten gleich kräftig!', levels:['1 Durchgang','2 Durchgänge','alle 3 Durchgänge'] } }),
 
   makeSet({ n:24, isNew:true, load:'hoch', title:'Hurdle & Rope Speed', tagline:'Schnelle Füsse. Schneller erster Schritt.', desc:'Mini-Hürden, Sprints und Springseil-Intervalle für Schnelligkeit und Ausdauer.',
-    pillars:['Schnelligkeit','Koordination','Ausdauer'], equipment:['Mini-Hürden (6 Stück)','Markierungsteller','Springseil Velites','Blackroll Mat'], dauer:'30–35',
+    pillars:['Schnelligkeit','Koordination','Ausdauer'], equipment:['Mini-Hürden (6 Stück)','Markierungsteller','Springseil Velites','Trainings-Matte'], dauer:'30–35',
     why:'Schnelle, leise Bodenkontakte machen deine Füsse auf dem Eis schneller. Der seitliche Abstoss ist wie ein Crossover, und der Sprint nach den Hürden trainiert den ersten Schritt. Das Springseil am Schluss baut Ausdauer auf.',
     wSub:'Fussgelenke, Knie und Hüfte gründlich bereit machen!',
     warmup:WARM8(), wTip:'Gründlich aufwärmen – Sprünge brauchen warme Fussgelenke und Knie.',
@@ -1843,7 +1862,7 @@ const SETS = [
     challenge:{ name:'Sharp Mind', text:'Merke dir 3 Zahlenfolgen hintereinander ohne Fehler!', levels:['1 Folge','2 Folgen','3 Folgen fehlerfrei'] } }),
 
   makeSet({ n:26, isNew:true, load:'hoch', title:'Box Power', tagline:'Explodieren. Leise landen. Losrennen.', desc:'Explosive Sprünge auf die Soft-Plyo-Box, Skater-Sprünge und Hüft-Power.',
-    pillars:['Kraft','Schnelligkeit'], equipment:['Soft-Plyo-Box 40/50 cm','Kettlebell 6 kg','Markierungsteller','Blackroll Mat'], dauer:'30–35',
+    pillars:['Kraft','Schnelligkeit'], equipment:['Soft-Plyo-Box 40/50 cm','Kettlebell 6 kg','Markierungsteller','Trainings-Matte'], dauer:'30–35',
     why:'Ein explosiver Antritt entscheidet, wer zuerst am Puck ist. Box Jumps und Skater-Sprünge machen deine Beine explosiver, der Swing deine Hüfte – und die leise Landung schützt Knie und Sprunggelenke.',
     wSub:'Fussgelenke, Knie und Hüfte gründlich bereit machen!',
     warmup:WARM8(), wTip:'Gründlich aufwärmen – gleich wird gesprungen.',
@@ -1854,8 +1873,8 @@ const SETS = [
     cTip:'Atme tief ein und aus. Deine Beine haben heute Power getankt!',
     challenge:{ name:'Silent Box', text:'Schaffe alle Box Jumps mit leiser, stabiler Landung!', levels:['3 leise Landungen','6 leise Landungen','alle 9 leise'] } }),
 
-  makeSet({ n:27, isNew:true, load:'niedrig', title:'Blackroll Mat Mobility', tagline:'Beweglich bleiben. Verletzungen vorbeugen.', desc:'Hüfte, Leiste, Rücken und Schultern mobilisieren – auf der Blackroll Mat.',
-    pillars:['Beweglichkeit','Regeneration'], equipment:['Blackroll Mat'], dauer:'20',
+  makeSet({ n:27, isNew:true, load:'niedrig', title:'Trainings-Matte Mobility', tagline:'Beweglich bleiben. Verletzungen vorbeugen.', desc:'Hüfte, Leiste, Rücken und Schultern mobilisieren – auf der Trainings-Matte.',
+    pillars:['Beweglichkeit','Regeneration'], equipment:['Trainings-Matte'], dauer:'20',
     why:'Eishockey belastet Hüfte, Leiste und Rücken stark. Regelmässige Mobility hält dich beweglich, beugt Leisten- und Rückenproblemen vor und hilft dir, dich schneller zu erholen. Ideal nach einem Spiel oder nach dem Eistraining.',
     wSub:'Komm auf der Matte an.',
     warmup:[ W('catcow', 40), W('atmenStand', 30, { name:'Ankommen und atmen' }) ],
@@ -1870,7 +1889,7 @@ const SETS = [
     challenge:{ name:'Mobility Master', text:'Mach die Routine 3-mal in einer Woche!', levels:['1-mal','2-mal','3-mal'] } }),
 
   makeSet({ n:28, isNew:true, load:'mittel', title:'Ausdauer-Zirkel', tagline:'Bis zum Schluss stark. Auch im dritten Drittel.', desc:'Zirkel mit 6 Stationen: 40 Sekunden Arbeit, 20 Sekunden Pause, 3 Runden.',
-    pillars:['Ausdauer','Kraft'], equipment:['Springseil Velites','Rebound-Medizinball 2 kg','Slamball 2 kg','Markierungsteller','Soft-Plyo-Box 40 cm','Blackroll Mat','Wand'], dauer:'35',
+    pillars:['Ausdauer','Kraft'], equipment:['Springseil Velites','Rebound-Medizinball 2 kg','Slamball 2 kg','Markierungsteller','Soft-Plyo-Box 40 cm','Trainings-Matte','Wand'], dauer:'35',
     why:'Ein Spiel dauert drei Drittel. Mit guter Ausdauer bist du auch am Ende noch schnell und triffst gute Entscheidungen. Der Zirkel ersetzt ein Off-Ice-Training im Club.',
     wSub:'Fussgelenke, Knie und Hüfte gründlich bereit machen!',
     warmup:WARM8(), wTip:'Stell alle 6 Stationen vor dem Start bereit.',
@@ -1887,7 +1906,7 @@ const SETS = [
     challenge:{ name:'Third Period', text:'Schaffe alle 3 Runden mit sauberer Technik – auch in der letzten Station!', levels:['2 Runden','3 Runden','3 Runden ohne Pause verkürzt'] } }),
 
   makeSet({ n:29, isNew:true, load:'mittel', title:'Off-Ice komplett', tagline:'Dein ganzes Off-Ice-Training – zu Hause.', desc:'Ersatz für das Club-Off-Ice: Speed, Kraft, Ausdauer und Mobility in einer Einheit.',
-    pillars:['Schnelligkeit','Kraft','Ausdauer','Beweglichkeit'], equipment:['Mini-Hürden (6 Stück)','Markierungsteller','Kettlebell 6 kg','Kettlebell 8 kg','Rebound-Medizinball 2 kg','Springseil Velites','Blackroll Mat','Wand'], dauer:'45',
+    pillars:['Schnelligkeit','Kraft','Ausdauer','Beweglichkeit'], equipment:['Mini-Hürden (6 Stück)','Markierungsteller','Kettlebell 6 kg','Kettlebell 8 kg','Rebound-Medizinball 2 kg','Springseil Velites','Trainings-Matte','Wand'], dauer:'45',
     why:'Wenn du das Off-Ice-Training im Club auslässt, deckt diese Einheit alles ab: Schnelligkeit, Kraft, Ausdauer und Beweglichkeit – in der richtigen Reihenfolge.',
     wSub:'Fussgelenke, Knie und Hüfte gründlich bereit machen!',
     warmup:WARM8(), wTip:'Stell alle Geräte vor dem Start bereit.',
@@ -3314,6 +3333,7 @@ function openMissions(){
         <b>${m.title}</b>
         <small>${m.desc}</small>
         <span class="lt-meta">${mins} · <span class="load-${m.load}">${m.playable ? 'Belastung ' + m.load : 'Finale'}</span> · ${m.pillars.slice(0, 1).join('')}</span>
+        <span class="gear-warn" id="gw-${m.id}"></span>
       </span>
     </button>`;
   }).join('');
@@ -3325,11 +3345,13 @@ function openMissions(){
     </div>
     <p class="muted">${SETS.length} Übungssets für eine starke athletische Grundlage, angepasst für 11 bis 13 Jahre. Neben dem Eistraining 2 bis 3 Sets pro Woche, nicht zwei Sets mit hoher Belastung an aufeinanderfolgenden Tagen.</p>
     <p class="muted">Öffne ein Set, um es im Briefing per Tipp auf einen Wochentag in den Wochenplan zu übernehmen.</p>
+    ${gearHTML()}
     <div class="lib-grid">${tiles}</div>
     <button class="btn btn-primary" id="btn-ms-back2"><span class="arrow back" aria-hidden="true"></span> Zurück zum Mission Center</button>
   </div>`;
   SETS.forEach(m => Anim.mount($('lib-' + m.id), m.playable ? m.demo : 'jumpSquat', { still:.35 }));
   bindMissionButtons($('screen-missions'));
+  bindGear();
   const back = () => { renderCenter(); show('center'); };
   $('btn-ms-back').onclick = back; $('btn-ms-back2').onclick = back;
   show('missions');
@@ -3624,6 +3646,69 @@ function nextInRotation(after){
   const i = AV.findIndex(m => m.id === id);
   return AV[(i + 1) % AV.length];
 }
+/* ---- Trainings-Equipment: apc.gear.v1 { id:false } = nicht verfügbar; fehlender Schlüssel = verfügbar (bestehende Daten sperren nichts).
+   Im Mission Center («Heute») werden nur Trainings vorgeschlagen und gestartet, für die alle Geräte da sind. ---- */
+const GI = {
+  kb:w => `<path d="M18 16a8 8 0 0 1 16 0" fill="none" stroke="#c6d2e2" stroke-width="4"/><circle cx="26" cy="28" r="13" fill="#4b5d78"/><text x="26" y="32" font-size="10" font-weight="900" text-anchor="middle" fill="#fff" font-family="sans-serif">${w}</text>`,
+  mb:w => `<circle cx="26" cy="23" r="17" fill="#c0392b"/><path d="M9 23h34M26 6c-7 9-7 25 0 34" stroke="#2b0d0a" stroke-width="2" fill="none"/><text x="40" y="42" font-size="10" font-weight="900" fill="#fff" font-family="sans-serif">${w}</text>`,
+  sb:'<circle cx="26" cy="23" r="17" fill="#222b38" stroke="#4b5d78"/><path d="M12 15q14 8 28 0M12 31q14-8 28 0" stroke="#7dd3fc" stroke-width="2" fill="none"/>',
+  band:'<path d="M8 32q18-32 36 0" stroke="#27ae60" stroke-width="6" fill="none" stroke-linecap="round"/>',
+  hurd:'<path d="M8 38V20h36v18M8 20h36" stroke="#f5c451" stroke-width="4" fill="none"/>',
+  box:'<path d="M8 18l18-8 18 8v18l-18 6-18-6z" fill="#2e7dd1"/><path d="M8 18l18 8 18-8M26 26v16" stroke="#0a1424" stroke-width="2" fill="none"/>',
+  rope:'<rect x="6" y="6" width="5" height="14" rx="2" fill="#e74c3c"/><rect x="41" y="6" width="5" height="14" rx="2" fill="#e74c3c"/><path d="M8 20q18 40 36 0" stroke="#c6d2e2" stroke-width="2" fill="none"/>',
+  ladder:'<path d="M14 4v36M38 4v36M14 10h24M14 19h24M14 28h24M14 37h24" stroke="#f5c451" stroke-width="3"/>',
+  rball:'<circle cx="26" cy="22" r="8" fill="#e74c3c"/><circle cx="17" cy="22" r="6" fill="#e74c3c"/><circle cx="35" cy="22" r="6" fill="#e74c3c"/><circle cx="26" cy="13" r="6" fill="#e74c3c"/><circle cx="26" cy="31" r="6" fill="#e74c3c"/>',
+  tball:'<circle cx="26" cy="22" r="13" fill="#d4e157"/><path d="M14 16q12 6 24 0M14 28q12-6 24 0" stroke="#fff" stroke-width="2" fill="none"/>',
+  pods:'<circle cx="16" cy="22" r="9" fill="#1a2740" stroke="#5ee0b0" stroke-width="4"/><circle cx="36" cy="22" r="9" fill="#1a2740" stroke="#7dd3fc" stroke-width="4"/>',
+  board:'<rect x="6" y="16" width="40" height="8" rx="4" fill="#8e5a2b"/><path d="M14 24a12 12 0 0 0 24 0" fill="#3a4d6a"/>',
+  pad:'<path d="M8 28l18-10 18 10-18 10z" fill="#3498db"/><path d="M8 28v4l18 10 18-10v-4" fill="#21618c"/>',
+  disc:'<ellipse cx="16" cy="30" rx="10" ry="5" fill="#f39c12"/><ellipse cx="36" cy="24" rx="10" ry="5" fill="#2ecc71"/><ellipse cx="22" cy="16" rx="10" ry="5" fill="#3498db"/>',
+  cone:'<path d="M26 6l11 30H15z" fill="#f57c1f"/><path d="M19 24h14" stroke="#fff" stroke-width="3"/><rect x="10" y="36" width="32" height="4" rx="1" fill="#f57c1f"/>',
+  cards:'<rect x="10" y="8" width="20" height="28" rx="3" fill="#cfd8dc" transform="rotate(-8 20 22)"/><rect x="22" y="8" width="20" height="28" rx="3" fill="#fff"/><text x="32" y="28" font-size="14" font-weight="900" text-anchor="middle" fill="#0a1424" font-family="sans-serif">7</text>',
+  stick:'<path d="M12 6l14 28" stroke="#c6d2e2" stroke-width="4"/><path d="M24 34h12" stroke="#c6d2e2" stroke-width="5" stroke-linecap="round"/><ellipse cx="40" cy="38" rx="7" ry="3.5" fill="#111"/>',
+  mat:'<rect x="6" y="18" width="34" height="14" rx="3" fill="#2d3e57"/><circle cx="42" cy="25" r="7" fill="#3a4d6a"/>'
+};
+const GEAR = [
+  ['Kraft', [...[4, 6, 8, 10].map(w => ['kb' + w, `Kettlebell ${w} kg`, GI.kb(w)]), ['mb1', 'Medizinball 1 kg', GI.mb('1')], ['mb2', 'Medizinball 2 kg', GI.mb('2')], ['sb', 'Slamball 2 kg', GI.sb], ['band', 'Widerstandsband', GI.band]]],
+  ['Sprung und Speed', [['hurd', 'Mini-Hürden', GI.hurd], ['box', 'Soft-Plyo-Box', GI.box], ['rope', 'Springseil', GI.rope], ['ladder', 'Koordinationsleiter', GI.ladder]]],
+  ['Koordination und Reaktion', [['rball', 'Reaktionsball', GI.rball], ['tball', 'Tennisball', GI.tball], ['pods', 'BlazePods', GI.pods], ['board', 'Revbalance Board', GI.board], ['pad', 'Balance Pad', GI.pad]]],
+  ['Markierung, Hockey und Boden', [['disc', 'Markierungsteller', GI.disc], ['cone', 'Hütchen / Kegel', GI.cone], ['cards', 'Zahlenkarten', GI.cards], ['stick', 'Stock und Puck', GI.stick], ['mat', 'Trainings-Matte', GI.mat]]]
+];
+const GEAR_ALL = GEAR.flatMap(g => g[1]), GEAR_NAME = Object.fromEntries(GEAR_ALL.map(([k, n]) => [k, n]));
+/* Bezeichnung im Training -> Gerät(e); mehrere = eines davon genügt. Optional und immer vorhanden (Wand, Trinkflasche, Handtuch) sperren nichts. */
+const GEAR_MAP = [[/kettlebell 4/i, ['kb4']], [/kettlebell 6/i, ['kb6']], [/kettlebell 8/i, ['kb8']], [/kettlebell 10/i, ['kb10']], [/medizinball 1/i, ['mb1']], [/medizinball 2/i, ['mb2']], [/medizinball/i, ['mb1', 'mb2']], [/slamball/i, ['sb']], [/widerstandsband/i, ['band']],
+  [/hürde/i, ['hurd']], [/plyo|sprungblock/i, ['box']], [/springseil/i, ['rope']], [/leiter/i, ['ladder']], [/reaktionsball/i, ['rball']], [/tennisball/i, ['tball']],
+  [/blazepod/i, ['pods']], [/revbalance/i, ['board']], [/balance pad/i, ['pad']], [/markierungsteller/i, ['disc']], [/hütchen|kegel/i, ['cone']], [/zahlenkarten/i, ['cards']],
+  [/^(puck|stock)$/i, ['stick']], [/matte/i, ['mat']]];
+const gear = store.get('apc.gear.v1', {});
+const hasGear = k => gear[k] !== false;
+const gearNeeds = m => { const out = []; (m.equipment || []).forEach(e => { if (/optional/i.test(e)) return; const hit = GEAR_MAP.find(([re]) => re.test(e)); if (hit && !out.some(o => o.join() === hit[1].join())) out.push(hit[1]); }); return out; };
+const gearMissing = m => [...new Set(gearNeeds(m).filter(alt => !alt.some(hasGear)).map(alt => alt.map(k => GEAR_NAME[k]).join(' oder ')))];
+const gearOk = m => !gearMissing(m).length;
+const gearWarn = m => { const x = gearMissing(m); return x.length ? 'Nicht alle Trainingsgeräte vorhanden: ' + x.join(', ') : ''; };
+function gearHTML(){
+  return `<section class="gear" id="gear"><div class="gear-head"><div><p class="eyebrow">Trainings-Equipment</p><p class="gear-sum" id="gear-sum"></p></div>
+    <button class="btn btn-ghost btn-small" id="gear-tog" aria-expanded="${!!gearOpen}" aria-controls="gear-body">${gearOpen ? 'Zuklappen' : 'Geräte bearbeiten'}</button></div>
+    <div id="gear-body" ${gearOpen ? '' : 'hidden'}>
+      <div class="gear-btns"><button class="btn btn-ghost btn-small" id="gear-all">Alle verfügbar</button><button class="btn btn-ghost btn-small" id="gear-none">Alle nicht verfügbar</button></div>
+      ${GEAR.map(([h, L]) => `<h3>${h}</h3><div class="gear-grid">${L.map(([k, n, svg]) => `<label class="gear-t"><input type="checkbox" data-gear="${k}" ${hasGear(k) ? 'checked' : ''} aria-label="${n} verfügbar"><svg viewBox="0 0 52 44" aria-hidden="true">${svg}</svg>${n}</label>`).join('')}</div>`).join('')}
+    </div></section>`;
+}
+let gearOpen = false;
+function gearRefresh(){
+  const n = GEAR_ALL.filter(([k]) => hasGear(k)).length, ok = MISSIONS.filter(gearOk).length;
+  const sum = $('gear-sum'); if (sum) sum.innerHTML = `<b>${n} von ${GEAR_ALL.length}</b> Geräten verfügbar · ${ok} von ${MISSIONS.length} Trainings möglich`;
+  document.querySelectorAll('[data-gear]').forEach(i => { i.checked = hasGear(i.dataset.gear); });
+  MISSIONS.forEach(m => { const w = $('gw-' + m.id); if (w) w.textContent = gearWarn(m); });
+}
+function bindGear(){
+  const save = () => { store.set('apc.gear.v1', gear); gearRefresh(); };
+  $('gear-tog').onclick = () => { gearOpen = !gearOpen; $('gear-body').hidden = !gearOpen; $('gear-tog').setAttribute('aria-expanded', gearOpen); $('gear-tog').textContent = gearOpen ? 'Zuklappen' : 'Geräte bearbeiten'; };
+  $('gear-all').onclick = () => { GEAR_ALL.forEach(([k]) => delete gear[k]); save(); };
+  $('gear-none').onclick = () => { GEAR_ALL.forEach(([k]) => { gear[k] = false; }); save(); };
+  document.querySelectorAll('[data-gear]').forEach(i => i.onchange = () => { if (i.checked) delete gear[i.dataset.gear]; else gear[i.dataset.gear] = false; save(); });
+  gearRefresh();
+}
 const leastDone = list => list.slice().sort((a, b) => timesDone(a) - timesDone(b) || MISSIONS.indexOf(a) - MISSIONS.indexOf(b))[0];
 function recommend(feel, today){
   const AV = MISSIONS.filter(m => !isLocked(m)), low = AV.filter(m => m.load === 'niedrig'), g = gameSoon();
@@ -3687,13 +3772,19 @@ function renderCenter(){
           <p class="mc2-why">${wc >= tgt ? 'Wochenziel erreicht – Bonus gesichert!' : `Noch ${tgt - wc} ${tgt - wc === 1 ? 'Training' : 'Trainings'} bis zum Wochenziel und +50 Bonus-XP.`}</p>
           <div class="mc2-next"><p class="eyebrow">Als Nächstes wartet</p><b>${nx.title}</b>
             <p class="muted">${nx.label} · ${fmtMin(buildTimeline(nx).total)} Min · ${L.max ? 'Halte deinen Rang!' : `Noch ${LV - L.into} XP bis Rang «${L.next}»`}</p></div>
-          <div class="mc2-act"><button class="btn btn-ghost btn-small" data-open="${today.m.id}">Nochmals trainieren</button>
+          <div class="mc2-act">${gearOk(today.m) ? `<button class="btn btn-ghost btn-small" data-open="${today.m.id}">Nochmals trainieren</button>` : ''}
             <button class="mc2-link" id="mc2-other">Anderes Training</button></div>
         </div>
         <div class="mc2-art"><div class="demo" id="mc2-fig"></div></div>
       </article>`;
   } else {
-    const r = recommend(feel, today), m = r.m;
+    const r = recommend(feel, today);
+    if (!gearOk(r.m)){   // Vorschlag braucht fehlende Geräte: passendes Training mit allen Geräten wählen, möglichst gleiche Belastung
+      const OK = MISSIONS.filter(x => !isLocked(x) && gearOk(x)), alt = leastDone(OK.filter(x => x.load === r.m.load)) || leastDone(OK.filter(x => x.load !== 'hoch')) || leastDone(OK);
+      if (alt){ r.why = `Für «${r.m.title}» fehlen Geräte – heute passt dieses Training. ` + r.why.replace(/^Laut Wochenplan[^.]*\./, '').trim(); r.m = alt; }
+      else r.none = true;
+    }
+    const m = r.m, blocked = MISSIONS.filter(x => !isLocked(x) && !gearOk(x));
     mainHTML = `
       <div class="mc2-coach"><div class="mc2-bubble"><small>Coach · ${DAYS[(new Date().getDay() + 6) % 7][1]}</small><h1>${hello} ${PROFILE.name}! Wie fühlst du dich heute?</h1></div></div>
       ${dayContextHTML()}
@@ -3708,8 +3799,11 @@ function renderCenter(){
           <div class="mc2-chips"><span>${fmtMin(buildTimeline(m).total)} Min</span><span class="${m.load}">Belastung ${LOADNAME[m.load] || m.load}</span><span class="xp">+${m.completionXP} XP</span>${questDone ? '' : '<span class="xp">Quest +25</span>'}</div>
           <p class="mc2-why">${r.why}</p>
           ${m.equipment.length ? `<p class="equip-line"><b>Equipment</b> ${m.equipment.join(' · ')}</p>` : ''}
-          <div class="mc2-act"><button class="btn btn-primary" data-open="${m.id}">Los geht's <span class="arrow" aria-hidden="true"></span></button>
+          ${r.none ? `<p class="gear-warn">${gearWarn(m)}. Unter Trainings lassen sich die verfügbaren Geräte anpassen.</p>` : ''}
+          <div class="mc2-act">${r.none ? '' : `<button class="btn btn-primary" data-open="${m.id}">Los geht's <span class="arrow" aria-hidden="true"></span></button>`}
             <button class="mc2-link" id="mc2-other">Anderes Training wählen</button></div>
+          ${blocked.length ? `<details class="mc2-gear"><summary>${blocked.length} ${blocked.length === 1 ? 'Training' : 'Trainings'} ausgeblendet, weil Geräte fehlen</summary>
+            ${blocked.map(x => `<div class="mc2-gear-row"><div><b>${x.title}</b><span class="muted">${x.label} · Belastung ${x.load}</span><span class="gear-warn">${gearWarn(x)}</span></div></div>`).join('')}</details>` : ''}
         </div>
         <div class="mc2-art"><div class="demo" id="mc2-fig"></div></div>
       </article>`;
@@ -6377,6 +6471,7 @@ const Demo = (() => {
     [`Mission Center: ${PROFILE.name} sagt, wie es geht – der Coach schlägt das passende Training vor.`, () => { renderCenter(); show('center'); hl('.mc2-feels'); }],
     ['Das empfohlene Training mit Dauer, Belastung und XP – plus Wochenziel und Tages-Quest.', () => hl('.mc2-rec')],
     ['Alle Trainings im Überblick, sortiert nach Schwerpunkt.', () => openMissions()],
+    ['Trainings-Equipment: abhaken, was da ist. «Heute» schlägt nur Trainings mit allen Geräten vor.', () => { gearOpen = true; openMissions(); hl('#gear'); }],
     ['Off-Ice im Club ausgelassen? Set 29 ersetzt es zu Hause, inklusive Ausdauerblock.', () => openBriefing(setId(29))],
     ['Vor dem Start: Kraft, Rumpf, Koordination und Ausdauer laufen als Zirkel in Runden.', () => { openBriefing(setId(28)); hl('#screen-briefing .plan.sec-main'); }],
     ['Nach «Mission starten» kommt zuerst der Aufbau: Material und Abstände je Übung, dann «Aufbau fertig?».', () => openSetup()],
