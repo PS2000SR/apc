@@ -5448,7 +5448,7 @@ function onPhaseEnter(p, i, prev){
   stage.scrollTop = 0;
   { const ctl = p.type === 'EXERCISE_RUNNING' || p.type === 'EXERCISE_COUNTDOWN', bar = $('pctrl');
     bar.hidden = !ctl;
-    bar.innerHTML = ctl ? backBigHTML() + pauseBigHTML() : ''; }
+    bar.innerHTML = ctl ? backBigHTML() + pauseBigHTML() + fwdBigHTML() : ''; }
   if (after) after();
   onPhaseTick(p, Engine.remaining());
 }
@@ -6314,6 +6314,8 @@ const PB_ICO = { pause:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden
 function pauseBigHTML(){ const on = Engine.paused; return `<button class="pause-big${on ? ' on' : ''}" id="pause-big" aria-pressed="${on}">${on ? PB_ICO.play + 'Weiter' : PB_ICO.pause + 'Pause'}</button>`; }
 function syncPauseBig(){ const b = $('pause-big'); if (b) b.outerHTML = pauseBigHTML(); }
 function backBigHTML(){ return `<button class="back-big" id="back-big"${Engine.backTarget() < 0 ? ' disabled' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15M10 6l-6 6 6 6"/></svg>Zurück</button>`; }
+/* Vorwärts: überspringt die laufende Übung bzw. den Satz; zählt als übersprungen (Bericht, Tages-Quest, Saisonpunkte) */
+function fwdBigHTML(){ return `<button class="back-big" id="fwd-big"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12H5M14 6l6 6-6 6"/></svg>Vorwärts</button>`; }
 ['pause', 'resume', 'skip', 'stop'].forEach(k => { const f = Engine[k]; Engine[k] = function(){ const r = f.apply(this, arguments); syncPauseBig(); return r; }; });
 document.addEventListener('click', e => {
   if (!e.target.closest || !e.target.closest('#pause-big') || !Engine.active) return;
@@ -6324,6 +6326,11 @@ document.addEventListener('click', e => {
 document.addEventListener('click', e => {
   if (!e.target.closest || !e.target.closest('#back-big') || !Engine.active) return;
   Sound.duck(false); Engine.back();
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest || !e.target.closest('#fwd-big') || !Engine.active) return;
+  if (!$('pause').hidden) closePause();
+  Voice.stop(); Sound.duck(false); Engine.skip();
 });
 
 /* ---- Pause ---- */
@@ -6475,7 +6482,7 @@ const Demo = (() => {
     ['Off-Ice im Club ausgelassen? Set 29 ersetzt es zu Hause, inklusive Ausdauerblock.', () => openBriefing(setId(29))],
     ['Vor dem Start: Kraft, Rumpf, Koordination und Ausdauer laufen als Zirkel in Runden.', () => { openBriefing(setId(28)); hl('#screen-briefing .plan.sec-main'); }],
     ['Nach «Mission starten» kommt zuerst der Aufbau: Material und Abstände je Übung, dann «Aufbau fertig?».', () => openSetup()],
-    ['Im Training: Animation und Zeit. Es gibt Zurück und Pause, aber kein Weiter.', () => { layer.classList.add('high'); demoPlayer(); }],
+    ['Im Training: Animation und Zeit, dazu Zurück, Pause und Vorwärts. Übersprungenes zählt im Bericht.', () => { layer.classList.add('high'); demoPlayer(); }],
     ['Nach dem Training: Wie streng war\'s? Wie viel Spass hat\'s gemacht?', () => { layer.classList.remove('high'); endPlayer(); show('center'); feedbackFlow({ steps:['strain', 'fun', 'pain'], training:true, title:'Wie war\'s?', onDone:() => {} }); tap('.fbk [data-v="4"]', 1300); }],
     [`Tut etwas weh? ${PROFILE.name} tippt die Stelle direkt am Körper an.`, () => { closeFb(); feedbackFlow({ steps:['area', 'level'], title:'Wie war\'s?', preset:{ sel:['knie-l'] }, onDone:() => {} }); tap('.fbk path[data-area="schulter-r"]', 1200); }],
     ['Fortschritt: Rang, Level und Saison auf einen Blick.', () => { closeFb(); openProgress(); }],
