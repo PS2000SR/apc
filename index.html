@@ -651,6 +651,8 @@ body.voice-off .stage .coach p{font-size:clamp(1.4rem,3.6vw,2rem)}
 .p-ladder{stroke:var(--gold);stroke-width:2.5}
 .p-box{fill:var(--panel-2);stroke:var(--line);stroke-width:2}
 .p-boxtop{fill:var(--gold)}
+.fig.clip{overflow:hidden} .p-rail{stroke:var(--muted);stroke-width:3;stroke-linecap:round;fill:none}
+.p-road{fill:var(--panel-2)} .p-roadline{stroke:var(--muted);stroke-width:2;stroke-dasharray:14 12;opacity:.6} .p-stair{fill:var(--panel-2);stroke:var(--line);stroke-width:2} .p-stairtop{fill:var(--muted);opacity:.55}
 .p-hurdle{fill:none;stroke:var(--gold);stroke-width:4;stroke-linejoin:round}
 .p-kb{fill:#4A5568;stroke:var(--silver);stroke-width:1.6}
 .p-kbh{stroke:var(--silver);stroke-width:3.2;stroke-linecap:round}
@@ -1486,6 +1488,14 @@ Object.assign(EXERCISES, {
   dualThink:    { anim:'ladder', name:'Dual Task – Denken & Bewegen', goal:'Multitasking, Fokus unter Belastung', instruction:'In Bewegung bleiben (Leiter, Skater Jumps oder Ausfallschritte) und dabei die Rechenaufgaben lösen. Laut antworten.', coach:'Bewegen und denken!', calls:'math' }
 });
 
+/* ---- Draussen: Berg und Treppe (Set 30) ---- */
+Object.assign(EXERCISES, {
+  hillSprint:  { anim:'hillSprint', name:'Bergsprint', goal:'Explosiver Antritt wie beim ersten Skating-Schritt', instruction:'Am Rand der Quartierstrasse vom Start-Teller mit vollem Tempo bergauf bis zum Ziel-Teller (ca. 40 m). Knie hoch, Arme kräftig mitnehmen, kurze schnelle Schritte. In der Pause ruhig zurückgehen.', coach:'Knie hoch, Arme arbeiten!' },
+  hillRun:     { anim:'hillRun', name:'Berglauf – ganze Steigung', goal:'Ausdauer und Beinkraft für das dritte Drittel', instruction:'Die ganze Steigung (ca. 150–200 m) in zügigem, gleichmässigem Tempo hochlaufen – nicht sprinten. Oben bist du gefordert, aber nicht am Ende. In der Pause locker zurückgehen.', coach:'Gleichmässig bis ganz oben!' },
+  stairRun:    { anim:'stairRun', name:'Treppenlauf – jede Stufe', goal:'Schnelle Füsse und Ausdauer', instruction:'Mit kurzen, schnellen Schritten jede Stufe hochlaufen, auf den Fussballen. Oben umdrehen und ruhig hinuntergehen – nie hinunterrennen. Wieder hoch, bis die Zeit um ist.', coach:'Schnelle Füsse!' },
+  stairDouble: { anim:'stairDouble', name:'Treppe – jede zweite Stufe', goal:'Beinkraft für den Skating-Abstoss', instruction:'Kräftig jede zweite Stufe nehmen, ganzen Fuss aufsetzen und über das vordere Bein hochdrücken. Arme arbeiten mit. Hinunter immer gehen, Hand am Geländer.', coach:'Kräftig hochdrücken!' },
+  stairCalf:   { anim:'stairCalf', name:'Wadenheben an der Stufe', goal:'Starke Waden und stabile Fussgelenke', instruction:'Mit den Fussballen auf die unterste Stufe stellen, die Fersen hängen über die Kante. Langsam hoch auf die Zehenspitzen und kontrolliert tief. Mit einer Hand am Geländer halten.', coach:'Langsam hoch, langsam runter!' }
+});
 /* ---- Neue Übungen mit den neuen Geräten (Nov. 2026) ---- */
 Object.assign(EXERCISES, {
   kbGoblet:     { anim:'kbGoblet', name:'Kettlebell Goblet Squat', goal:'Beinkraft und tiefe Skating-Position', instruction:'Kettlebell (6 kg) an den Griffen vor der Brust halten. Füsse schulterbreit, langsam tief in die Hocke, Brust bleibt oben, Knie zeigen über die Zehen. Kräftig hochdrücken.', coach:'Brust hoch, tief runter, kräftig hoch!' },
@@ -1921,7 +1931,24 @@ const SETS = [
     cSub:'Mobility auf der Matte – Hüfte, Leiste und Rücken.',
     cooldown:[ W('hip9090', 90, S2), W('pigeon', 90, S2), W('matAdductor', 60), W('matOpenBook', 90, S2), W('hamstring', 60, S2), W('catcow', 40), W('breathSeat', 60) ],
     cTip:'Komplettes Off-Ice geschafft – genau so wie im Club!',
-    challenge:{ name:'Full Session', text:'Zieh das komplette Training durch, ohne eine Übung zu überspringen!', levels:['Speed und Kraft','dazu 3 Seil-Intervalle','alles komplett'] } })
+    challenge:{ name:'Full Session', text:'Zieh das komplette Training durch, ohne eine Übung zu überspringen!', levels:['Speed und Kraft','dazu 3 Seil-Intervalle','alles komplett'] } }),
+  makeSet({ n:30, isNew:true, load:'hoch', title:'Hill & Stairs', tagline:'Bergauf stark. Bis zum Schluss.', desc:'Draussen: Bergsprints und Berglauf auf der Quartierstrasse, dann ein Treppenzirkel hinter dem Haus.',
+    pillars:['Schnelligkeit','Kraft','Ausdauer'], equipment:['Markierungsteller','Laufschuhe'], ort:'Draussen: Quartierstrasse und Treppe hinter dem Haus', dauer:'35',
+    why:'Bergauf musst du die Knie hoch und kräftig abstossen – genau wie beim ersten Skating-Schritt. Die Treppe macht die Füsse schnell und die Beine ausdauernd für das dritte Drittel.',
+    wSub:'Locker einlaufen, dann Fussgelenke, Knie und Hüfte bereit machen!',
+    warmup:WARM8(), wTip:'Gute Laufschuhe anziehen. Bei Dämmerung eine Leuchtweste tragen. Ist die Treppe nass oder vereist, mach heute ein anderes Training.',
+    mSub:'Erst kurze Bergsprints, dann zweimal die ganze Steigung, zum Schluss der Treppenzirkel. Die Pausen sind zum Zurückgehen.',
+    main:[ { repeat:5, between:RF(60), proAfter:false, steps:[ W('hillSprint', 12, { name:'Bergsprint (ca. 40 m)' }) ] },
+           { repeat:2, between:RF(120), proAfter:false, steps:[ W('hillRun', 60) ] },
+           { repeat:3, between:RF(60), proAfter:false, circuit:true, steps:[
+             W('stairRun', 30, { name:'Station 1: Treppe, jede Stufe' }), RF(30),
+             W('stairDouble', 30, { name:'Station 2: Treppe, jede zweite Stufe' }), RF(30),
+             W('stairCalf', 30, { name:'Station 3: Wadenheben' }) ] } ],
+    tip:'Auf der Strasse am Rand bleiben und auf Autos achten. Treppe hinunter immer gehen. Warst du heute schon auf dem Eis, reichen 3 Bergsprints, 1 Berglauf und 2 Treppenrunden.',
+    cSub:'Locker auslaufen und dehnen.',
+    cooldown:[ W('jog', 60, { name:'Locker auslaufen' }), ...COOL_STD() ],
+    cTip:'Stark bergauf! Trink genug und gönn den Waden Erholung.',
+    challenge:{ name:'Uphill Battle', text:'Jeder Bergsprint so schnell wie der erste – auch der letzte!', levels:['4 Bergsprints','5 Bergsprints','5 Bergsprints, alle gleich schnell'] } })
 ];
 const MISSIONS = SETS.filter(m => m.playable);
 const LOAD_TXT = { hoch:'Hoch', mittel:'Mittel', niedrig:'Niedrig' };
@@ -2517,6 +2544,35 @@ Object.assign(ANIMS, {
     boxStepFast:{ ...ANIMS.stepUp, period:1.9, _cum:null }
   });
 })();
+/* ---- Berg und Treppe (Set 30): Hang als geneigte Szene, Treppe läuft schräg nach unten weg ---- */
+(() => {
+  const lean = (keys, dt, knee) => keys.map(k => { const o = { ...k, t:(k.t || 0) + dt };
+    ['ll1', 'rl1'].forEach(j => { if ((o[j] || 0) > 40) o[j] += knee; }); return o; });
+  const road = (ph, sp) => `<rect class="p-road" x="-80" y="${GROUND + 3}" width="400" height="140"/>` +
+    X.scroll(ph, sp, 50, x => `<line class="p-roadline" x1="${f1(x)}" y1="${GROUND + 16}" x2="${f1(x + 22)}" y2="${GROUND + 16}"/>`);
+  // Treppe: Stufen laufen schräg nach unten weg (per = Stufen pro Halbzyklus), die Füsse stehen jeweils auf einer Stufe
+  const stairs = (ph, per, xs, SD, SH) => { const s = ((ph * per) % 1 + 1) % 1; let out = '';
+    for (let k = -4; k <= 7; k++){ const x = xs + (k - s) * SD, y = GROUND + 2 - (k - s) * SH;
+      out += `<rect class="p-stair" x="${f1(x)}" y="${f1(y)}" width="${SD + 1}" height="${f1(260 - y)}"/><rect class="p-stairtop" x="${f1(x)}" y="${f1(y)}" width="${SD}" height="3"/>`; }
+    return out; };
+  const mir2 = k => ({ ...k, ll1:k.rl1, ll2:k.rl2, rl1:k.ll1, rl2:k.ll2, la1:k.ra1, la2:k.ra2, ra1:k.la1, ra2:k.la2 });
+  // Jede Stufe: Fuss eine Stufe höher aufsetzen, hochdrücken, anderes Knie zieht hoch
+  const s1A = { t:14, rl1:58, rl2:-16, ll1:-8, ll2:-24, la1:-34, la2:26, ra1:48, ra2:116, lift:0, w:1 };
+  const s1B = { t:10, rl1:6, rl2:-2, ll1:74, ll2:-8, la1:34, la2:106, ra1:-28, ra2:26, lift:7.5, w:1 };
+  // Jede zweite Stufe: weiterer, kräftiger Schritt
+  const s2A = { t:20, rl1:84, rl2:-24, ll1:-20, ll2:-36, la1:-40, la2:22, ra1:56, ra2:122, lift:0, w:1 };
+  const s2B = { t:12, rl1:6, rl2:-2, ll1:86, ll2:-10, la1:38, la2:110, ra1:-32, ra2:22, lift:13, w:1 };
+  const CS = 15, step = (x, n, w) => `<rect class="p-stair" x="${x}" y="${GROUND + 2 - n * CS}" width="${w}" height="${n * CS + 20}"/><rect class="p-stairtop" x="${x}" y="${GROUND + 2 - n * CS}" width="${w}" height="3"/>`;
+  Object.assign(ANIMS, {
+    hillSprint: { ...ANIMS.sprintCones, tilt:-11, clip:true, period:.52, _cum:null, keys:lean(ANIMS.sprintCones.keys, 13, 10), props:(J, ph) => road(ph, 1.2) },
+    hillRun:    { ...ANIMS.jog, tilt:-11, clip:true, period:.7, _cum:null, keys:lean(ANIMS.jog.keys, 11, 6), props:(J, ph) => road(ph, .7) },
+    stairRun:   { view:'side', clip:true, noGround:true, period:.8, keys:[ s1A, s1B, mir2(s1A), mir2(s1B) ], props:(J, ph) => stairs(ph, 2, CX - 36, 38, 15) },
+    stairDouble:{ view:'side', clip:true, noGround:true, period:1.3, keys:[ s2A, s2B, mir2(s2A), mir2(s2B) ], props:(J, ph) => stairs(ph, 4, CX - 44, 28, 13) },
+    stairCalf:  { view:'side', clip:true, noGround:true, period:2.2, keys:[ { t:2, la1:8, la2:16, ra1:-24, ra2:-50, dx:-4, lift:CS, w:.8 }, { t:2, la1:8, la2:16, ra1:-24, ra2:-50, dx:-4, lift:CS + 9, w:.8 } ],
+                  props:() => step(CX - 12, 1, 140) + step(CX + 30, 2, 120) + step(CX + 68, 3, 80) +
+                    `<path class="p-rail" d="M${CX + 22} ${GROUND - 13} V${GROUND - 90} M${CX + 14} ${GROUND - 88} L${CX + 130} ${GROUND - 130}"/>` }
+  });
+})();
 
 /* =====================================================================
    3. EINSTELLUNGEN & FORTSCHRITT – nur lokal im Browser
@@ -2910,11 +2966,12 @@ const Anim = {
   items:new Set(),
   mount(host, id, opts){
     const def = ANIMS[id]; if (!host || !def) return;
-    host.innerHTML = `<svg class="fig" viewBox="0 0 240 240" aria-hidden="true">
+    host.innerHTML = `<svg class="fig${def.clip ? ' clip' : ''}" viewBox="0 0 240 240" aria-hidden="true">
       <defs><filter id="softT" x="-50%" y="-200%" width="200%" height="500%"><feGaussianBlur stdDeviation="3.2"/></filter></defs>
-      <line class="f-ground" x1="30" y1="${GROUND + 2}" x2="210" y2="${GROUND + 2}"/>
-      <ellipse class="f-shadow" cx="120" cy="${GROUND + 2}" rx="40" ry="4"/>
-      <g data-p="props"></g><g data-p="body"></g></svg>`;   // Avatar ohne Nummer auf Shirt und Hose
+      <g${def.tilt ? ` transform="rotate(${def.tilt} ${CX} ${GROUND + 2})"` : ''}>
+      ${def.noGround ? '' : `<line class="f-ground" x1="${def.tilt ? -60 : 30}" y1="${GROUND + 2}" x2="${def.tilt ? 300 : 210}" y2="${GROUND + 2}"/>`}
+      <ellipse class="f-shadow" cx="120" cy="${GROUND + 2}" rx="40" ry="4"${def.noGround ? ' style="display:none"' : ''}/>
+      <g data-p="props"></g><g data-p="body"></g></g></svg>`;   // Avatar ohne Nummer auf Shirt und Hose
     const svg = host.firstElementChild, parts = {};
     svg.querySelectorAll('[data-p]').forEach(n => { parts[n.dataset.p] = n; });
     parts.shadow = svg.querySelector('.f-shadow');
@@ -5037,7 +5094,7 @@ function openBriefing(id){
     </div>
     <div class="coach"><span class="tag">Coach</span><p>${m.greeting}</p></div>
     <div>
-      <p class="eyebrow red">${m.label} · ${m.isNew ? 'Neue Geräte' : 'Phase 1 Athletic Foundation'}</p>
+      <p class="eyebrow red">${m.label} · ${m.n === 30 ? 'Draussen' : m.isNew ? 'Neue Geräte' : 'Phase 1 Athletic Foundation'}</p>
       ${m.isNew ? '<span class="new-badge">Neues Training</span>' : ''}
       <h1>${m.title}</h1>
       ${m.tagline ? `<p class="lead muted">${m.tagline}</p>` : ''}
@@ -5102,6 +5159,8 @@ const SETUP = {
   hhHop:suHurd(1), hurdleWalk:suHurd(1), hhRun:suHurd(.8), hhSprint:suHurd(.8, 5),
   lateralBounds:{ k:'spot', it:'cone', items:[['Hütchen', 1]] }, hhLat:{ k:'spot', it:'hurdle', items:[['Mini-Hürden', 1]] },
   boxJump:suBox, stepUp:suBox, boxOver:suBox, dropStick:suBox, bulgarian:suBox, boxStepUp:suBox, boxStepFast:suBox,
+  hillSprint:suL(2, 40, 'Markierungsteller', { lab:['Start', 'Ziel'], note:'Bergauf am Rand der Quartierstrasse' }),
+  hillRun:suL(2, 175, 'Markierungsteller', { dLab:'ca. 150–200', lab:['Unten', 'Oben'], note:'Ganze Steigung, ca. 150–200 m' }),
   boxSprint:{ ...suBox, then:5, items:[['Box', 1], ['Markierungsteller', 1]] }
 };
 function setupSVG(s){
@@ -5117,7 +5176,7 @@ function setupSVG(s){
       const n = s.n, dx = n > 1 ? (x1 - x0) / (n - 1) : 0, xs = Array.from({ length:n }, (_, i) => x0 + i * dx);
       g += `<line class="su-path" x1="${x0}" y1="${cy - 12}" x2="${x1}" y2="${cy - 12}"/>`;
       xs.forEach((x, i) => { g += dot(x, cy - 12, marker(i)); if (s.lab && s.lab[i]) g += `<text class="su-t" x="${x}" y="${cy - 28}" text-anchor="middle">${s.lab[i]}</text>`; });
-      if (n <= 3) for (let i = 0; i < n - 1; i++) g += dim(xs[i] + (i ? 2 : 0), xs[i + 1] - (i < n - 2 ? 2 : 0), cy + 16, SU_FMT(s.d) + ' m');
+      if (n <= 3) for (let i = 0; i < n - 1; i++) g += dim(xs[i] + (i ? 2 : 0), xs[i + 1] - (i < n - 2 ? 2 : 0), cy + 16, (s.dLab || SU_FMT(s.d)) + ' m');
       else g += dim(xs[0], xs[1], cy + 16, 'je ' + SU_FMT(s.d) + ' m');
       break; }
     case 'zig': {
