@@ -827,6 +827,9 @@ body.voice-off .stage .coach p{font-size:clamp(1.4rem,3.6vw,2rem)}
 .px-list li{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding:2px 0}
 .px-del{border:0;background:none;color:var(--muted);font-size:1.4rem;cursor:pointer;min-width:44px;min-height:44px}
 .pc.xday{border-left-color:var(--gold)}
+.pc.recov{border-left-color:#ff8a3d;color:#ff8a3d}
+.pe-min{width:72px}
+.pe-hint{flex-basis:100%;margin:0;font-size:.85rem}
 .pc.camp{border-left-color:var(--ice);color:var(--ice)} .pc.camp.special{border-left-color:var(--gold);color:var(--gold)}
 .pc.camp.nb{border:1px dashed currentColor;border-left-width:3px;background:transparent}
 /* Camps und Spezialtrainings */
@@ -3264,6 +3267,12 @@ const painSrcTxt = s => s === 'training' ? 'nach Training' : s === 'club' ? 'Clu
 const camps = store.get('apc.camps.v1', []);
 const saveCamps = () => store.set('apc.camps.v1', camps);
 const CAMP_KIND = { camp:'Camp', special:'Spezialtraining' };
+/* Recovery (Sauna, Whirlpool) nur im Eltern-Bereich: apc.recov.v1 { 'JJJJ-MM-TT': { sauna:Min, whirl:Min } } (0 = nicht gemacht) */
+const recov = store.get('apc.recov.v1', {});
+const saveRecov = () => { Object.keys(recov).forEach(k => { if (!recov[k].sauna && !recov[k].whirl) delete recov[k]; }); store.set('apc.recov.v1', recov); };
+const RECOV_KIND = [['sauna', 'Sauna', 16], ['whirl', 'Whirlpool', 12]];   // [Schlüssel, Name, Standard-Minuten]
+const recovOn = d => recov[ymd(d)] || null;
+const recovChipsHTML = d => { const r = recovOn(d); return r ? RECOV_KIND.filter(([k]) => r[k]).map(([k, n]) => `<span class="pc recov">${n} ${r[k]} Min</span>`).join('') : ''; };
 const campsOn = d => { const k = ymd(d); return camps.filter(c => c.from && c.from <= k && k <= c.to); };
 const campDays = c => Math.round((ymdDate(c.to) - ymdDate(c.from)) / 864e5) + 1;
 const campLen = c => { const n = campDays(c); return n === 1 ? '1 Tag' : `${n} Tage`; };
@@ -3292,6 +3301,7 @@ function planChipsHTML(d, e, dt){
     d.tour ? `<span class="pc game">Turnier${d.gameTime && !d.match ? ' ' + d.gameTime : ''}${d.match ? '' : mk('game')}</span>` : '',
     m ? `<span class="pc apc load-b-${m.load}">Set ${m.n} · ${m.title}</span>` : '',
     d.extra ? '<span class="pc xday">Zusatztraining</span>' : '',
+    dt ? recovChipsHTML(dt) : '',
     ...(dt ? campsOn(dt).map(c => `<span class="pc camp ${c.kind}${c.booked ? '' : ' nb'}">${CAMP_KIND[c.kind]}: ${rpEsc(c.name)}${c.booked ? '' : ' (nicht gebucht)'}</span>`) : []),
     d.note ? `<span class="pc xday">${rpEsc(d.note)}</span>` : d.custom && !d.extra ? '<span class="pc xday">angepasst</span>' : ''
   ].join('') || '<span class="pc rest">Ruhetag</span>';
@@ -3405,6 +3415,9 @@ function plannerHTML(){
         <label for="pe-set" class="pe-lbl">APC-Training</label>
         <select id="pe-set"><option value="">Kein Set</option>${MISSIONS.filter(m => !isLocked(m)).map(m => `<option value="${m.id}" ${d.set === m.id ? 'selected' : ''}>Set ${m.n} · ${m.title} (${LOAD_TXT[m.load]})</option>`).join('')}</select>
       </div>
+      ${tpl ? '' : `<div class="pe-row"><span class="pe-lbl">Recovery</span>${RECOV_KIND.map(([k, n, def]) => { const r = recovOn(addDays(mon, i)) || {}, on = !!r[k];
+          return `<label class="pe-tog"><input type="checkbox" id="pe-${k}" ${on ? 'checked' : ''}> ${n}</label><input class="pe-time pe-min" id="pe-${k}-min" type="number" inputmode="numeric" min="1" max="90" value="${on ? r[k] : def}" ${on ? '' : 'disabled'} aria-label="${n} Minuten"><span class="muted">Min</span>`; }).join('')}
+        <p class="muted pe-hint">Für Kinder: Sauna max. 2 Gänge à 6–10 Min, untere Bank. Whirlpool 10–15 Min. Keine Wärme bei frischer Prellung oder Schwellung.</p></div>`}
       ${tpl ? '' : `<div class="pe-row"><label for="pe-note" class="pe-lbl">Notiz</label><input type="text" id="pe-note" class="pselect" maxlength="40" value="${rpEsc(d.note || '')}" placeholder="z. B. Training verschoben"></div>`}
       <div class="pe-row"><button class="btn btn-ghost btn-small" id="pe-close">Fertig</button>${!tpl && isCustom(d) ? '<button class="btn btn-ghost btn-small" id="pe-reset">Wie Standardwoche</button>' : ''}</div>
     </div>`;
@@ -3458,6 +3471,11 @@ function bindPlanner(){
     $('pe-ice-time').onchange = e => { d.iceTime = e.target.value; upd(); };
     $('pe-game-time').onchange = e => { d.gameTime = e.target.value; upd(); };
     $('pe-set').onchange = e => { d.set = e.target.value; upd(); };
+    if (!tpl){ const key = ymd(addDays(mon, dayIdx(plannerOpen))), rr = () => { saveRecov(); redraw(); };
+      RECOV_KIND.forEach(([k, , def]) => {
+        $('pe-' + k).onchange = e => { const r = recov[key] = recov[key] || {}; r[k] = e.target.checked ? (Math.round(+$('pe-' + k + '-min').value) || def) : 0; rr(); };
+        $('pe-' + k + '-min').onchange = e => { const v = Math.min(90, Math.max(1, Math.round(+e.target.value) || def)); (recov[key] = recov[key] || {})[k] = v; rr(); };
+      }); }
     if (!tpl) $('pe-note').onchange = e => { d.note = e.target.value.trim(); upd(); };
     $('pe-close').onclick = () => { plannerOpen = null; redraw(); };
     const r = $('pe-reset'); if (r) r.onclick = () => { const dt = addDays(mon, dayIdx(plannerOpen)); daysStore[ymd(dt)] = tplDay(dt); saveDays(); redraw(); };
@@ -4554,7 +4572,8 @@ function reportData(from, to){
   return { from, to, F, T, len, log, prev, mins:sum(log), prevMins:sum(prev), days:Object.keys(dayMin).length, dayMin, streak, weeks, fullWeeks, target,
     pil, bySet, fbl, aS:avg(fbl.map(e => e.fb.strain)), aF:avg(fbl.filter(e => e.fb.fun).map(e => e.fb.fun)),
     pains, prevPains, byArea, recs, badges, tests, skips:log.filter(e => e.skips).length, club,
-    camps:camps.filter(c => c.booked && c.from && ymdDate(c.to).getTime() >= F && ymdDate(c.from).getTime() <= T).sort((a, b) => a.from < b.from ? -1 : 1) };
+    camps:camps.filter(c => c.booked && c.from && ymdDate(c.to).getTime() >= F && ymdDate(c.from).getTime() <= T).sort((a, b) => a.from < b.from ? -1 : 1),
+    recov:Object.keys(recov).filter(k => { const t = ymdDate(k).getTime(); return t >= F && t <= T && (recov[k].sauna || recov[k].whirl); }).sort().map(k => Object.assign({ day:k }, recov[k])) };
 }
 
 const CLUB_WHY_TXT = Object.assign(Object.fromEntries(CLUB_WHY), { ohne:'ohne Grund' });
@@ -4594,6 +4613,15 @@ const RP_CLUB = { done:'#1E9E6A', missed:'#E08A00', cancelled:'#C3CAD4', open:'#
 const RP_CLUB_ROWS = [['on', 'On-Ice'], ['off', 'Off-Ice'], ['game', 'Matches / Turniere']];
 const rpQuote = x => { const n = x.done + x.missed; return n ? Math.round(x.done / n * 100) + ' %' : '–'; };
 const rpCampTotals = D => { const x = campSplit(D.camps); return [['Total Camps', x.camp, false], ['Total Übernachtungen', x.stay, false], ['Total Spezialtrainings', x.special, false], ['Gesamttotal', x.total, true]]; };
+/* Recovery: Sauna und Whirlpool */
+const rpRecovSum = D => RECOV_KIND.map(([k, n]) => { const L = D.recov.filter(r => r[k]); return { k, n, cnt:L.length, min:L.reduce((s, r) => s + r[k], 0) }; });
+const rpRecovLine = D => rpRecovSum(D).map(x => `${x.n}: ${x.cnt}× · ${x.min} Min`).join(' · ');
+function rpRecovHTML(D){
+  if (!D.recov.length) return '';
+  return `<section class="rp-sec"><h2>Recovery (Sauna und Whirlpool)</h2><table class="rp-tab rp-grid"><thead><tr><th>Datum</th><th class="r">Sauna</th><th class="r">Whirlpool</th></tr></thead><tbody>
+    ${D.recov.map(r => `<tr><td>${rpDate(ymdDate(r.day), { weekday:'short', day:'2-digit', month:'2-digit', year:'numeric' })}</td><td class="r">${r.sauna ? r.sauna + ' Min' : '–'}</td><td class="r">${r.whirl ? r.whirl + ' Min' : '–'}</td></tr>`).join('')}
+    </tbody></table><p class="rp-cap">${rpRecovLine(D)}</p></section>`;
+}
 function rpCampsHTML(D){
   if (!D.camps.length) return '';
   return `<section class="rp-sec"><h2>Camps und Spezialtrainings</h2><table class="rp-tab rp-grid"><thead><tr><th>Art</th><th>Name</th><th>Ort · Veranstalter</th><th>Datum</th><th class="r">Preis</th><th class="r">Übernachtung</th></tr></thead><tbody>
@@ -4689,6 +4717,7 @@ function reportPaperHTML(D){
     ${D.weeks.length >= 2 ? `<section class="rp-sec"><h2>Regelmässigkeit</h2>${rpWeeks(D)}</section>` : ''}
     ${rpClubHTML(D)}
     ${rpCampsHTML(D)}
+    ${rpRecovHTML(D)}
     <div class="rp-two">
       <section class="rp-sec"><h2>Training nach Bereich</h2>${pilRows.length ? `<div class="rp-bars">${pilRows.map(([p, v]) => `<div class="rp-bar"><span>${rpEsc(p)}</span><div><i style="width:${(v / pilMax * 100).toFixed(0)}%"></i></div><b>${Math.round(v)} min</b></div>`).join('')}</div>` : '<p class="rp-empty">Keine Trainings im Zeitraum.</p>'}</section>
       <section class="rp-sec"><h2>Häufigste Sets</h2>${setRows.length ? `<table class="rp-tab"><tbody>${setRows.map(([id, n]) => `<tr><td>${rpEsc(setName(id))}</td><td class="r">${n}×</td></tr>`).join('')}</tbody></table>` : '<p class="rp-empty">–</p>'}</section>
@@ -4902,6 +4931,16 @@ async function buildReportPDF(D){
     ensure(4 * 15 + 16); y += 2;
     rpCampTotals(D).forEach(([l, v, b]) => { txt(l, M + 6, y + 3.5, 8.5, { bold:b, color:b ? C.navy : C.text }); txt(fmtCHF(v), M + CW - 6, y + 3.5, 8.5, { bold:b, color:b ? C.navy : C.text, align:'right' }); y += 15; });
     y += 14;
+  }
+  // Recovery: Sauna und Whirlpool
+  if (D.recov.length){
+    const xs = [M + .55 * CW, M + CW - 6];
+    const head = () => { rect(M, y, CW, 17, C.navy); txt('Datum', M + 6, y + 4.5, 8.3, { bold:true, color:C.white }); ['Sauna', 'Whirlpool'].forEach((h, i) => txt(h, xs[i], y + 4.5, 8.3, { bold:true, color:C.white, align:'right' })); y += 17; };
+    ensure(22 + 17 + 17 * Math.min(3, D.recov.length) + 24); heading('Recovery (Sauna und Whirlpool)'); y += 24; head();
+    D.recov.forEach((r, i) => { if (y + 17 > BOTTOM){ newPage(); head(); } if (i % 2) rect(M, y, CW, 17, col('#F6F8FA'));
+      txt(rpDate(ymdDate(r.day), { weekday:'short', day:'2-digit', month:'2-digit', year:'numeric' }), M + 6, y + 4.5, 8.2);
+      [r.sauna, r.whirl].forEach((v, j) => txt(v ? v + ' Min' : '–', xs[j], y + 4.5, 8.2, { align:'right' })); line(M, y + 17, M + CW, y + 17, C.line); y += 17; });
+    ensure(20); y += 6; y += caption(rpRecovLine(D)) + 14;
   }
   // Zwei Spalten: Bereiche und Sets
   const cW = (CW - 22) / 2, x2 = M + cW + 22;
