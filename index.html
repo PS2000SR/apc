@@ -795,6 +795,55 @@ body.voice-off .stage .coach p{font-size:clamp(1.4rem,3.6vw,2rem)}
 .an-bar div span{display:block;height:100%;border-radius:7px}
 .an-bar b{text-align:right;font-family:var(--f-display)}
 .an-empty{color:var(--muted)}
+/* Analytics: Umschalter und Leistungstests (Dashboard + Detail) */
+.an-tabs{width:100%;max-width:880px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:4px;border-radius:14px;background:var(--panel-2);border:1px solid var(--line)}
+.an-tabs button{min-height:44px;border:0;border-radius:10px;background:transparent;color:var(--muted);font:700 1rem var(--f-display);letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.an-tabs button[aria-selected="true"]{background:var(--ice);color:var(--on-ice)}
+.an-legend .up,.td-val .up,.td-k .up{color:var(--ok)}
+.an-legend .down,.td-val .down,.td-k .down{color:var(--muted)}
+.td-player{width:100%;max-width:880px;display:flex;gap:16px;align-items:center;background:var(--glass);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1.5px solid var(--gold);border-radius:16px;padding:12px 16px;color:var(--text);font:inherit;text-align:left;cursor:pointer}
+.td-ovr{display:flex;flex-direction:column;align-items:center;min-width:64px}
+.td-ovr b{font-family:var(--f-display);font-weight:800;font-size:2.4rem;line-height:1;color:var(--gold);font-variant-numeric:tabular-nums}
+.td-ovr small,.td-attrs small{font-family:var(--f-display);font-weight:700;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.1em}
+.td-attrs{flex:1;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.td-attrs span{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
+.td-attrs b{font-family:var(--f-display);font-weight:800;font-size:1.4rem;font-variant-numeric:tabular-nums}
+.td-info{width:100%;max-width:880px;margin:0}
+.td-grid{width:100%;max-width:880px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.td-card{display:flex;flex-direction:column;gap:6px;text-align:left;background:var(--glass);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:16px;padding:14px 16px;color:var(--text);font:inherit;cursor:pointer;min-width:0}
+.td-card:not([disabled]):hover,.td-card:focus-visible{border-color:var(--ice)}
+.td-card[disabled]{cursor:default;opacity:.7}
+.td-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.td-top b{font-size:1.05rem}
+.td-pb{flex-shrink:0;font:800 .72rem var(--f-display);letter-spacing:.08em;text-transform:uppercase;background:var(--gold);color:#0B1626;padding:3px 8px;border-radius:8px}
+.td-val{font-family:var(--f-display);font-weight:800;font-size:1.8rem;line-height:1.1;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.td-val em{font-style:normal;font-size:.95rem;font-weight:700}
+.td-card svg{width:100%;height:auto;display:block}
+.td-none{color:var(--muted);font-size:.9rem}
+.td-panel{width:min(920px,100%);max-height:calc(100vh - 40px);overflow:auto;text-align:left;gap:14px}
+.td-phead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.td-phead .eyebrow{margin:0}
+.td-phead h2{text-transform:none}
+.td-x{flex-shrink:0;width:44px;height:44px;border-radius:12px;border:0;background:var(--panel-2);color:var(--text);display:grid;place-items:center;cursor:pointer}
+.td-x svg{width:20px;height:20px}
+.td-body{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:16px;align-items:start}
+.td-chart{display:flex;flex-direction:column;gap:8px;min-width:0}
+.td-chart svg{width:100%;height:auto;display:block}
+.td-chart .muted{margin:0;font-size:.9rem}
+.td-side{display:flex;flex-direction:column;gap:10px}
+.td-k{background:var(--panel-2);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:3px}
+.td-k small{color:var(--muted);font-size:.85rem}
+.td-k small:first-child{font-family:var(--f-display);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.12em}
+.td-k b{font-family:var(--f-display);font-weight:800;font-size:1.7rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.td-k em{font-style:normal;font-weight:700}
+.td-k.best{border:1.5px solid var(--gold)}
+.td-k.best b{color:var(--gold)}
+.td-nav{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid var(--line);padding-top:12px}
+.td-dots{display:flex;gap:6px}
+.td-dots i{width:8px;height:8px;border-radius:4px;background:var(--line)}
+.td-dots i.on{width:22px;background:var(--ice)}
+@media (max-width:700px){.td-body{grid-template-columns:minmax(0,1fr)}.td-attrs{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){.td-grid{grid-template-columns:minmax(0,1fr)}.td-nav .btn{flex:1 1 0;min-width:0;font-size:.8rem;padding:6px 8px;letter-spacing:.02em}.td-dots{display:none}}
 /* Club-Protokoll (On-Ice, Off-Ice, Match) und Abweichungen vom Wochenplan */
 .clc{gap:6px}
 .clc-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
@@ -1221,7 +1270,7 @@ html.theme-anim *,html.theme-anim *::before,html.theme-anim *::after{transition:
 })();</script>
 <div id="app" lang="de">
   <header class="topbar">
-    <div class="brand"><div class="mark" aria-hidden="true"><i></i><i></i><i></i></div><b>APC 1.5</b><span>Family Edition</span></div>
+    <div class="brand"><div class="mark" aria-hidden="true"><i></i><i></i><i></i></div><b>APC 1.6</b><span>Family Edition</span></div>
     <div class="toggles" role="group" aria-label="Navigation und Ton">
       <button class="tog" id="btn-home" hidden aria-label="Zum Mission Center"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 L12 3 L21 11 M6 9 V21 H18 V9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lbl">Mission Center</span></button>
       <button class="tog" id="tog-music" aria-pressed="false" hidden>Musik</button>
@@ -4156,11 +4205,11 @@ function openProgress(){
     ${seasonCardHTML()}
     <div class="hub-grid">${playerBtnHTML()}${trophyButtonHTML()}</div>
     <button class="all-trainings" id="btn-records"><span><b>Rekorde &amp; Testtag</b><small>${Object.keys(METRICS).filter(m => recList(m).length).length} von ${Object.keys(METRICS).length} Messwerten erfasst${(progress.tests || []).length ? ' · ' + progress.tests.length + ' Testtag' + (progress.tests.length > 1 ? 'e' : '') : ''}</small></span><span class="arrow" aria-hidden="true"></span></button>
-    <button class="all-trainings" id="btn-analytics"><span><b>Analytics</b><small>${(progress.log || []).filter(e => e.fb && e.fb.strain).length} Feedbacks · Belastung, Spass und Schmerzen auswerten</small></span><span class="arrow" aria-hidden="true"></span></button>
+    <button class="all-trainings" id="btn-analytics"><span><b>Analytics</b><small>${(progress.log || []).filter(e => e.fb && e.fb.strain).length} Feedbacks · ${(progress.tests || []).length} Testtag${(progress.tests || []).length === 1 ? '' : 'e'} als Kurven</small></span><span class="arrow" aria-hidden="true"></span></button>
     <button class="all-trainings" id="btn-log"><span><b>Logbuch</b><small>${(progress.log || []).length} Trainings · Kalender und Liste</small></span><span class="arrow" aria-hidden="true"></span></button>
   </div>`;
   $('btn-log').onclick = () => openLog();
-  $('btn-analytics').onclick = openAnalytics;
+  $('btn-analytics').onclick = () => openAnalytics();
   $('btn-season').onclick = openSeason;
   $('btn-card').onclick = openCard;
   $('btn-trophies').onclick = openTrophies;
@@ -4168,9 +4217,13 @@ function openProgress(){
   show('progress');
 }
 
-/* ---- Analytics: Auswertung der Feedbacks (Belastung, Spass, Schmerzen, Trainings pro Woche) ---- */
-function openAnalytics(){
+/* ---- Analytics: Auswertung der Feedbacks (Belastung, Spass, Schmerzen, Trainings pro Woche)
+   und Leistungstests als Kurven (Dashboard, Antippen öffnet die Detailansicht) ---- */
+let anTab = 'fb';
+function openAnalytics(tab){
   Voice.stop();
+  if (tab === 'fb' || tab === 'tests') anTab = tab;
+  if (anTab === 'tests') return openTestDash();
   const DAY = 864e5, now = Date.now();
   const log = (progress.log || []).slice().sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
   const fbl = log.filter(e => e.fb && e.fb.strain), last = fbl.slice(-20);
@@ -4235,8 +4288,7 @@ function openAnalytics(){
 
   $('screen-analytics').innerHTML = `
   <div class="inner trophies hub">
-    <div class="tr-head"><div><p class="eyebrow">Fortschritt</p><h1>Analytics</h1></div>
-      <button class="btn btn-ghost btn-small" id="btn-an-back"><span class="arrow back" aria-hidden="true"></span> Fortschritt</button></div>
+    ${anHeadHTML()}
     <div class="stats">
       <div class="stat"><small>Feedbacks</small><b>${fbl.length}</b></div>
       <div class="stat"><small>Ø Belastung (letzte 20)</small><b>${aS === null ? '–' : STRAIN[Math.round(aS) - 1][0]}<em>${aS === null ? '' : ' ' + aS.toFixed(1)}</em></b></div>
@@ -4248,8 +4300,134 @@ function openAnalytics(){
     <section class="an-box"><p class="eyebrow">Schmerzen · 90 Tage</p><h3>Nach Körperstelle</h3>${painHTML}<p class="muted">${p30.length} Meldungen in den letzten 30 Tagen.</p></section>
     <section class="an-box"><p class="eyebrow">Spass</p><h3>Beliebteste Sets</h3>${funHTML}</section>
   </div>`;
-  $('btn-an-back').onclick = openProgress;
+  bindAnHead();
   show('analytics');
+}
+
+/* Kopf der Analytics-Seite mit Umschalter «Feedback» / «Leistungstests» */
+function anHeadHTML(){
+  return `<div class="tr-head"><div><p class="eyebrow">Fortschritt</p><h1>Analytics</h1></div>
+      <button class="btn btn-ghost btn-small" id="btn-an-back"><span class="arrow back" aria-hidden="true"></span> Fortschritt</button></div>
+    <div class="an-tabs" role="tablist" aria-label="Analytics-Bereich">
+      <button role="tab" data-antab="fb" aria-selected="${anTab === 'fb'}">Feedback</button>
+      <button role="tab" data-antab="tests" aria-selected="${anTab === 'tests'}">Leistungstests</button>
+    </div>`;
+}
+function bindAnHead(){
+  $('btn-an-back').onclick = openProgress;
+  document.querySelectorAll('#screen-analytics [data-antab]').forEach(b => b.onclick = () => { if (b.dataset.antab !== anTab){ openAnalytics(b.dataset.antab); $('screen-analytics').scrollTop = 0; } });
+}
+
+/* ---- Leistungstests: Dashboard mit kleinen Kurven pro Test, Antippen öffnet die Detailansicht ----
+   Grundlage sind nur die gespeicherten Testtage (progress.tests). Höher in der Kurve = besser,
+   auch bei Zeiten (kleinere Zeit = besser). */
+function testSeries(m){
+  return (progress.tests || []).filter(t => t.values && t.values[m] !== undefined)
+    .map(t => ({ at:t.at, v:t.values[m] })).sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
+}
+const tBetter = (m, a, b) => METRICS[m].lower ? a < b : a > b;          // ist a besser als b?
+function tBestIdx(S, m){ let k = 0; S.forEach((p, i) => { if (tBetter(m, p.v, S[k].v)) k = i; }); return k; }
+function fmtDiff(m, d){
+  const a = Math.abs(d), n = METRICS[m].step < 1 ? a.toFixed(2) : String(Math.round(a));
+  return (d < 0 ? '−' : '+') + n + ' ' + METRICS[m].unit;
+}
+function tDelta(m, S){
+  if (S.length < 2) return null;
+  const a = S[S.length - 2].v, b = S[S.length - 1].v;
+  return { d:b - a, up:tBetter(m, b, a), down:tBetter(m, a, b) };
+}
+const fmtShort = iso => new Date(iso).toLocaleDateString('de-CH', { day:'2-digit', month:'2-digit', year:'2-digit' });
+function testChartSVG(m, S, big){
+  const W = big ? 640 : 300, H = big ? 290 : 96, pl = big ? 34 : 10, pr = big ? 34 : 10, pt = big ? 46 : 12, pb = big ? 40 : 12;
+  const vs = S.map(p => p.v), mn = Math.min(...vs), mx = Math.max(...vs), span = (mx - mn) || 1;
+  const lo = mn - span * .15, hi = mx + span * .15;
+  const x = i => S.length < 2 ? W / 2 : pl + i * (W - pl - pr) / (S.length - 1);
+  const y = v => { if (mx === mn) return (pt + H - pb) / 2; let t = (v - lo) / (hi - lo); if (METRICS[m].lower) t = 1 - t; return pt + (1 - t) * (H - pt - pb); };
+  const bi = tBestIdx(S, m), P = S.map((p, i) => [x(i), y(p.v)]), f = n => n.toFixed(1);
+  const grid = big ? [0, .5, 1].map(t => { const yy = pt + t * (H - pt - pb); return `<line x1="${pl}" x2="${W - pr}" y1="${f(yy)}" y2="${f(yy)}" stroke="var(--line)" stroke-width="1"/>`; }).join('')
+                   : `<line x1="${pl}" x2="${W - pr}" y1="${H - 4}" y2="${H - 4}" stroke="var(--line)" stroke-width="1"/>`;
+  const line = P.length > 1 ? `<polyline points="${P.map(q => f(q[0]) + ',' + f(q[1])).join(' ')}" fill="none" stroke="var(--ice)" stroke-width="${big ? 3.5 : 3}" stroke-linejoin="round" stroke-linecap="round"/>` : '';
+  const dots = P.map((q, i) => i === bi ? '' : big ? `<circle cx="${f(q[0])}" cy="${f(q[1])}" r="6" fill="var(--panel)" stroke="var(--ice)" stroke-width="3"/>`
+                                                 : (i === P.length - 1 ? `<circle cx="${f(q[0])}" cy="${f(q[1])}" r="5" fill="var(--panel)" stroke="var(--ice)" stroke-width="3"/>` : '')).join('');
+  const best = `<circle cx="${f(P[bi][0])}" cy="${f(P[bi][1])}" r="${big ? 10 : 7}" fill="var(--gold)"><title>Bestwert ${fmtVal(m, S[bi].v)}</title></circle>`;
+  let labels = '';
+  if (big){
+    labels = S.map((p, i) => `<text x="${f(P[i][0])}" y="${f(P[i][1] - 16)}" fill="${i === bi ? 'var(--gold)' : 'var(--text)'}" font-size="14" font-weight="700" text-anchor="middle">${fmtVal(m, p.v).replace(' ' + METRICS[m].unit, '')}</text>`).join('')
+           + S.map((p, i) => (S.length <= 8 || i % Math.ceil(S.length / 8) === 0 || i === S.length - 1) ? `<text x="${f(P[i][0])}" y="${H - 12}" fill="var(--muted)" font-size="12" text-anchor="middle">${fmtShort(p.at)}</text>` : '').join('');
+  }
+  return `<svg viewBox="0 0 ${W} ${H}" ${big ? `role="img" aria-label="${METRICS[m].name}: ${S.length} Testtage, Bestwert ${fmtVal(m, S[bi].v)}"` : 'aria-hidden="true"'}>${grid}${line}${dots}${best}${labels}</svg>`;
+}
+function openTestDash(){
+  const T = (progress.tests || []).slice().sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
+  const A = attributes(), last = T[T.length - 1], prev = T[T.length - 2];
+  const cards = TEST_METRICS.map((m, i) => {
+    const S = testSeries(m), dl = tDelta(m, S);
+    if (!S.length) return `<button class="td-card" data-tm="${i}" disabled><span class="td-top"><b>${METRICS[m].name}</b></span><span class="td-val">–</span><span class="td-none">Noch kein Wert</span></button>`;
+    const cur = S[S.length - 1].v, isBest = tBestIdx(S, m) === S.length - 1;
+    return `<button class="td-card" data-tm="${i}" aria-label="${METRICS[m].name}: ${fmtVal(m, cur)}. Details öffnen">
+      <span class="td-top"><b>${METRICS[m].name}</b>${isBest && S.length > 1 ? '<span class="td-pb">Bestwert</span>' : ''}</span>
+      <span class="td-val">${fmtVal(m, cur)}${dl ? `<em class="${dl.up ? 'up' : dl.down ? 'down' : ''}">${dl.up ? '▲' : dl.down ? '▼' : '='} ${dl.d ? fmtDiff(m, dl.d) : 'gleich'}</em>` : ''}</span>
+      ${S.length > 1 ? testChartSVG(m, S, false) : '<span class="td-none">Ab dem zweiten Testtag entsteht eine Kurve.</span>'}
+    </button>`; }).join('');
+  const d = testDue();
+  $('screen-analytics').innerHTML = `
+  <div class="inner trophies hub">
+    ${anHeadHTML()}
+    ${T.length ? `
+    <button class="td-player" id="btn-td-card" aria-label="Spielerkarte öffnen">
+      <span class="td-ovr"><b>${A.OVR}</b><small>Gesamt</small></span>
+      <span class="td-attrs">${ATTRS.map(([k, n]) => `<span><small>${n}</small><b>${A[k]}</b></span>`).join('')}</span>
+    </button>
+    <p class="muted td-info">Letzter Testtag ${fmtDate(last.at)}${prev ? ' · Vergleich mit ' + fmtDate(prev.at) : ''} · ${d.due ? 'nächster Testtag fällig' : 'nächster Testtag in ' + Math.max(1, testDays() - d.days) + ' Tagen'}</p>
+    <div class="td-grid">${cards}</div>
+    <div class="an-legend"><span><b class="up">▲</b> besser als beim letzten Test</span><span><b class="down">▼</b> schwächer</span><span><i style="background:var(--gold);border-radius:50%"></i>Bestwert</span><span>Höher in der Kurve = besser</span></div>`
+    : `<section class="an-box"><p class="eyebrow">Leistungstests</p><h3>Noch kein Testtag</h3>
+      <p class="muted">Nach dem ersten Testtag erscheinen hier deine Werte, ab dem zweiten auch die Kurven.</p>
+      <button class="btn btn-primary btn-small" id="btn-td-test">Testtag starten <span class="arrow" aria-hidden="true"></span></button></section>`}
+  </div>
+  <div class="overlay td-ov" id="td-ov" hidden></div>`;
+  bindAnHead();
+  { const b = $('btn-td-card'); if (b) b.onclick = openCard; }
+  { const b = $('btn-td-test'); if (b) b.onclick = openTestday; }
+  document.querySelectorAll('#screen-analytics [data-tm]').forEach(b => b.onclick = () => openTestDetail(+b.dataset.tm));
+  show('analytics');
+}
+function openTestDetail(i){
+  const ov = $('td-ov'); if (!ov) return;
+  const list = TEST_METRICS.filter(m => testSeries(m).length);
+  const m = TEST_METRICS[i], S = testSeries(m); if (!S.length) return;
+  const pos = list.indexOf(m), dl = tDelta(m, S), bi = tBestIdx(S, m), first = S[0].v, cur = S[S.length - 1].v;
+  const tot = cur - first, totUp = tBetter(m, cur, first), totDown = tBetter(m, first, cur);
+  const nav = k => { const mm = list[(pos + k + list.length) % list.length]; return { i:TEST_METRICS.indexOf(mm), name:METRICS[mm].name }; };
+  const pv = nav(-1), nx = nav(1);
+  ov.innerHTML = `
+  <div class="panel td-panel" role="dialog" aria-modal="true" aria-labelledby="td-h">
+    <div class="td-phead">
+      <div><p class="eyebrow">Leistungstests · ${S.length} Testtag${S.length > 1 ? 'e' : ''}</p><h2 id="td-h">${METRICS[m].name}</h2></div>
+      <button class="td-x" id="td-close" aria-label="Schliessen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="td-body">
+      <div class="td-chart">${S.length > 1 ? testChartSVG(m, S, true) : `<p class="an-empty">Erst ein Testtag (${fmtDate(S[0].at)}): ${fmtVal(m, cur)}. Ab dem zweiten Testtag entsteht hier die Kurve.</p>`}
+        <p class="muted">${METRICS[m].how}</p></div>
+      <div class="td-side">
+        <div class="td-k"><small>Letzter vs. vorheriger</small><b>${fmtVal(m, cur)}</b>${dl ? `<em class="${dl.up ? 'up' : dl.down ? 'down' : ''}">${dl.up ? '▲' : dl.down ? '▼' : '='} ${dl.d ? fmtDiff(m, dl.d) : 'gleich'}</em><small>${fmtDate(S[S.length - 2].at)}: ${fmtVal(m, S[S.length - 2].v)}</small>` : '<small>noch kein Vergleich</small>'}</div>
+        ${S.length > 1 ? `<div class="td-k"><small>Seit dem ersten Test</small><b class="${totUp ? 'up' : totDown ? 'down' : ''}">${tot ? fmtDiff(m, tot) : 'gleich'}</b><small>${fmtDate(S[0].at)}: ${fmtVal(m, first)}</small></div>` : ''}
+        <div class="td-k best"><small>Bestwert</small><b>${fmtVal(m, S[bi].v)}</b><small>am ${fmtDate(S[bi].at)}${bi === S.length - 1 && S.length > 1 ? ' · neuer Bestwert!' : ''}</small></div>
+      </div>
+    </div>
+    ${list.length > 1 ? `<div class="td-nav">
+      <button class="btn btn-ghost btn-small" id="td-prev"><span class="arrow back" aria-hidden="true"></span> ${pv.name}</button>
+      <span class="td-dots" aria-label="Test ${pos + 1} von ${list.length}">${list.map(x => `<i${x === m ? ' class="on"' : ''}></i>`).join('')}</span>
+      <button class="btn btn-ghost btn-small" id="td-next">${nx.name} <span class="arrow" aria-hidden="true"></span></button>
+    </div>` : ''}
+  </div>`;
+  const close = () => { ov.hidden = true; ov.innerHTML = ''; const c = document.querySelector(`#screen-analytics [data-tm="${i}"]`); if (c) c.focus(); };
+  $('td-close').onclick = close;
+  ov.onclick = e => { if (e.target === ov) close(); };
+  ov.onkeydown = e => { if (e.key === 'Escape') close(); };
+  { const b = $('td-prev'); if (b) b.onclick = () => openTestDetail(pv.i); }
+  { const b = $('td-next'); if (b) b.onclick = () => openTestDetail(nx.i); }
+  ov.hidden = false; $('td-close').focus();
 }
 
 /* ---- Eltern: Wochenplan und Einstellungen ---- */
@@ -5935,11 +6113,13 @@ function openRecords(){
     <p class="muted">Trage Ergebnisse aus den Tages-Challenges ein. Jeder neue Bestwert bringt XP und verbessert deine Spielerkarte.</p>
     <div class="rec-list">${rows}</div>
     ${testHistoryHTML()}
+    ${(progress.tests || []).length ? '<button class="all-trainings" id="btn-rec-curves"><span><b>Alle Kurven ansehen</b><small>Analytics · Leistungstests</small></span><span class="arrow" aria-hidden="true"></span></button>' : ''}
     <button class="btn btn-primary" data-back><span class="arrow back" aria-hidden="true"></span> Zurück zum Mission Center</button>
   </div>`;
   bindRecordInputs($('screen-records'), openRecords);
   bindBack($('screen-records'));
   const tb = $('btn-testday2'); if (tb) tb.onclick = openTestday;
+  { const cb = $('btn-rec-curves'); if (cb) cb.onclick = () => openAnalytics('tests'); }
   show('records');
 }
 function bindBack(root){ root.querySelectorAll('[data-back]').forEach(b => b.onclick = () => { stopWatch(); renderCenter(); show('center'); }); }
